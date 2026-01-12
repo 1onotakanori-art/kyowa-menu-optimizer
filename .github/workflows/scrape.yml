@@ -1,0 +1,38 @@
+name: 🔄 Weekly Menu Scrape
+
+on:
+  schedule:
+    # 毎週日曜日 21:00（JST）に実行 = UTC 12:00
+    - cron: '0 12 * * 0'
+  workflow_dispatch:  # 手動トリガー用
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Create output directory
+        run: mkdir -p docs/menus
+      
+      - name: Run menu scraper
+        run: node prescrap.js
+      
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/menus/ docs/available-dates.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "📅 Update menus: $(date '+%Y-%m-%d %H:%M:%S')" && git push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
