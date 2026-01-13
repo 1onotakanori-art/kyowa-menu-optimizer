@@ -24,6 +24,9 @@ async function fetchMenus(dateLabel) {
       waitUntil: 'networkidle'
     });
     console.log('✅ サイト読み込み完了');
+    
+    // ページの完全なレンダリングを待つ
+    await page.waitForTimeout(2000);
 
     // タブ切り替え：「今週来週」を選択
     console.log('📑 タブ切り替え: 「今週」を選択');
@@ -230,8 +233,20 @@ async function expandAllMenus(page) {
  * @returns {Promise<Array>}
  */
 async function scrapeMenus(page) {
-  // メニュー要素の存在確認
-  await page.waitForSelector('.menu-content', { timeout: 5000 });
+  // メニュー要素の存在確認（タイムアウトを大幅に増やす）
+  try {
+    await page.waitForSelector('.menu-content', { timeout: 15000 });
+  } catch (err) {
+    // タイムアウトしても続行（デバッグ用に追加情報を出力）
+    const menuCount = await page.$$eval('.menu-content', els => els.length);
+    console.log(`⚠️  メニュー要素が見つかりません（${menuCount}個）。ページの状態を確認します...`);
+    
+    // ページの現在の内容をログ
+    const pageContent = await page.content();
+    if (!pageContent.includes('menu-content')) {
+      console.log('❌ ページに menu-content クラスが含まれていません');
+    }
+  }
 
   // メニュー数を取得
   const menuCount = await page.$$eval('.menu-content', els => els.length);
