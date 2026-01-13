@@ -30,12 +30,36 @@ jobs:
       - name: Run menu scraper
         run: node prescrap.js
       
+      - name: Debug Git Config
+        run: |
+          echo "=== Git Config ==="
+          git config --list
+          echo "=== Remote URL ==="
+          git remote -v
+          echo "=== Branch Info ==="
+          git branch -a
+          echo "=== Working Directory ==="
+          pwd
+          ls -la docs/menus/ || echo "docs/menus does not exist"
+          echo "=== Available dates file ==="
+          ls -la docs/available-dates.json || echo "docs/available-dates.json does not exist"
+
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/menus/ docs/available-dates.json
+          echo "=== Git Status ==="
+          git status
+          echo "=== Git Diff Staged ==="
+          git diff --staged --name-only
+          
           if ! git diff --quiet || ! git diff --staged --quiet; then
+            echo "📝 Changes detected, committing..."
             git commit -m "📅 Update menus: $(date '+%Y-%m-%d %H:%M:%S')"
-            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
+            echo "🚀 Pushing to GitHub..."
+            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main
+            echo "✅ Push successful"
+          else
+            echo "ℹ️ No changes to commit"
           fi
