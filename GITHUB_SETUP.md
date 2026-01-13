@@ -1,52 +1,86 @@
-# 🚀 GitHub Actions + Pages への完全ガイド（初心者向け）
+# 🚀 GitHub Pages デプロイ完了ガイド
 
 ## 📚 このドキュメントについて
 
-このガイドは **GitHub 初心者向け** です。スクリーンショット付きで、ステップバイステップで説明します。
-
-**所要時間：約 15 分（GitHub アカウント作成含む）**
+このアプリは **GitHub Pages + JavaScript** で完全に動作します。自宅の PC を常時起動する必要はありません！
 
 ---
 
-## ✅ 完了した改造内容（確認用）
+## ✅ セットアップ完了内容
 
-すでに以下の準備ができています：
+すでに以下が完了しています：
 
-| 項目 | 内容 | ファイル |
-|-----|-----|--------|
-| GitHub Actions ワークフロー | 毎週日曜日 21:00 JST に自動実行 | `.github/workflows/scrape.yml` |
-| フロントエンド | サーバー不要（JavaScript で動作） | `docs/app.js` |
-| データ保存先 | GitHub Pages 用 | `docs/menus/` |
-| メニューデータ | 9 日分が既に準備完了 | `docs/menus/*.json` |
-
----
-
-## 🎯 このガイドで実現すること
-
-1. **GitHub アカウント作成**
-2. **リポジトリ（コード保管庫）を作成**
-3. **ローカルのコードを GitHub に保存（push）**
-4. **GitHub Pages で公開**
-5. **自動更新の設定**
-6. **iPhone から アクセス可能に！**
+| 項目 | 内容 |
+|-----|-----|
+| **GitHub リポジトリ** | ✅ 作成済み |
+| **GitHub Pages** | ✅ 公開中 |
+| **フロントエンド** | ✅ JavaScript + HTML/CSS で動作 |
+| **メニューデータ** | ✅ 8 日分が GitHub に保存済み |
+| **自動更新** | ❌ 手動更新（ローカル実行 + Git push） |
 
 ---
 
-## ⏰ 所要時間目安
+## 🌐 アクセス方法
 
-| ステップ | 内容 | 時間 |
-|---------|-----|------|
-| 1 | GitHub アカウント作成 | 5 分 |
-| 2 | リポジトリ作成 | 2 分 |
-| 3 | Git 設定・push | 5 分 |
-| 4 | GitHub Pages 有効化 | 2 分 |
-| 5 | GitHub Actions 実行 | 5 分 |
-| 6 | アクセステスト | 1 分 |
-| **合計** | | **20 分** |
+### iPhone での利用（推奨）
+
+**1. Safari を開く**
+
+**2. アドレスバーに入力**
+```
+https://1onotakanori-art.github.io/kyowa-menu-optimizer/
+```
+
+**3. エンター キーを押す**
+
+**4. ホーム画面に追加**（アプリのように使用可能）
+- 下部の共有ボタン（↑） → 「ホーム画面に追加」
+
+### Mac での利用
+
+```bash
+# ローカルサーバー起動（オプション）
+cd /Users/onotakanori/kyowa-menu-optimizer/docs
+python3 -m http.server 8000
+
+# ブラウザで以下にアクセス
+# http://localhost:8000
+```
 
 ---
 
-# 📖 詳細ステップ
+## 📅 メニュー更新方法
+
+メニューは **自動更新されません**。週 1 回、ローカルでメニューを取得して GitHub に保存します。
+
+### 手順（5 分で完了）
+
+**1. ターミナルを開く**
+```bash
+cd /Users/onotakanori/kyowa-menu-optimizer
+```
+
+**2. メニューをスクレイピング**
+```bash
+node prescrap.js
+```
+
+**3. GitHub に保存**
+```bash
+git add docs/menus/ docs/available-dates.json
+git commit -m "Update: Weekly menus for $(date '+%Y-%m-%d')"
+git push origin main
+```
+
+### ✅ 成功確認
+- ターミナルに「成功」と表示されたら OK
+- 1-2 分後、iPhone で Safari をリロード（下に引っ張る）
+
+詳細は [MAINTENANCE.md](MAINTENANCE.md) を参照してください。
+
+---
+
+## 📊 現在の構成
 
 ## ❶ GitHub アカウント作成
 
