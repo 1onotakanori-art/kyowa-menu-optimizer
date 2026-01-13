@@ -99,7 +99,7 @@ class MenuOptimizationApp {
       }
 
       // JSON ファイルから直接読込（GitHub Pages）
-      const response = await fetch(`./menus/${isoDate}.json`);
+      const response = await fetch(`./menus/menus_${isoDate}.json`);
       if (!response.ok) {
         throw new Error(`メニュー「${selectedDateLabel}」が見つかりません`);
       }
