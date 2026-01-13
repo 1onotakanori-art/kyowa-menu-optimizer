@@ -1,0 +1,25 @@
+﻿2026-01-13T12:39:44.0976763Z ##[group]Run git config user.name "github-actions[bot]"
+2026-01-13T12:39:44.0977175Z [36;1mgit config user.name "github-actions[bot]"[0m
+2026-01-13T12:39:44.0977603Z [36;1mgit config user.email "41898282+github-actions[bot]@users.noreply.github.com"[0m
+2026-01-13T12:39:44.0978085Z [36;1mgit add docs/menus/ docs/available-dates.json[0m
+2026-01-13T12:39:44.0978390Z [36;1m[0m
+2026-01-13T12:39:44.0978643Z [36;1mif ! git diff --quiet || ! git diff --staged --quiet; then[0m
+2026-01-13T12:39:44.0979025Z [36;1m  echo "📝 Changes detected, committing..."[0m
+2026-01-13T12:39:44.0979396Z [36;1m  git commit -m "📅 Update menus: $(date '+%Y-%m-%d %H:%M:%S')"[0m
+2026-01-13T12:39:44.0979758Z [36;1m  echo "🚀 Pushing to GitHub..."[0m
+2026-01-13T12:39:44.0980006Z [36;1m  git push[0m
+2026-01-13T12:39:44.0980204Z [36;1m  echo "✅ Push successful"[0m
+2026-01-13T12:39:44.0980427Z [36;1melse[0m
+2026-01-13T12:39:44.0980609Z [36;1m  echo "ℹ️ No changes to commit"[0m
+2026-01-13T12:39:44.0980864Z [36;1mfi[0m
+2026-01-13T12:39:44.1012862Z shell: /usr/bin/bash -e {0}
+2026-01-13T12:39:44.1013082Z env:
+2026-01-13T12:39:44.1013534Z   GITHUB_TOKEN: ***
+2026-01-13T12:39:44.1013724Z ##[endgroup]
+2026-01-13T12:39:44.1163883Z 📝 Changes detected, committing...
+2026-01-13T12:39:44.1222618Z [main 6983830] 📅 Update menus: 2026-01-13 12:39:44
+2026-01-13T12:39:44.1223057Z  1 file changed, 1 insertion(+), 11 deletions(-)
+2026-01-13T12:39:44.1225220Z 🚀 Pushing to GitHub...
+2026-01-13T12:39:44.3233413Z remote: Permission to 1onotakanori-art/kyowa-menu-optimizer.git denied to github-actions[bot].
+2026-01-13T12:39:44.3234732Z fatal: unable to access 'https://github.com/1onotakanori-art/kyowa-menu-optimizer/': The requested URL returned error: 403
+2026-01-13T12:39:44.3264723Z ##[error]Process completed with exit code 128.

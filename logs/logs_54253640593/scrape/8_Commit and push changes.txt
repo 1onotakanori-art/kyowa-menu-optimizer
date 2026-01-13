@@ -1,0 +1,19 @@
+﻿2026-01-13T13:25:48.1741750Z ##[group]Run git config user.name "github-actions[bot]"
+2026-01-13T13:25:48.1743189Z [36;1mgit config user.name "github-actions[bot]"[0m
+2026-01-13T13:25:48.1743682Z [36;1mgit config user.email "41898282+github-actions[bot]@users.noreply.github.com"[0m
+2026-01-13T13:25:48.1744134Z [36;1mgit add docs/menus/ docs/available-dates.json[0m
+2026-01-13T13:25:48.1744415Z [36;1m[0m
+2026-01-13T13:25:48.1744663Z [36;1mif ! git diff --quiet || ! git diff --staged --quiet; then[0m
+2026-01-13T13:25:48.1745037Z [36;1m  echo "📝 Changes detected, committing..."[0m
+2026-01-13T13:25:48.1745400Z [36;1m  git commit -m "📅 Update menus: $(date '+%Y-%m-%d %H:%M:%S')"[0m
+2026-01-13T13:25:48.1746220Z [36;1m  echo "🚀 Pushing to GitHub..."[0m
+2026-01-13T13:25:48.1746467Z [36;1m  git push[0m
+2026-01-13T13:25:48.1746664Z [36;1m  echo "✅ Push successful"[0m
+2026-01-13T13:25:48.1746943Z [36;1melse[0m
+2026-01-13T13:25:48.1747234Z [36;1m  echo "ℹ️ No changes to commit"[0m
+2026-01-13T13:25:48.1747580Z [36;1mfi[0m
+2026-01-13T13:25:48.1780720Z shell: /usr/bin/bash -e {0}
+2026-01-13T13:25:48.1780944Z env:
+2026-01-13T13:25:48.1781446Z   GITHUB_TOKEN: ***
+2026-01-13T13:25:48.1781632Z ##[endgroup]
+2026-01-13T13:25:48.1928808Z ℹ️ No changes to commit

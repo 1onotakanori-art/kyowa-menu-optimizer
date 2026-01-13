@@ -1,0 +1,25 @@
+﻿2026-01-13T12:52:49.8054302Z ##[group]Run git config user.name "github-actions[bot]"
+2026-01-13T12:52:49.8054719Z [36;1mgit config user.name "github-actions[bot]"[0m
+2026-01-13T12:52:49.8055154Z [36;1mgit config user.email "41898282+github-actions[bot]@users.noreply.github.com"[0m
+2026-01-13T12:52:49.8055630Z [36;1mgit add docs/menus/ docs/available-dates.json[0m
+2026-01-13T12:52:49.8055904Z [36;1m[0m
+2026-01-13T12:52:49.8056162Z [36;1mif ! git diff --quiet || ! git diff --staged --quiet; then[0m
+2026-01-13T12:52:49.8056529Z [36;1m  echo "📝 Changes detected, committing..."[0m
+2026-01-13T12:52:49.8056892Z [36;1m  git commit -m "📅 Update menus: $(date '+%Y-%m-%d %H:%M:%S')"[0m
+2026-01-13T12:52:49.8057252Z [36;1m  echo "🚀 Pushing to GitHub..."[0m
+2026-01-13T12:52:49.8057515Z [36;1m  git push[0m
+2026-01-13T12:52:49.8057714Z [36;1m  echo "✅ Push successful"[0m
+2026-01-13T12:52:49.8057932Z [36;1melse[0m
+2026-01-13T12:52:49.8058296Z [36;1m  echo "ℹ️ No changes to commit"[0m
+2026-01-13T12:52:49.8058606Z [36;1mfi[0m
+2026-01-13T12:52:49.8090840Z shell: /usr/bin/bash -e {0}
+2026-01-13T12:52:49.8091059Z env:
+2026-01-13T12:52:49.8091520Z   GITHUB_TOKEN: ***
+2026-01-13T12:52:49.8091708Z ##[endgroup]
+2026-01-13T12:52:49.8243691Z 📝 Changes detected, committing...
+2026-01-13T12:52:49.8303781Z [main 1b7dc72] 📅 Update menus: 2026-01-13 12:52:49
+2026-01-13T12:52:49.8304427Z  1 file changed, 1 insertion(+), 11 deletions(-)
+2026-01-13T12:52:49.8306112Z 🚀 Pushing to GitHub...
+2026-01-13T12:52:51.4705040Z To https://github.com/1onotakanori-art/kyowa-menu-optimizer
+2026-01-13T12:52:51.4705691Z    7c05861..1b7dc72  main -> main
+2026-01-13T12:52:51.4748278Z ✅ Push successful

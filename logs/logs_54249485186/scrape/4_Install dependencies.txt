@@ -1,0 +1,11 @@
+﻿2026-01-13T12:37:18.5827012Z ##[group]Run npm install
+2026-01-13T12:37:18.5827384Z [36;1mnpm install[0m
+2026-01-13T12:37:18.5866111Z shell: /usr/bin/bash -e {0}
+2026-01-13T12:37:18.5866431Z ##[endgroup]
+2026-01-13T12:37:19.8617964Z 
+2026-01-13T12:37:19.8625803Z added 70 packages, and audited 71 packages in 1s
+2026-01-13T12:37:19.8626407Z 
+2026-01-13T12:37:19.8626886Z 15 packages are looking for funding
+2026-01-13T12:37:19.8627430Z   run `npm fund` for details
+2026-01-13T12:37:19.8628571Z 
+2026-01-13T12:37:19.8628816Z found 0 vulnerabilities

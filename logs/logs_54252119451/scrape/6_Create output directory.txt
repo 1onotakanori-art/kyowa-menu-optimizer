@@ -1,0 +1,4 @@
+﻿2026-01-13T13:06:47.0657989Z ##[group]Run mkdir -p docs/menus
+2026-01-13T13:06:47.0658315Z [36;1mmkdir -p docs/menus[0m
+2026-01-13T13:06:47.0693148Z shell: /usr/bin/bash -e {0}
+2026-01-13T13:06:47.0693419Z ##[endgroup]

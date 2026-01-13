@@ -1,0 +1,72 @@
+﻿2026-01-13T13:21:48.7484182Z ##[group]Run actions/checkout@v4
+2026-01-13T13:21:48.7485032Z with:
+2026-01-13T13:21:48.7485870Z   token: ***
+2026-01-13T13:21:48.7486357Z   repository: 1onotakanori-art/kyowa-menu-optimizer
+2026-01-13T13:21:48.7486956Z   ssh-strict: true
+2026-01-13T13:21:48.7487349Z   ssh-user: git
+2026-01-13T13:21:48.7487745Z   persist-credentials: true
+2026-01-13T13:21:48.7488188Z   clean: true
+2026-01-13T13:21:48.7488582Z   sparse-checkout-cone-mode: true
+2026-01-13T13:21:48.7489049Z   fetch-depth: 1
+2026-01-13T13:21:48.7489427Z   fetch-tags: false
+2026-01-13T13:21:48.7489835Z   show-progress: true
+2026-01-13T13:21:48.7490216Z   lfs: false
+2026-01-13T13:21:48.7490578Z   submodules: false
+2026-01-13T13:21:48.7490976Z   set-safe-directory: true
+2026-01-13T13:21:48.7491670Z ##[endgroup]
+2026-01-13T13:21:48.8551786Z Syncing repository: 1onotakanori-art/kyowa-menu-optimizer
+2026-01-13T13:21:48.8553654Z ##[group]Getting Git version info
+2026-01-13T13:21:48.8554666Z Working directory is '/home/runner/work/kyowa-menu-optimizer/kyowa-menu-optimizer'
+2026-01-13T13:21:48.8556171Z [command]/usr/bin/git version
+2026-01-13T13:21:48.8631774Z git version 2.52.0
+2026-01-13T13:21:48.8658413Z ##[endgroup]
+2026-01-13T13:21:48.8673011Z Temporarily overriding HOME='/home/runner/work/_temp/ce7bf525-8040-49b8-80b9-9a945702c8da' before making global git config changes
+2026-01-13T13:21:48.8674373Z Adding repository directory to the temporary git global config as a safe directory
+2026-01-13T13:21:48.8686178Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/kyowa-menu-optimizer/kyowa-menu-optimizer
+2026-01-13T13:21:48.8723716Z Deleting the contents of '/home/runner/work/kyowa-menu-optimizer/kyowa-menu-optimizer'
+2026-01-13T13:21:48.8727378Z ##[group]Initializing the repository
+2026-01-13T13:21:48.8731411Z [command]/usr/bin/git init /home/runner/work/kyowa-menu-optimizer/kyowa-menu-optimizer
+2026-01-13T13:21:48.8831727Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-01-13T13:21:48.8833466Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-01-13T13:21:48.8834997Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-01-13T13:21:48.8836363Z hint: call:
+2026-01-13T13:21:48.8836948Z hint:
+2026-01-13T13:21:48.8837705Z hint: 	git config --global init.defaultBranch <name>
+2026-01-13T13:21:48.8838318Z hint:
+2026-01-13T13:21:48.8838871Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-01-13T13:21:48.8839765Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-01-13T13:21:48.8840475Z hint:
+2026-01-13T13:21:48.8840850Z hint: 	git branch -m <name>
+2026-01-13T13:21:48.8841272Z hint:
+2026-01-13T13:21:48.8842102Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-01-13T13:21:48.8843487Z Initialized empty Git repository in /home/runner/work/kyowa-menu-optimizer/kyowa-menu-optimizer/.git/
+2026-01-13T13:21:48.8847982Z [command]/usr/bin/git remote add origin https://github.com/1onotakanori-art/kyowa-menu-optimizer
+2026-01-13T13:21:48.8882232Z ##[endgroup]
+2026-01-13T13:21:48.8882956Z ##[group]Disabling automatic garbage collection
+2026-01-13T13:21:48.8886419Z [command]/usr/bin/git config --local gc.auto 0
+2026-01-13T13:21:48.8913766Z ##[endgroup]
+2026-01-13T13:21:48.8914426Z ##[group]Setting up auth
+2026-01-13T13:21:48.8920524Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-01-13T13:21:48.8949506Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-01-13T13:21:48.9291064Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-01-13T13:21:48.9320745Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-01-13T13:21:48.9537480Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-01-13T13:21:48.9567363Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-01-13T13:21:48.9816482Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-01-13T13:21:48.9850961Z ##[endgroup]
+2026-01-13T13:21:48.9851765Z ##[group]Fetching the repository
+2026-01-13T13:21:48.9859538Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +a0ff4b1c155d33a8eae266490c430afcafd8603c:refs/remotes/origin/main
+2026-01-13T13:21:49.1832813Z From https://github.com/1onotakanori-art/kyowa-menu-optimizer
+2026-01-13T13:21:49.1833874Z  * [new ref]         a0ff4b1c155d33a8eae266490c430afcafd8603c -> origin/main
+2026-01-13T13:21:49.1863104Z ##[endgroup]
+2026-01-13T13:21:49.1863796Z ##[group]Determining the checkout info
+2026-01-13T13:21:49.1866334Z ##[endgroup]
+2026-01-13T13:21:49.1871000Z [command]/usr/bin/git sparse-checkout disable
+2026-01-13T13:21:49.1909859Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-01-13T13:21:49.1936355Z ##[group]Checking out the ref
+2026-01-13T13:21:49.1940874Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-01-13T13:21:49.2017003Z Switched to a new branch 'main'
+2026-01-13T13:21:49.2020296Z branch 'main' set up to track 'origin/main'.
+2026-01-13T13:21:49.2026670Z ##[endgroup]
+2026-01-13T13:21:49.2059372Z [command]/usr/bin/git log -1 --format=%H
+2026-01-13T13:21:49.2080720Z a0ff4b1c155d33a8eae266490c430afcafd8603c

@@ -1,0 +1,8 @@
+2026-01-13T13:21:45.9270000Z Evaluating scrape.if
+2026-01-13T13:21:45.9270000Z Evaluating: success()
+2026-01-13T13:21:45.9270000Z Result: true
+2026-01-13T13:21:45.9580000Z Job is about to start running on the hosted runner: GitHub Actions 1000000036
+2026-01-13T13:21:45.9570000Z Job is waiting for a hosted runner to come online.
+2026-01-13T13:21:45.9340000Z Requested labels: ubuntu-latest
+2026-01-13T13:21:45.9340000Z Job defined at: 1onotakanori-art/kyowa-menu-optimizer/.github/workflows/scrape.yml@refs/heads/main
+2026-01-13T13:21:45.9340000Z Waiting for a runner to pick up this job...

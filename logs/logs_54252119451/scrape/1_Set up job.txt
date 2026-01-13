@@ -1,0 +1,44 @@
+﻿2026-01-13T13:05:39.8816973Z Current runner version: '2.330.0'
+2026-01-13T13:05:39.8842272Z ##[group]Runner Image Provisioner
+2026-01-13T13:05:39.8843081Z Hosted Compute Agent
+2026-01-13T13:05:39.8843622Z Version: 20251211.462
+2026-01-13T13:05:39.8844278Z Commit: 6cbad8c2bb55d58165063d031ccabf57e2d2db61
+2026-01-13T13:05:39.8844982Z Build Date: 2025-12-11T16:28:49Z
+2026-01-13T13:05:39.8845592Z Worker ID: {77cc33ff-ed80-43d1-934c-59acc273cf43}
+2026-01-13T13:05:39.8846358Z ##[endgroup]
+2026-01-13T13:05:39.8846880Z ##[group]Operating System
+2026-01-13T13:05:39.8847403Z Ubuntu
+2026-01-13T13:05:39.8847914Z 24.04.3
+2026-01-13T13:05:39.8848329Z LTS
+2026-01-13T13:05:39.8848918Z ##[endgroup]
+2026-01-13T13:05:39.8849423Z ##[group]Runner Image
+2026-01-13T13:05:39.8850008Z Image: ubuntu-24.04
+2026-01-13T13:05:39.8850474Z Version: 20260105.202.1
+2026-01-13T13:05:39.8851501Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260105.202/images/ubuntu/Ubuntu2404-Readme.md
+2026-01-13T13:05:39.8852856Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260105.202
+2026-01-13T13:05:39.8854051Z ##[endgroup]
+2026-01-13T13:05:39.8856557Z ##[group]GITHUB_TOKEN Permissions
+2026-01-13T13:05:39.8858731Z Actions: write
+2026-01-13T13:05:39.8859474Z ArtifactMetadata: write
+2026-01-13T13:05:39.8860038Z Attestations: write
+2026-01-13T13:05:39.8860612Z Checks: write
+2026-01-13T13:05:39.8861090Z Contents: write
+2026-01-13T13:05:39.8861602Z Deployments: write
+2026-01-13T13:05:39.8862093Z Discussions: write
+2026-01-13T13:05:39.8862674Z Issues: write
+2026-01-13T13:05:39.8863138Z Metadata: read
+2026-01-13T13:05:39.8863620Z Models: read
+2026-01-13T13:05:39.8864129Z Packages: write
+2026-01-13T13:05:39.8864625Z Pages: write
+2026-01-13T13:05:39.8865116Z PullRequests: write
+2026-01-13T13:05:39.8865784Z RepositoryProjects: write
+2026-01-13T13:05:39.8866349Z SecurityEvents: write
+2026-01-13T13:05:39.8866845Z Statuses: write
+2026-01-13T13:05:39.8867399Z ##[endgroup]
+2026-01-13T13:05:39.8869771Z Secret source: Actions
+2026-01-13T13:05:39.8870555Z Prepare workflow directory
+2026-01-13T13:05:39.9185373Z Prepare all required actions
+2026-01-13T13:05:39.9240259Z Getting action download info
+2026-01-13T13:05:40.4406192Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-01-13T13:05:40.5288410Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-01-13T13:05:40.7188596Z Complete job name: scrape
