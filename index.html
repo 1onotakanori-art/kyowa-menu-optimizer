@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="食堂メニュー最適化">
+  <title>食堂メニュー最適化</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- ヘッダー -->
+    <header class="header">
+      <h1>🍽️ メニュー最適化</h1>
+      <p class="subtitle">栄養目標に最適なメニューを自動提案</p>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+      <!-- タブナビゲーション -->
+      <div class="tabs">
+        <button class="tab-button active" data-tab="input-tab">⚙️ 設定</button>
+        <button class="tab-button" data-tab="result-tab">📊 結果</button>
+      </div>
+
+      <!-- 入力タブ -->
+      <section id="input-tab" class="tab-content active">
+        <div class="form-section">
+          <!-- 日付選択 -->
+          <div class="form-group">
+            <label for="date-input">📅 日付</label>
+            <select 
+              id="date-input" 
+              class="form-input"
+              title="メニューが取得できた日付のみを選択可能"
+            >
+              <option value="">読込中...</option>
+            </select>
+            <small>利用可能な日付のみを表示</small>
+          </div>
+
+          <!-- 栄養目標 -->
+          <div class="form-section-title">🎯 栄養目標</div>
+          
+          <div class="nutrition-grid">
+            <!-- エネルギー -->
+            <div class="nutrition-item">
+              <label>
+                <input 
+                  type="checkbox" 
+                  class="nutrition-checkbox" 
+                  data-key="エネルギー"
+                  value="エネルギー"
+                >
+                <span class="nutrition-name">エネルギー</span>
+              </label>
+              <div class="nutrition-input-group">
+                <input 
+                  type="number" 
+                  class="nutrition-value" 
+                  data-key="エネルギー"
+                  placeholder="650"
+                  disabled
+                >
+                <span class="nutrition-unit">kcal</span>
+              </div>
+            </div>
+
+            <!-- たんぱく質 -->
+            <div class="nutrition-item">
+              <label>
+                <input 
+                  type="checkbox" 
+                  class="nutrition-checkbox" 
+                  data-key="たんぱく質"
+                  value="たんぱく質"
+                >
+                <span class="nutrition-name">たんぱく質</span>
+              </label>
+              <div class="nutrition-input-group">
+                <input 
+                  type="number" 
+                  class="nutrition-value" 
+                  data-key="たんぱく質"
+                  placeholder="30"
+                  disabled
+                >
+                <span class="nutrition-unit">g</span>
+              </div>
+            </div>
+
+            <!-- 脂質 -->
+            <div class="nutrition-item">
+              <label>
+                <input 
+                  type="checkbox" 
+                  class="nutrition-checkbox" 
+                  data-key="脂質"
+                  value="脂質"
+                >
+                <span class="nutrition-name">脂質</span>
+              </label>
+              <div class="nutrition-input-group">
+                <input 
+                  type="number" 
+                  class="nutrition-value" 
+                  data-key="脂質"
+                  placeholder="25"
+                  disabled
+                >
+                <span class="nutrition-unit">g</span>
+              </div>
+            </div>
+
+            <!-- 炭水化物 -->
+            <div class="nutrition-item">
+              <label>
+                <input 
+                  type="checkbox" 
+                  class="nutrition-checkbox" 
+                  data-key="炭水化物"
+                  value="炭水化物"
+                >
+                <span class="nutrition-name">炭水化物</span>
+              </label>
+              <div class="nutrition-input-group">
+                <input 
+                  type="number" 
+                  class="nutrition-value" 
+                  data-key="炭水化物"
+                  placeholder="95"
+                  disabled
+                >
+                <span class="nutrition-unit">g</span>
+              </div>
+            </div>
+
+            <!-- 野菜重量 -->
+            <div class="nutrition-item">
+              <label>
+                <input 
+                  type="checkbox" 
+                  class="nutrition-checkbox" 
+                  data-key="野菜重量"
+                  value="野菜重量"
+                >
+                <span class="nutrition-name">野菜重量</span>
+              </label>
+              <div class="nutrition-input-group">
+                <input 
+                  type="number" 
+                  class="nutrition-value" 
+                  data-key="野菜重量"
+                  placeholder="120"
+                  disabled
+                >
+                <span class="nutrition-unit">g</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- メニュー一覧 -->
+          <div class="form-section-title">📋 メニュー選択</div>
+          <div class="menu-filter">
+            <input 
+              type="text" 
+              id="menu-search" 
+              class="form-input"
+              placeholder="メニュー名で検索..."
+            >
+          </div>
+          
+          <div id="menus-list-container" class="menus-list-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>メニュー読込中...</p>
+            </div>
+          </div>
+
+          <!-- 実行ボタン -->
+          <button id="optimize-button" class="button button-primary">
+            🚀 最適化を実行
+          </button>
+        </div>
+      </section>
+
+      <!-- 結果タブ -->
+      <section id="result-tab" class="tab-content">
+        <div id="result-container" class="result-container">
+          <!-- ローディング表示 -->
+          <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>最適化中...</p>
+          </div>
+
+          <!-- エラーメッセージ -->
+          <div id="error-message" class="error-message hidden"></div>
+
+          <!-- 結果表示 -->
+          <div id="result-content" class="result-content hidden">
+            <!-- 日付 -->
+            <div class="result-header">
+              <h2 id="result-date"></h2>
+              <p id="result-summary"></p>
+            </div>
+
+            <!-- サマリー -->
+            <div class="summary-cards">
+              <div class="summary-card">
+                <div class="card-label">合計メニュー数</div>
+                <div id="total-menus-count" class="card-value">0</div>
+              </div>
+              <div class="summary-card">
+                <div class="card-label">距離スコア</div>
+                <div id="distance-score" class="card-value">0</div>
+              </div>
+            </div>
+
+            <!-- 固定メニューセクション -->
+            <div id="fixed-section" class="menu-section hidden">
+              <h3>📌 固定メニュー</h3>
+              <div id="fixed-menus-result" class="menus-grid"></div>
+            </div>
+
+            <!-- 追加メニューセクション -->
+            <div class="menu-section">
+              <h3>✅ 提案メニュー</h3>
+              <div id="additional-menus-result" class="menus-grid"></div>
+            </div>
+
+            <!-- 栄養情報 -->
+            <div class="nutrition-section">
+              <h3>📈 栄養情報</h3>
+              <div id="nutrition-comparison" class="nutrition-table"></div>
+            </div>
+
+            <!-- ボタン群 -->
+            <div class="button-group">
+              <button id="re-optimize-button" class="button button-primary">
+                🔄 再最適化
+              </button>
+              <button id="back-to-edit-button" class="button button-secondary">
+                ← 設定に戻る
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Chart.js (栄養グラフ用) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <!-- アプリケーション JS -->
+  <script src="app.js"></script>
+</body>
+</html>
