@@ -27,9 +27,9 @@ class MenuOptimizationApp {
       button.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
     });
 
-    // 栄養目標チェックボックス
-    document.querySelectorAll('.nutrition-checkbox').forEach(checkbox => {
-      checkbox.addEventListener('change', (e) => this.toggleNutritionInput(e.target));
+    // 栄養目標アイテムクリック処理
+    document.querySelectorAll('.nutrition-item').forEach(item => {
+      item.addEventListener('click', (e) => this.toggleNutritionItem(e.currentTarget));
     });
 
     // 日付選択変更
@@ -192,25 +192,33 @@ class MenuOptimizationApp {
       name.className = 'menu-list-item-name';
       name.textContent = menu.name;
 
-      // 栄養情報を表示
+      // 栄養情報を表示（P, F, C, VW で表示）
       const nutrition = document.createElement('div');
       nutrition.className = 'menu-list-item-nutrition';
 
-      const nutritionKeys = ['価格', 'たんぱく質', '脂質', '炭水化物', '野菜重量'];
-      nutritionKeys.forEach(key => {
+      // 価格を別途表示
+      const price = menu.nutrition?.['価格'];
+      if (price !== undefined && price !== null) {
+        const priceItem = document.createElement('div');
+        priceItem.className = 'menu-list-item-nutrition-item';
+        priceItem.innerHTML = `<span>価格</span> <span>${price}円</span>`;
+        nutrition.appendChild(priceItem);
+      }
+
+      // 栄養情報を P, F, C, VW で表示
+      const nutritionMap = [
+        { key: 'たんぱく質', label: 'P' },
+        { key: '脂質', label: 'F' },
+        { key: '炭水化物', label: 'C' },
+        { key: '野菜重量', label: 'VW' }
+      ];
+
+      nutritionMap.forEach(({ key, label }) => {
         const value = menu.nutrition?.[key];
         if (value !== undefined && value !== null) {
           const item = document.createElement('div');
           item.className = 'menu-list-item-nutrition-item';
-          
-          if (key === '価格') {
-            item.innerHTML = `<span>${key}</span><span>${value}</span>`;
-          } else {
-            // 栄養値の場合は単位を追加
-            const unitMap = { 'たんぱく質': 'g', '脂質': 'g', '炭水化物': 'g', '野菜重量': 'g' };
-            const unit = unitMap[key] || '';
-            item.innerHTML = `<span>${key}</span><span>${typeof value === 'number' ? value.toFixed(1) : value}${unit}</span>`;
-          }
+          item.innerHTML = `<span>${label}</span> <span>${typeof value === 'number' ? value.toFixed(0) : value}g</span>`;
           nutrition.appendChild(item);
         }
       });
@@ -303,7 +311,36 @@ class MenuOptimizationApp {
   }
 
   /**
-   * 栄養目標チェックボックスがクリックされたとき
+   * 栄養目標アイテムをクリック（選択/解除）
+   */
+  toggleNutritionItem(item) {
+    const key = item.dataset.key;
+    const input = item.querySelector('.nutrition-value');
+
+    if (item.classList.contains('active')) {
+      // 選択解除
+      item.classList.remove('active');
+      input.value = '';
+      delete this.selectedNutritionTargets[key];
+    } else {
+      // 選択
+      item.classList.add('active');
+      const defaults = {
+        'エネルギー': '650',
+        'たんぱく質': '30',
+        '脂質': '25',
+        '炭水化物': '95',
+        '野菜重量': '120'
+      };
+      if (!input.value) {
+        input.value = defaults[key] || '';
+      }
+      input.focus();
+    }
+  }
+
+  /**
+   * 栄養目標チェックボックスがクリックされたとき（非推奨：toggleNutritionItem に置き換え）
    */
   toggleNutritionInput(checkbox) {
     const key = checkbox.dataset.key;
@@ -355,11 +392,11 @@ class MenuOptimizationApp {
     const dateSelect = document.getElementById('date-input');
     const dateLabelValue = dateSelect.value;
     
-    // 栄養目標を再取得（入力フィールドから）
+    // 栄養目標を再取得（アクティブな nutrition-item から）
     const targets = {};
-    document.querySelectorAll('.nutrition-checkbox:checked').forEach(checkbox => {
-      const key = checkbox.dataset.key;
-      const input = document.querySelector(`.nutrition-value[data-key="${key}"]`);
+    document.querySelectorAll('.nutrition-item.active').forEach(item => {
+      const key = item.dataset.key;
+      const input = item.querySelector('.nutrition-value');
       const value = parseFloat(input.value);
       if (!isNaN(value) && value > 0) {
         targets[key] = value;
@@ -400,6 +437,7 @@ class MenuOptimizationApp {
       this.lastOptimizationResult = result;
       this.tempExcludedMenus.clear(); // 一時除外をリセット
       this.displayResults(result);
+      // 自動で結果タブに切り替え
       this.switchTab('result-tab');
 
     } catch (error) {

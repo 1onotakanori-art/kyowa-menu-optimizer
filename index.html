@@ -46,123 +46,89 @@
           
           <div class="nutrition-grid">
             <!-- エネルギー -->
-            <div class="nutrition-item">
-              <label>
-                <input 
-                  type="checkbox" 
-                  class="nutrition-checkbox" 
-                  data-key="エネルギー"
-                  value="エネルギー"
-                >
+            <div class="nutrition-item" data-key="エネルギー">
+              <div class="nutrition-item-header">
                 <span class="nutrition-name">エネルギー</span>
-              </label>
-              <div class="nutrition-input-group">
-                <input 
-                  type="number" 
-                  class="nutrition-value" 
-                  data-key="エネルギー"
-                  placeholder="650"
-                  disabled
-                >
                 <span class="nutrition-unit">kcal</span>
               </div>
+              <input 
+                type="number" 
+                class="nutrition-value" 
+                data-key="エネルギー"
+                placeholder="650"
+              >
             </div>
 
             <!-- たんぱく質 -->
-            <div class="nutrition-item">
-              <label>
-                <input 
-                  type="checkbox" 
-                  class="nutrition-checkbox" 
-                  data-key="たんぱく質"
-                  value="たんぱく質"
-                >
+            <div class="nutrition-item" data-key="たんぱく質">
+              <div class="nutrition-item-header">
                 <span class="nutrition-name">たんぱく質</span>
-              </label>
-              <div class="nutrition-input-group">
-                <input 
-                  type="number" 
-                  class="nutrition-value" 
-                  data-key="たんぱく質"
-                  placeholder="30"
-                  disabled
-                >
                 <span class="nutrition-unit">g</span>
               </div>
+              <input 
+                type="number" 
+                class="nutrition-value" 
+                data-key="たんぱく質"
+                placeholder="30"
+              >
             </div>
 
             <!-- 脂質 -->
-            <div class="nutrition-item">
-              <label>
-                <input 
-                  type="checkbox" 
-                  class="nutrition-checkbox" 
-                  data-key="脂質"
-                  value="脂質"
-                >
+            <div class="nutrition-item" data-key="脂質">
+              <div class="nutrition-item-header">
                 <span class="nutrition-name">脂質</span>
-              </label>
-              <div class="nutrition-input-group">
-                <input 
-                  type="number" 
-                  class="nutrition-value" 
-                  data-key="脂質"
-                  placeholder="25"
-                  disabled
-                >
                 <span class="nutrition-unit">g</span>
               </div>
+              <input 
+                type="number" 
+                class="nutrition-value" 
+                data-key="脂質"
+                placeholder="25"
+              >
             </div>
 
             <!-- 炭水化物 -->
-            <div class="nutrition-item">
-              <label>
-                <input 
-                  type="checkbox" 
-                  class="nutrition-checkbox" 
-                  data-key="炭水化物"
-                  value="炭水化物"
-                >
+            <div class="nutrition-item" data-key="炭水化物">
+              <div class="nutrition-item-header">
                 <span class="nutrition-name">炭水化物</span>
-              </label>
-              <div class="nutrition-input-group">
-                <input 
-                  type="number" 
-                  class="nutrition-value" 
-                  data-key="炭水化物"
-                  placeholder="95"
-                  disabled
-                >
                 <span class="nutrition-unit">g</span>
               </div>
+              <input 
+                type="number" 
+                class="nutrition-value" 
+                data-key="炭水化物"
+                placeholder="95"
+              >
             </div>
 
             <!-- 野菜重量 -->
-            <div class="nutrition-item">
-              <label>
-                <input 
-                  type="checkbox" 
-                  class="nutrition-checkbox" 
-                  data-key="野菜重量"
-                  value="野菜重量"
-                >
+            <div class="nutrition-item" data-key="野菜重量">
+              <div class="nutrition-item-header">
                 <span class="nutrition-name">野菜重量</span>
-              </label>
-              <div class="nutrition-input-group">
-                <input 
-                  type="number" 
-                  class="nutrition-value" 
-                  data-key="野菜重量"
-                  placeholder="120"
-                  disabled
-                >
                 <span class="nutrition-unit">g</span>
               </div>
+              <input 
+                type="number" 
+                class="nutrition-value" 
+                data-key="野菜重量"
+                placeholder="120"
+              >
             </div>
           </div>
 
+          <!-- 実行ボタン -->
+          <button id="optimize-button" class="button button-primary">
+            🚀 最適化を実行
+          </button>
+
           <!-- メニュー一覧 -->
           <div class="form-section-title">📋 メニュー選択</div>
+          <div class="menu-legend">
+            <div class="legend-item"><span class="legend-mark">⭕️</span> 固定（必ず含める）</div>
+            <div class="legend-item"><span class="legend-mark">➕</span> 推奨</div>
+            <div class="legend-item"><span class="legend-mark">❌</span> 除外</div>
+          </div>
+          
           <div class="menu-filter">
             <input 
               type="text" 
@@ -178,11 +144,6 @@
               <p>メニュー読込中...</p>
             </div>
           </div>
-
-          <!-- 実行ボタン -->
-          <button id="optimize-button" class="button button-primary">
-            🚀 最適化を実行
-          </button>
         </div>
       </section>
 
