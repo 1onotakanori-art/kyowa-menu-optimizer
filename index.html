@@ -47,72 +47,62 @@
           <div class="nutrition-grid">
             <!-- Energy -->
             <div class="nutrition-item" data-key="エネルギー">
-              <div class="nutrition-item-header">
-                <span class="nutrition-name"><span class="nutrition-label">E</span>nergy</span>
-                <span class="nutrition-unit">kcal</span>
-              </div>
+              <span class="nutrition-name"><span class="nutrition-label">E</span>nergy</span>
               <input 
                 type="number" 
                 class="nutrition-value" 
                 data-key="エネルギー"
                 placeholder="650"
               >
+              <span class="nutrition-unit">kcal</span>
             </div>
 
             <!-- Protein -->
             <div class="nutrition-item" data-key="たんぱく質">
-              <div class="nutrition-item-header">
-                <span class="nutrition-name"><span class="nutrition-label">P</span>rotein</span>
-                <span class="nutrition-unit">g</span>
-              </div>
+              <span class="nutrition-name"><span class="nutrition-label">P</span>rotein</span>
               <input 
                 type="number" 
                 class="nutrition-value" 
                 data-key="たんぱく質"
                 placeholder="30"
               >
+              <span class="nutrition-unit">g</span>
             </div>
 
             <!-- Fat -->
             <div class="nutrition-item" data-key="脂質">
-              <div class="nutrition-item-header">
-                <span class="nutrition-name"><span class="nutrition-label">F</span>at</span>
-                <span class="nutrition-unit">g</span>
-              </div>
+              <span class="nutrition-name"><span class="nutrition-label">F</span>at</span>
               <input 
                 type="number" 
                 class="nutrition-value" 
                 data-key="脂質"
                 placeholder="25"
               >
+              <span class="nutrition-unit">g</span>
             </div>
 
             <!-- Carbohydrate -->
             <div class="nutrition-item" data-key="炭水化物">
-              <div class="nutrition-item-header">
-                <span class="nutrition-name"><span class="nutrition-label">C</span>arbohydrate</span>
-                <span class="nutrition-unit">g</span>
-              </div>
+              <span class="nutrition-name"><span class="nutrition-label">C</span>arbohydrate</span>
               <input 
                 type="number" 
                 class="nutrition-value" 
                 data-key="炭水化物"
                 placeholder="95"
               >
+              <span class="nutrition-unit">g</span>
             </div>
 
             <!-- Vegetable Weight -->
             <div class="nutrition-item" data-key="野菜重量">
-              <div class="nutrition-item-header">
-                <span class="nutrition-name"><span class="nutrition-label">V</span>egetable Weight</span>
-                <span class="nutrition-unit">g</span>
-              </div>
+              <span class="nutrition-name"><span class="nutrition-label">V</span>egetable Weight</span>
               <input 
                 type="number" 
                 class="nutrition-value" 
                 data-key="野菜重量"
                 placeholder="120"
               >
+              <span class="nutrition-unit">g</span>
             </div>
           </div>
 
@@ -124,9 +114,9 @@
           <!-- メニュー一覧 -->
           <div class="form-section-title">📋 メニュー選択</div>
           <div class="menu-legend">
-            <div class="legend-item"><span class="legend-mark">⭕️</span> 固定（必ず含める）</div>
-            <div class="legend-item"><span class="legend-mark">➕</span> 推奨</div>
-            <div class="legend-item"><span class="legend-mark">❌</span> 除外</div>
+            <div class="legend-item"><span class="legend-box legend-recommended"></span><span class="legend-label">推奨 (P<span class="nutrition-p-label\">P</span>, F<span class=\"nutrition-f-label\">F</span>, C<span class=\"nutrition-c-label\">C</span>, V<span class=\"nutrition-v-label\">V</span>)</span></div>
+            <div class="legend-item"><span class="legend-box legend-fixed"></span><span class="legend-label">固定</span></div>
+            <div class="legend-item"><span class="legend-box legend-excluded"></span><span class="legend-label">除外</span></div>
           </div>
           
           <div class="menu-filter">

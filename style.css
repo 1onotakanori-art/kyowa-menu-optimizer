@@ -222,7 +222,7 @@ body {
   transition: all 0.2s ease;
   border: 2px solid transparent;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr auto;
   gap: 12px;
   align-items: center;
 }
@@ -241,22 +241,16 @@ body {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.nutrition-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex: 1;
-}
-
 .nutrition-name {
   font-size: 14px;
   font-weight: 700;
+  min-width: 120px;
+  white-space: nowrap;
 }
 
 .nutrition-label {
   color: var(--primary-color);
   font-weight: 900;
-  margin-right: 2px;
 }
 
 .nutrition-item.active .nutrition-label {
@@ -268,7 +262,7 @@ body {
 }
 
 .nutrition-value {
-  width: 80px;
+  width: 100%;
   padding: 8px 6px;
   border: 1px solid var(--medium-gray);
   border-radius: 6px;
@@ -299,6 +293,7 @@ body {
   color: var(--text-secondary);
   font-weight: 600;
   min-width: 40px;
+  text-align: right;
 }
 
 /* ========================================
@@ -342,19 +337,19 @@ body {
 /* デフォルト：推奨（+）= 緑枠 */
 .menu-list-item {
   border-left-color: var(--success-color);
-  background-color: #f0fff4;
+  background-color: #e6f7f0;
 }
 
 /* 固定（⭕️）= 青枠 */
 .menu-list-item.fixed {
   border-left-color: var(--primary-color);
-  background-color: #f0f8ff;
+  background-color: #e6f3ff;
 }
 
 /* 除外（❌）= 赤枠 */
 .menu-list-item.excluded {
   border-left-color: var(--danger-color);
-  background-color: #fff5f5;
+  background-color: #ffe6e6;
   opacity: 0.7;
 }
 
@@ -385,32 +380,34 @@ body {
 .menu-list-item-nutrition {
   font-size: 12px;
   color: var(--text-secondary);
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
   padding: 0;
-  margin-top: 2px;
-  flex-wrap: wrap;
+  margin-top: 4px;
 }
 
 .menu-list-item-nutrition-item {
   display: flex;
-  gap: 3px;
-  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 4px;
   border-radius: 4px;
+  min-height: 24px;
 }
 
 .menu-list-item-nutrition-item span:first-child {
   font-weight: 700;
   min-width: auto;
   color: white;
-}
-
-.menu-list-item-nutrition-item span:last-child {
-  color: white;
-  font-weight: 600;
+  font-size: 13px;
 }
 
 /* 栄養成分の背景色設定 */
+.nutrition-e {
+  background-color: #95a5a6;
+}
+
 .nutrition-p {
   background-color: #e74c3c;
 }
@@ -483,8 +480,51 @@ body {
   gap: 6px;
 }
 
-.legend-mark {
-  font-size: 18px;
+.legend-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border-left: 4px solid;
+}
+
+.legend-recommended {
+  border-left-color: var(--success-color);
+  background-color: #e6f7f0;
+}
+
+.legend-fixed {
+  border-left-color: var(--primary-color);
+  background-color: #e6f3ff;
+}
+
+.legend-excluded {
+  border-left-color: var(--danger-color);
+  background-color: #ffe6e6;
+}
+
+.legend-label {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.nutrition-p-label {
+  color: #e74c3c;
+  font-weight: 700;
+}
+
+.nutrition-f-label {
+  color: #f39c12;
+  font-weight: 700;
+}
+
+.nutrition-c-label {
+  color: #3498db;
+  font-weight: 700;
+}
+
+.nutrition-v-label {
+  color: #27ae60;
+  font-weight: 700;
 }
 
 .menu-list-item:hover {
