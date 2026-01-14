@@ -60,7 +60,7 @@ function saveMenusToOutput(dateLabel, data) {
 /**
  * 複数日のメニューをスクレイプ
  */
-async function prescrapMultipleDays(numDays = 10) {
+async function prescrapMultipleDays(numDays = 5) {
   console.log(`\n🔥 メニュープリスクレイピング開始 (${numDays}日間)`);
   console.log('='.repeat(60));
 

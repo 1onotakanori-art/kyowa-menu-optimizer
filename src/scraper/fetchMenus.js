@@ -151,16 +151,31 @@ async function selectDate(page, dateLabel) {
     throw new Error(selected.message);
   }
 
-  // 日付変更待ち
-  // 理由：サイト側がメニュー更新するまで待つ
-  await page.waitForTimeout(800);
+  // 日付変更待ち：メニューが表示されるまで待機（最大5秒）
+  console.log('⏳ メニュー表示待機中...');
+  const menuDisplayed = await page.waitForFunction(
+    () => {
+      const menus = document.querySelectorAll('.menu-content');
+      return menus.length > 0;
+    },
+    { timeout: 5000 }
+  ).catch(() => {
+    console.warn('⚠️  タイムアウト: メニューが表示されませんでした');
+    return false;
+  });
+  
+  if (menuDisplayed) {
+    const initialCount = await page.$$eval('.menu-content', els => els.length);
+    console.log(`✅ メニュー表示確認: ${initialCount} メニュー`);
+  }
+  
+  // 追加の安定待ち
+  await page.waitForTimeout(500);
 }
 
 /**
  * メニューを展開ボタンで全展開
- * 理由：elementHandle.click Timeout 問題に対応
- * selector ベースで安定性を確保
- * 改善：クリック後、メニュー数の安定を確認してから次のクリック
+ * 改善：タイムラグを増やし、ボタンのスクロール位置を確認してからクリック
  * @param {Page} page
  */
 async function expandAllMenus(page) {
@@ -183,48 +198,52 @@ async function expandAllMenus(page) {
       break;
     }
 
-    // force: true でカバーされた要素も操作可能に
-    // 理由：ボタンが他の要素で覆われている可能性
+    // ボタンがビューポート内にあることを確認してからクリック
+    // 理由：ボタンがスクロール範囲外の場合、クリックが効かない
+    try {
+      await nextBtn.scrollIntoViewIfNeeded();
+      console.log(`   ボタンをスクロール位置内に移動しました`);
+    } catch (e) {
+      console.log(`   ⚠️  scrollIntoViewIfNeeded 失敗（継続）`);
+    }
+
+    // クリック実行
     await nextBtn.click({ force: true });
+    console.log(`   🖱️  クリック ${clickCount + 1} 実行`);
     
-    // 重要：クリック直後は DOM 更新が進行中の可能性がある
-    // 最初の短い待機でクリックが反映するまで待つ
-    await page.waitForTimeout(300);
+    // クリック後、メニュー数が増えるまで待機（最大3秒）
+    const startTime = Date.now();
+    let currentCount = beforeCount;
+    const maxWaitTime = 3000;
+    let menuIncreased = false;
     
-    // メニュー数の変化を確認（安定するまで待つ）
-    // 理由：DOM 更新が完全に終わるまで待つ必要がある
-    let stableCount = 0;
-    let lastCount = beforeCount;
-    const maxStableChecks = 10;
-    
-    for (let check = 0; check < maxStableChecks; check++) {
-      await page.waitForTimeout(200);
-      const currentCount = await page.$$eval('.menu-content', els => els.length);
+    console.log(`   ⏳ メニュー追加待機中...`);
+    while (Date.now() - startTime < maxWaitTime) {
+      await page.waitForTimeout(100);
+      currentCount = await page.$$eval('.menu-content', els => els.length);
       
-      if (currentCount === lastCount) {
-        // メニュー数が同じ = DOM 更新が終了
-        stableCount++;
-        if (stableCount >= 2) {
-          // 2 回連続で同じ数 = 確実に安定
-          console.log(`   → クリック ${clickCount + 1}: ${beforeCount} → ${currentCount} メニュー (+${currentCount - beforeCount})`);
-          clickCount++;
-          break;
-        }
-      } else {
-        // メニュー数が変わった = まだ更新中
-        lastCount = currentCount;
-        stableCount = 0;
+      if (currentCount > beforeCount) {
+        // メニュー数が増えた！
+        menuIncreased = true;
+        const elapsed = Date.now() - startTime;
+        console.log(`   ✅ クリック ${clickCount + 1}: ${beforeCount} → ${currentCount} メニュー (+${currentCount - beforeCount}) [${elapsed}ms]`);
+        clickCount++;
+        break;
       }
     }
     
-    // maxStableChecks に達したら、いったんメニュー数を記録して続行
-    if (stableCount < 2) {
-      const finalCount = await page.$$eval('.menu-content', els => els.length);
-      console.log(`   → クリック ${clickCount + 1}: ${beforeCount} → ${finalCount} メニュー (+${finalCount - beforeCount})`);
-      clickCount++;
+    // タイムアウトした場合
+    if (!menuIncreased) {
+      console.log(`   ⚠️  クリック ${clickCount + 1}: メニュー数変化なし (${beforeCount} → ${currentCount}) [タイムアウト]`);
+      // メニューが増えない = これ以上展開不可
+      break;
     }
+    
+    // 追加の安定待ち
+    await page.waitForTimeout(300);
   }
 }
+
 
 /**
  * メニュー情報をスクレイプ
