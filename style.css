@@ -395,7 +395,9 @@ body {
   min-height: 24px;
   font-weight: 700;
   font-size: 13px;
-  word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 栄養成分の背景色設定（オプションB：明色背景＋黒文字） */
@@ -505,7 +507,6 @@ body {
   border-radius: 4px;
   font-weight: 700;
   font-size: 13px;
-  color: white;
 }
 
 .nutrition-e-label {
@@ -587,7 +588,7 @@ body {
 }
 
 .legend-menu-nutrition span {
-  padding: 4px 2px;
+  padding: 6px 4px;
   border-radius: 3px;
   font-weight: 700;
   font-size: 12px;
@@ -620,28 +621,25 @@ body {
 
 .menu-list-item-nutrition {
   font-size: 12px;
-  color: var(--text-secondary);
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
   padding: 0;
-  margin-top: 2px;
-  flex-wrap: wrap;
+  margin-top: 4px;
 }
 
 .menu-list-item-nutrition-item {
   display: flex;
-  gap: 3px;
-}
-
-.menu-list-item-nutrition-item span:first-child {
+  justify-content: center;
+  align-items: center;
+  padding: 6px 2px;
+  border-radius: 4px;
+  min-height: 24px;
   font-weight: 700;
-  min-width: auto;
-  color: var(--primary-color);
-}
-
-.menu-list-item-nutrition-item span:last-child {
-  color: var(--text-primary);
-  font-weight: 600;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .menu-list-item-buttons {

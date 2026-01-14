@@ -674,9 +674,8 @@ class MenuOptimizationApp {
         // elementId が fixed-menus-result の場合は固定スタイル
         if (elementId === 'fixed-menus-result') {
           item.classList.add('fixed');
-        } else {
-          item.classList.add('suggested');
         }
+        // 提案メニュー（追加メニュー）は .suggested クラスなし（デフォルト=推奨スタイル）
 
         const details = document.createElement('div');
         details.className = 'menu-list-item-details';
