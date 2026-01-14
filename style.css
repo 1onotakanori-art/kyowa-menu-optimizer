@@ -209,21 +209,22 @@ body {
 
 .nutrition-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  grid-template-columns: 1fr;
   gap: 8px;
   padding: 12px 0;
 }
 
 .nutrition-item {
   background-color: var(--light-gray);
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 2px solid transparent;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
 }
 
 .nutrition-item:active {
@@ -244,11 +245,22 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex: 1;
 }
 
 .nutrition-name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
+}
+
+.nutrition-label {
+  color: var(--primary-color);
+  font-weight: 900;
+  margin-right: 2px;
+}
+
+.nutrition-item.active .nutrition-label {
+  color: white;
 }
 
 .nutrition-item.active .nutrition-name {
@@ -256,7 +268,7 @@ body {
 }
 
 .nutrition-value {
-  width: 100%;
+  width: 80px;
   padding: 8px 6px;
   border: 1px solid var(--medium-gray);
   border-radius: 6px;
@@ -283,9 +295,10 @@ body {
 }
 
 .nutrition-unit {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
   font-weight: 600;
+  min-width: 40px;
 }
 
 /* ========================================
@@ -293,28 +306,164 @@ body {
    ======================================== */
 
 .menus-list-container {
-  background-color: var(--light-gray);
+  background-color: white;
   border-radius: 8px;
-  padding: 12px;
+  padding: 0;
   margin-bottom: 20px;
-  display: grid;
-  gap: 8px;
-  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 500px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--medium-gray);
 }
 
 .menu-list-item {
   background-color: white;
-  border: 1px solid var(--medium-gray);
-  border-radius: 8px;
+  border: none;
+  border-bottom: 1px solid var(--medium-gray);
+  border-radius: 0;
   padding: 12px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   align-items: flex-start;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
+  cursor: pointer;
+  border-left: 4px solid var(--medium-gray);
+}
+
+.menu-list-item:last-child {
+  border-bottom: none;
+}
+
+/* デフォルト：推奨（+）= 緑枠 */
+.menu-list-item {
+  border-left-color: var(--success-color);
+  background-color: #f0fff4;
+}
+
+/* 固定（⭕️）= 青枠 */
+.menu-list-item.fixed {
+  border-left-color: var(--primary-color);
+  background-color: #f0f8ff;
+}
+
+/* 除外（❌）= 赤枠 */
+.menu-list-item.excluded {
+  border-left-color: var(--danger-color);
+  background-color: #fff5f5;
+  opacity: 0.7;
+}
+
+.menu-list-item:active {
+  opacity: 0.8;
+}
+
+.menu-list-item-details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  flex: 1;
+  width: 100%;
+}
+
+.menu-list-item-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.menu-list-item-price {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.menu-list-item-nutrition {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 12px;
+  padding: 0;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.menu-list-item-nutrition-item {
+  display: flex;
+  gap: 3px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.menu-list-item-nutrition-item span:first-child {
+  font-weight: 700;
+  min-width: auto;
+  color: white;
+}
+
+.menu-list-item-nutrition-item span:last-child {
+  color: white;
+  font-weight: 600;
+}
+
+/* 栄養成分の背景色設定 */
+.nutrition-p {
+  background-color: #e74c3c;
+}
+
+.nutrition-f {
+  background-color: #f39c12;
+}
+
+.nutrition-c {
+  background-color: #3498db;
+}
+
+.nutrition-v {
+  background-color: #27ae60;
+}
+
+.menu-list-item-buttons {
+  display: none;
+}
+
+.menu-btn {
+  display: none;
+}
+
+/* ========================================
+   結果表示用メニューアイテム
+   ======================================== */
+
+.menu-list-item.suggested {
+  border-left-color: var(--success-color);
+  background-color: #f0fff4;
+}
+
+.result-exclude-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--danger-color);
+  border-radius: 6px;
+  background-color: white;
+  color: var(--danger-color);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.result-exclude-btn:active {
+  opacity: 0.7;
+  transform: scale(0.95);
 }
 
 .menu-legend {

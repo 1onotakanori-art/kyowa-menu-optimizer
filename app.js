@@ -184,6 +184,17 @@ class MenuOptimizationApp {
       const item = document.createElement('div');
       item.className = 'menu-list-item';
 
+      // メニューの状態判定
+      const isFixed = this.fixedMenus.has(menu.name);
+      const isExcluded = this.excludedMenus.has(menu.name);
+      
+      // CSS クラス設定
+      if (isFixed) {
+        item.classList.add('fixed');
+      } else if (isExcluded) {
+        item.classList.add('excluded');
+      }
+
       // メニュー詳細情報
       const details = document.createElement('div');
       details.className = 'menu-list-item-details';
@@ -192,80 +203,70 @@ class MenuOptimizationApp {
       name.className = 'menu-list-item-name';
       name.textContent = menu.name;
 
-      // 栄養情報を表示（P, F, C, VW で表示）
+      // 価格を表示
+      const price = menu.nutrition?.['価格'];
+      const priceEl = document.createElement('div');
+      priceEl.className = 'menu-list-item-price';
+      if (price !== undefined && price !== null) {
+        priceEl.textContent = `¥${price}`;
+      }
+
+      // 栄養情報を表示（P, F, C, V で表示）
       const nutrition = document.createElement('div');
       nutrition.className = 'menu-list-item-nutrition';
 
-      // 価格を別途表示
-      const price = menu.nutrition?.['価格'];
-      if (price !== undefined && price !== null) {
-        const priceItem = document.createElement('div');
-        priceItem.className = 'menu-list-item-nutrition-item';
-        priceItem.innerHTML = `<span>価格</span> <span>${price}円</span>`;
-        nutrition.appendChild(priceItem);
-      }
-
-      // 栄養情報を P, F, C, VW で表示
       const nutritionMap = [
-        { key: 'たんぱく質', label: 'P' },
-        { key: '脂質', label: 'F' },
-        { key: '炭水化物', label: 'C' },
-        { key: '野菜重量', label: 'VW' }
+        { key: 'たんぱく質', label: 'P', class: 'nutrition-p' },
+        { key: '脂質', label: 'F', class: 'nutrition-f' },
+        { key: '炭水化物', label: 'C', class: 'nutrition-c' },
+        { key: '野菜重量', label: 'V', class: 'nutrition-v' }
       ];
 
-      nutritionMap.forEach(({ key, label }) => {
+      nutritionMap.forEach(({ key, label, class: className }) => {
         const value = menu.nutrition?.[key];
         if (value !== undefined && value !== null) {
-          const item = document.createElement('div');
-          item.className = 'menu-list-item-nutrition-item';
-          item.innerHTML = `<span>${label}</span> <span>${typeof value === 'number' ? value.toFixed(0) : value}g</span>`;
-          nutrition.appendChild(item);
+          const nutritionItem = document.createElement('div');
+          nutritionItem.className = `menu-list-item-nutrition-item ${className}`;
+          nutritionItem.innerHTML = `<span>${label}</span> <span>${typeof value === 'number' ? value.toFixed(0) : value}</span>`;
+          nutrition.appendChild(nutritionItem);
         }
       });
 
       details.appendChild(name);
+      details.appendChild(priceEl);
       details.appendChild(nutrition);
-
-      const buttonsContainer = document.createElement('div');
-      buttonsContainer.className = 'menu-list-item-buttons';
-
-      // メニューの状態判定
-      const isFixed = this.fixedMenus.has(menu.name);
-      const isExcluded = this.excludedMenus.has(menu.name);
-      const isNormal = !isFixed && !isExcluded;
-
-      // 通常ボタン
-      const normalBtn = document.createElement('button');
-      normalBtn.className = 'menu-btn normal';
-      normalBtn.classList.toggle('active', isNormal);
-      normalBtn.textContent = '○';
-      normalBtn.title = '通常';
-      normalBtn.addEventListener('click', () => this.setMenuNormal(menu.name));
-
-      // 固定ボタン
-      const fixedBtn = document.createElement('button');
-      fixedBtn.className = 'menu-btn fixed';
-      fixedBtn.classList.toggle('active', isFixed);
-      fixedBtn.textContent = '＋';
-      fixedBtn.title = '必ず食べる';
-      fixedBtn.addEventListener('click', () => this.setMenuFixed(menu.name));
-
-      // 除外ボタン
-      const excludedBtn = document.createElement('button');
-      excludedBtn.className = 'menu-btn excluded';
-      excludedBtn.classList.toggle('active', isExcluded);
-      excludedBtn.textContent = '✕';
-      excludedBtn.title = '食べない';
-      excludedBtn.addEventListener('click', () => this.setMenuExcluded(menu.name));
-
-      buttonsContainer.appendChild(normalBtn);
-      buttonsContainer.appendChild(fixedBtn);
-      buttonsContainer.appendChild(excludedBtn);
-
       item.appendChild(details);
-      item.appendChild(buttonsContainer);
+
+      // クリック時に状態を切り替え
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.cycleMenuState(menu.name);
+      });
+
       container.appendChild(item);
     });
+  }
+
+  /**
+   * メニューの状態を循環的に切り替え（推奨 → 固定 → 除外 → 推奨）
+   */
+  cycleMenuState(menuName) {
+    const isFixed = this.fixedMenus.has(menuName);
+    const isExcluded = this.excludedMenus.has(menuName);
+
+    if (isFixed) {
+      // 固定 → 除外
+      this.fixedMenus.delete(menuName);
+      this.excludedMenus.add(menuName);
+    } else if (isExcluded) {
+      // 除外 → 推奨
+      this.excludedMenus.delete(menuName);
+    } else {
+      // 推奨 → 固定
+      this.fixedMenus.add(menuName);
+    }
+
+    this.renderMenusList();
   }
 
   /**
@@ -462,12 +463,12 @@ class MenuOptimizationApp {
       !excludedMenuNames.includes(m.name)
     );
 
-    // 貪欲法で追加メニューを選択
+    // 貪欲法で追加メニューを選択（上限なし：availableMenus.length）
     const additionalMenus = this.selectMenusByGreedy(
       availableMenus,
       targets,
       fixedNutrition,
-      10
+      availableMenus.length
     );
 
     const additionalNutrition = this.calculateTotalNutrition(additionalMenus);
@@ -645,9 +646,9 @@ class MenuOptimizationApp {
   }
 
   /**
-   * メニューグリッドを表示
+   * メニューグリッドを表示（設定画面と同じスタイル）
    */
-  displayMenuGrid(elementId, menus, showExcludeButton) {
+  displayMenuGrid(elementId, menus, isAdditional = false) {
     const container = document.getElementById(elementId);
     if (!container) {
       console.warn(`${elementId} 要素が見つかりません`);
@@ -662,53 +663,75 @@ class MenuOptimizationApp {
 
     menus.forEach(menu => {
       try {
-        const card = document.createElement('div');
-        card.className = 'menu-card';
+        const item = document.createElement('div');
+        item.className = 'menu-list-item';
+        
+        // elementId が fixed-menus-result の場合は固定スタイル
+        if (elementId === 'fixed-menus-result') {
+          item.classList.add('fixed');
+        } else {
+          item.classList.add('suggested');
+        }
 
-        // メニュー情報
-        const info = document.createElement('div');
-        info.className = 'menu-card-info';
+        const details = document.createElement('div');
+        details.className = 'menu-list-item-details';
 
         const name = document.createElement('div');
-        name.className = 'menu-name';
+        name.className = 'menu-list-item-name';
         name.textContent = menu.name || '（名前なし）';
 
-        const nutrition = document.createElement('div');
-        nutrition.className = 'menu-nutrition';
-        if (menu.nutrition && typeof menu.nutrition === 'object') {
-          const nutritionEntries = Object.entries(menu.nutrition).slice(0, 4);
-          nutritionEntries.forEach(([key, value]) => {
-            const row = document.createElement('div');
-            row.className = 'nutrition-row';
-            const displayValue = typeof value === 'number' ? value.toFixed(1) : value;
-            row.innerHTML = `<span>${key}:</span><span>${displayValue}</span>`;
-            nutrition.appendChild(row);
-          });
+        // 価格を表示
+        const price = menu.nutrition?.['価格'];
+        const priceEl = document.createElement('div');
+        priceEl.className = 'menu-list-item-price';
+        if (price !== undefined && price !== null) {
+          priceEl.textContent = `¥${price}`;
         }
 
-        info.appendChild(name);
-        info.appendChild(nutrition);
+        // 栄養情報を表示（P, F, C, V で表示）
+        const nutrition = document.createElement('div');
+        nutrition.className = 'menu-list-item-nutrition';
 
-        // ボタン
-        const buttons = document.createElement('div');
-        buttons.className = 'menu-card-buttons';
+        const nutritionMap = [
+          { key: 'たんぱく質', label: 'P', class: 'nutrition-p' },
+          { key: '脂質', label: 'F', class: 'nutrition-f' },
+          { key: '炭水化物', label: 'C', class: 'nutrition-c' },
+          { key: '野菜重量', label: 'V', class: 'nutrition-v' }
+        ];
 
-        if (showExcludeButton) {
+        nutritionMap.forEach(({ key, label, class: className }) => {
+          const value = menu.nutrition?.[key];
+          if (value !== undefined && value !== null) {
+            const nutritionItem = document.createElement('div');
+            nutritionItem.className = `menu-list-item-nutrition-item ${className}`;
+            nutritionItem.innerHTML = `<span>${label}</span> <span>${typeof value === 'number' ? value.toFixed(0) : value}</span>`;
+            nutrition.appendChild(nutritionItem);
+          }
+        });
+
+        details.appendChild(name);
+        details.appendChild(priceEl);
+        details.appendChild(nutrition);
+
+        // 除外ボタン（提案メニューのみ）
+        if (isAdditional && elementId !== 'fixed-menus-result') {
           const excludeBtn = document.createElement('button');
-          excludeBtn.className = 'menu-card-btn danger';
+          excludeBtn.className = 'result-exclude-btn';
           excludeBtn.textContent = '✕';
           excludeBtn.title = 'この提案を除外';
-          excludeBtn.addEventListener('click', () => {
+          excludeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             this.tempExcludedMenus.add(menu.name);
+            item.style.opacity = '0.5';
             excludeBtn.disabled = true;
-            excludeBtn.style.opacity = '0.5';
           });
-          buttons.appendChild(excludeBtn);
+          item.appendChild(details);
+          item.appendChild(excludeBtn);
+        } else {
+          item.appendChild(details);
         }
 
-        card.appendChild(info);
-        card.appendChild(buttons);
-        container.appendChild(card);
+        container.appendChild(item);
       } catch (error) {
         console.error(`メニューカード作成エラー (${menu.name}):`, error);
       }
