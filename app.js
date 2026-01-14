@@ -468,12 +468,16 @@ class MenuOptimizationApp {
       !excludedMenuNames.includes(m.name)
     );
 
-    // 貪欲法で追加メニューを選択（上限なし：availableMenus.length）
+    // 最大メニュー数を取得（入力欄から）
+    const maxMenusInput = document.getElementById('max-menus-input');
+    const maxMenus = maxMenusInput ? parseInt(maxMenusInput.value) || availableMenus.length : availableMenus.length;
+
+    // 貪欲法で追加メニューを選択
     const additionalMenus = this.selectMenusByGreedy(
       availableMenus,
       targets,
       fixedNutrition,
-      availableMenus.length
+      maxMenus
     );
 
     const additionalNutrition = this.calculateTotalNutrition(additionalMenus);
@@ -767,19 +771,9 @@ class MenuOptimizationApp {
     }
     container.innerHTML = '';
 
-    if (!targets || Object.keys(targets).length === 0) {
-      container.innerHTML = '<p class="empty-message">栄養情報がありません</p>';
-      return;
-    }
-
-    // チャートコンテナ
-    const chartContainer = document.createElement('div');
-    chartContainer.style.marginBottom = '20px';
-    chartContainer.style.position = 'relative';
-    chartContainer.style.height = '300px';
-    chartContainer.innerHTML = '<canvas id="nutrition-chart"></canvas>';
-    container.appendChild(chartContainer);
-
+    // 常に表示する5つの栄養項目
+    const fixedLabels = ['エネルギー', 'たんぱく質', '脂質', '炭水化物', '野菜重量'];
+    
     // テーブルコンテナ
     const tableContainer = document.createElement('div');
     tableContainer.className = 'nutrition-table-container';
@@ -795,16 +789,17 @@ class MenuOptimizationApp {
     `;
     tableContainer.appendChild(headerRow);
 
-    // データ行
+    // チャート用データ
     const labels = [];
     const targetValues = [];
     const actualValues = [];
 
-    Object.keys(targets).forEach(key => {
+    // 常に5項目を固定順序で処理
+    fixedLabels.forEach(key => {
       const row = document.createElement('div');
       row.className = 'nutrition-row-table';
 
-      const target = targets[key] || 0;
+      const target = targets && targets[key] ? targets[key] : 0;
       const actual = (totalNutrition && totalNutrition[key]) || 0;
       const diff = actual - target;
       const diffColor = diff >= 0 ? '#34C759' : '#FF3B30';
@@ -817,15 +812,24 @@ class MenuOptimizationApp {
       `;
       tableContainer.appendChild(row);
 
-      // チャート用データ
+      // チャート用データ（常に全5項目）
       labels.push(key);
       targetValues.push(typeof target === 'number' ? target : 0);
       actualValues.push(typeof actual === 'number' ? actual : 0);
     });
 
+    // チャートコンテナ
+    const chartContainer = document.createElement('div');
+    chartContainer.style.marginBottom = '20px';
+    chartContainer.style.position = 'relative';
+    chartContainer.style.height = '300px';
+    chartContainer.innerHTML = '<canvas id="nutrition-chart"></canvas>';
+    
+    // テーブルを先に追加
     container.appendChild(tableContainer);
+    container.appendChild(chartContainer);
 
-    // レーダーチャートを描画
+    // レーダーチャートを描画（常に五角形で、目標値は点のみ）
     setTimeout(() => this.drawRadarChart(labels, targetValues, actualValues), 100);
   }
 
@@ -859,21 +863,22 @@ class MenuOptimizationApp {
             {
               label: '目標値',
               data: targetValues,
-              borderColor: '#007AFF',
-              backgroundColor: 'rgba(0, 122, 255, 0.1)',
-              borderWidth: 2,
-              fill: true,
+              borderColor: 'transparent',
+              backgroundColor: 'transparent',
+              borderWidth: 0,
+              fill: false,
               pointBackgroundColor: '#007AFF',
               pointBorderColor: '#fff',
               pointBorderWidth: 2,
               pointRadius: 5,
-              pointHoverRadius: 7
+              pointHoverRadius: 7,
+              showLine: false
             },
             {
               label: '実績',
               data: actualValues,
               borderColor: '#34C759',
-              backgroundColor: 'rgba(52, 199, 89, 0.1)',
+              backgroundColor: 'rgba(52, 199, 89, 0.2)',
               borderWidth: 2,
               fill: true,
               pointBackgroundColor: '#34C759',

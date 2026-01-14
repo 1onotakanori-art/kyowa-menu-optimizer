@@ -595,11 +595,6 @@ body {
   text-align: center;
 }
 
-.menu-list-item:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);
-}
-
 .menu-list-item-details {
   display: grid;
   grid-template-columns: 1fr;

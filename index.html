@@ -41,6 +41,21 @@
             <small>利用可能な日付のみを表示</small>
           </div>
 
+          <!-- 最大メニュー数 -->
+          <div class="form-group">
+            <label for="max-menus-input">🔢 最大メニュー数</label>
+            <input 
+              type="number" 
+              id="max-menus-input" 
+              class="form-input" 
+              value="10" 
+              min="1" 
+              max="100"
+              placeholder="10"
+            >
+            <small>最適化で選択する最大メニュー数</small>
+          </div>
+
           <!-- 栄養目標 -->
           <div class="form-section-title">🎯 栄養目標</div>
           
@@ -115,16 +130,6 @@
           <div class="form-section-title">📋 メニュー選択</div>
           <div class="menu-legend">
             <div class="legend-section">
-              <div class="legend-title">栄養成分</div>
-              <div class="legend-items">
-                <span class="legend-item nutrition-e-label">E</span>
-                <span class="legend-item nutrition-p-label">P</span>
-                <span class="legend-item nutrition-f-label">F</span>
-                <span class="legend-item nutrition-c-label">C</span>
-                <span class="legend-item nutrition-v-label">V</span>
-              </div>
-            </div>
-            <div class="legend-section">
               <div class="legend-title">メニュー状態</div>
               <div class="legend-items">
                 <div class="legend-box-item"><span class="legend-box legend-recommended"></span><span class="legend-label">推奨</span></div>
@@ -137,11 +142,11 @@
               <div class="legend-menu-example">
                 <div class="legend-menu-name">メニュー名</div>
                 <div class="legend-menu-nutrition">
-                  <span class="nutrition-e-label">123.4</span>
-                  <span class="nutrition-p-label">12.5</span>
-                  <span class="nutrition-f-label">8.3</span>
-                  <span class="nutrition-c-label">45.6</span>
-                  <span class="nutrition-v-label">120</span>
+                  <span class="nutrition-e-label">E 123.4</span>
+                  <span class="nutrition-p-label">P 12.5</span>
+                  <span class="nutrition-f-label">F 8.3</span>
+                  <span class="nutrition-c-label">C 45.6</span>
+                  <span class="nutrition-v-label">V 120</span>
                 </div>
               </div>
             </div>
@@ -199,13 +204,11 @@
 
             <!-- 固定メニューセクション -->
             <div id="fixed-section" class="menu-section hidden">
-              <h3>📌 固定メニュー</h3>
               <div id="fixed-menus-result" class="menus-grid"></div>
             </div>
 
             <!-- 追加メニューセクション -->
             <div class="menu-section">
-              <h3>✅ 提案メニュー</h3>
               <div id="additional-menus-result" class="menus-grid"></div>
             </div>
 
