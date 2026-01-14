@@ -188,11 +188,14 @@ class MenuOptimizationApp {
       const isFixed = this.fixedMenus.has(menu.name);
       const isExcluded = this.excludedMenus.has(menu.name);
       
-      // CSS クラス設定
+      // CSS クラス設定：状態に応じて .fixed または .excluded を追加
+      // （.suggested はデフォルト）
       if (isFixed) {
         item.classList.add('fixed');
       } else if (isExcluded) {
         item.classList.add('excluded');
+      } else {
+        // デフォルト：推奨（特別なクラスは不要）
       }
 
       // メニュー詳細情報
@@ -228,7 +231,7 @@ class MenuOptimizationApp {
         if (value !== undefined && value !== null) {
           const nutritionItem = document.createElement('div');
           nutritionItem.className = `menu-list-item-nutrition-item ${className}`;
-          const displayValue = typeof value === 'number' ? value.toFixed(1) : value;
+          const displayValue = typeof value === 'number' ? value : value;
           nutritionItem.innerHTML = `<span>${displayValue}</span>`;
           nutrition.appendChild(nutritionItem);
         }
@@ -690,11 +693,12 @@ class MenuOptimizationApp {
           priceEl.textContent = `¥${price}`;
         }
 
-        // 栄養情報を表示（P, F, C, V で表示）
+        // 栄養情報を表示（E, P, F, C, V で表示）
         const nutrition = document.createElement('div');
         nutrition.className = 'menu-list-item-nutrition';
 
         const nutritionMap = [
+          { key: 'エネルギー', label: 'E', class: 'nutrition-e' },
           { key: 'たんぱく質', label: 'P', class: 'nutrition-p' },
           { key: '脂質', label: 'F', class: 'nutrition-f' },
           { key: '炭水化物', label: 'C', class: 'nutrition-c' },
@@ -706,7 +710,8 @@ class MenuOptimizationApp {
           if (value !== undefined && value !== null) {
             const nutritionItem = document.createElement('div');
             nutritionItem.className = `menu-list-item-nutrition-item ${className}`;
-            nutritionItem.innerHTML = `<span>${label}</span> <span>${typeof value === 'number' ? value.toFixed(0) : value}</span>`;
+            const displayValue = typeof value === 'number' ? value : value;
+            nutritionItem.innerHTML = `<span>${displayValue}</span>`;
             nutrition.appendChild(nutritionItem);
           }
         });
@@ -715,7 +720,7 @@ class MenuOptimizationApp {
         details.appendChild(priceEl);
         details.appendChild(nutrition);
 
-        // 除外ボタン（提案メニューのみ）
+        // 除外ボタン（提案メニューのみ）をメニュー名の右に表示
         if (isAdditional && elementId !== 'fixed-menus-result') {
           const excludeBtn = document.createElement('button');
           excludeBtn.className = 'result-exclude-btn';
@@ -727,8 +732,20 @@ class MenuOptimizationApp {
             item.style.opacity = '0.5';
             excludeBtn.disabled = true;
           });
-          item.appendChild(details);
-          item.appendChild(excludeBtn);
+          
+          // メニュー名と除外ボタンをヘッダーレイアウトに
+          const header = document.createElement('div');
+          header.className = 'menu-result-header';
+          header.appendChild(name);
+          header.appendChild(excludeBtn);
+          
+          const detailsWrapper = document.createElement('div');
+          detailsWrapper.className = 'menu-list-item-details';
+          detailsWrapper.appendChild(header);
+          detailsWrapper.appendChild(priceEl);
+          detailsWrapper.appendChild(nutrition);
+          
+          item.appendChild(detailsWrapper);
         } else {
           item.appendChild(details);
         }

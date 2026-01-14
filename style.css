@@ -379,10 +379,9 @@ body {
 
 .menu-list-item-nutrition {
   font-size: 12px;
-  color: var(--text-secondary);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  gap: 4px;
   padding: 0;
   margin-top: 4px;
 }
@@ -391,37 +390,38 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 6px 4px;
+  padding: 6px 2px;
   border-radius: 4px;
   min-height: 24px;
-}
-
-.menu-list-item-nutrition-item span:first-child {
   font-weight: 700;
-  min-width: auto;
-  color: white;
   font-size: 13px;
+  word-break: break-all;
 }
 
-/* 栄養成分の背景色設定 */
+/* 栄養成分の背景色設定（オプションB：明色背景＋黒文字） */
 .nutrition-e {
-  background-color: #95a5a6;
+  background-color: #d5dbdb;
+  color: #000;
 }
 
 .nutrition-p {
-  background-color: #e74c3c;
+  background-color: #fadbd8;
+  color: #000;
 }
 
 .nutrition-f {
-  background-color: #f39c12;
+  background-color: #fef5e7;
+  color: #000;
 }
 
 .nutrition-c {
-  background-color: #3498db;
+  background-color: #d6eaf8;
+  color: #000;
 }
 
 .nutrition-v {
-  background-color: #27ae60;
+  background-color: #d5f4e6;
+  color: #000;
 }
 
 .menu-list-item-buttons {
@@ -463,18 +463,77 @@ body {
   transform: scale(0.95);
 }
 
-.menu-legend {
+.menu-result-header {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu-legend {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 16px;
   padding: 12px;
   background-color: #f0f8ff;
   border-radius: 8px;
   margin-bottom: 12px;
-  flex-wrap: wrap;
   font-size: 13px;
 }
 
+.legend-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.legend-items {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .legend-item {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 13px;
+  color: white;
+}
+
+.nutrition-e-label {
+  background-color: #d5dbdb;
+  color: #000;
+}
+
+.nutrition-p-label {
+  background-color: #fadbd8;
+  color: #000;
+}
+
+.nutrition-f-label {
+  background-color: #fef5e7;
+  color: #000;
+}
+
+.nutrition-c-label {
+  background-color: #d6eaf8;
+  color: #000;
+}
+
+.nutrition-v-label {
+  background-color: #d5f4e6;
+  color: #000;
+}
+
+.legend-box-item {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -507,24 +566,32 @@ body {
   color: var(--text-primary);
 }
 
-.nutrition-p-label {
-  color: #e74c3c;
-  font-weight: 700;
+.legend-menu-example {
+  border: 1px solid var(--medium-gray);
+  border-radius: 6px;
+  padding: 8px;
+  background-color: white;
 }
 
-.nutrition-f-label {
-  color: #f39c12;
+.legend-menu-name {
   font-weight: 700;
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
 }
 
-.nutrition-c-label {
-  color: #3498db;
-  font-weight: 700;
+.legend-menu-nutrition {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
 }
 
-.nutrition-v-label {
-  color: #27ae60;
+.legend-menu-nutrition span {
+  padding: 4px 2px;
+  border-radius: 3px;
   font-weight: 700;
+  font-size: 12px;
+  text-align: center;
 }
 
 .menu-list-item:hover {
