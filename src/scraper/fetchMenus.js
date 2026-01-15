@@ -112,11 +112,19 @@ async function selectDate(page, dateLabel) {
   // ボタンが存在することを確認
   await page.waitForSelector('.weeks-day-btn button.after-btn', { timeout: 5000 });
 
+  console.log(`🔍 日付選択開始: "${dateLabel}"`);
+  
   // スクロール＆クリック処理をすべて evaluate 内で実行
   // 理由：複数の DOM 操作が連鎖するため、一括で処理する必要がある
   const selected = await page.evaluate((label) => {
     // 1回目：ボタン一覧を取得して探す
     let btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
+    const availableDates = btns.map(b => b.textContent.trim());
+    
+    // デバッグ情報をコンソールに出力
+    console.log('[DEBUG] 検索対象:', label);
+    console.log('[DEBUG] 利用可能な日付:', availableDates);
+    
     let target = btns.find(btn => btn.textContent.trim() === label);
     
     if (!target) {
@@ -131,6 +139,10 @@ async function selectDate(page, dateLabel) {
       
       btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
       target = btns.find(btn => btn.textContent.trim() === label);
+      
+      if (target) {
+        console.log('[DEBUG] スクロール後に見つかりました');
+      }
     }
     
     if (!target) {
@@ -143,6 +155,7 @@ async function selectDate(page, dateLabel) {
 
     // クリック（force: true の効果をシミュレート）
     // 理由：ボタンが covered されている可能性を考慮
+    console.log('[DEBUG] 日付ボタンをクリック:', label);
     target.click();
     return { success: true };
   }, dateLabel);
@@ -211,15 +224,16 @@ async function expandAllMenus(page) {
     await nextBtn.click({ force: true });
     console.log(`   🖱️  クリック ${clickCount + 1} 実行`);
     
-    // クリック後、メニュー数が増えるまで待機（最大3秒）
+    // クリック後、メニュー数が増えるまで待機（最大5秒）
+    // ユーザー指摘：クリックが成功した場合、メニュー数は必ず増加する
     const startTime = Date.now();
     let currentCount = beforeCount;
-    const maxWaitTime = 3000;
+    const maxWaitTime = 5000; // 3秒→5秒に延長
     let menuIncreased = false;
     
     console.log(`   ⏳ メニュー追加待機中...`);
     while (Date.now() - startTime < maxWaitTime) {
-      await page.waitForTimeout(100);
+      await page.waitForTimeout(200); // 100ms→200msに延長（読み込み遅延対策）
       currentCount = await page.$$eval('.menu-content', els => els.length);
       
       if (currentCount > beforeCount) {
@@ -234,8 +248,11 @@ async function expandAllMenus(page) {
     
     // タイムアウトした場合
     if (!menuIncreased) {
-      console.log(`   ⚠️  クリック ${clickCount + 1}: メニュー数変化なし (${beforeCount} → ${currentCount}) [タイムアウト]`);
-      // メニューが増えない = これ以上展開不可
+      // メニューが増えない = サイトの読み込み遅延またはこれ以上展開不可
+      // ボタンが存在していたのにメニューが増えないのは異常なので、エラーとして扱う
+      console.log(`   ❌ クリック ${clickCount + 1}: メニュー数変化なし (${beforeCount} → ${currentCount}) [タイムアウト]`);
+      console.log(`   ⚠️  ボタンが存在したのにメニューが増えませんでした。サイトの読み込み遅延の可能性があります。`);
+      // ただし、処理は継続（次のボタンチェックで終了判定）
       break;
     }
     

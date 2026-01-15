@@ -1,134 +1,158 @@
-# 🍽️ Kyowa Menu Scrape - GitHub Pages Edition
+# 🍽️ Kyowa Menu Optimizer
 
-完全無料でホストされるメニュー最適化 Web アプリケーション。GitHub Actions で自動スクレイピング、GitHub Pages で 24/7 稼働。
+協和食堂のメニューから栄養目標に最適なメニュー組み合わせを自動提案するWebアプリケーション。
+
+[![GitHub Pages](https://img.shields.io/badge/GitHub-Pages-blue)](https://1onotakanori-art.github.io/kyowa-menu-optimizer/)
 
 ## ✨ 特徴
 
-- 📱 **iPhone/iPad 対応** - レスポンシブ UI
-- 🤖 **自動スクレイピング** - GitHub Actions で毎週自動実行
-- 🌐 **完全無料** - GitHub 無料プランで完結
-- 💻 **サーバー不要** - フロントエンドのみで動作
-- 🚀 **どこからでもアクセス** - GitHub Pages で公開
+- 📱 **iPhone/iPad 完全対応** - タップ操作でメニュー選択
+- 🎯 **栄養目標最適化** - E/P/F/C/V の5つの栄養素を同時に最適化
+- 🎨 **直感的なUI** - 色で状態を判別（推奨/固定/除外）
+- 📊 **レーダーチャート** - 目標vs実績を視覚的に表示
+- 🌐 **完全無料** - GitHub Pages でホスト
+- 💻 **サーバー不要** - 静的サイトのみで動作
 
 ## 🏗️ システム構成
 
 ```
-GitHub Actions（毎週日曜 21:00 実行）
+ローカル（Mac）でスクレイピング
   ↓
-[prescrap.js] スクレイピング実行
+[prescrap.js] Playwright でメニュー取得
   ↓
-[docs/menus/] JSON ファイル生成
+[menus/] JSON ファイル生成
   ↓
-GitHub に自動 push
+Git push → GitHub
   ↓
-GitHub Pages で公開
+GitHub Pages で自動デプロイ（1-2分）
   ↓
-iPhone/PC でアクセス可能
+https://1onotakanori-art.github.io/kyowa-menu-optimizer/
 ```
 
 ## 📋 セットアップ手順
 
-### 1. GitHub に登録
-
-GitHub アカウントがなければ作成：https://github.com
-
-### 2. このリポジトリを自分のアカウントにフォーク
-
-またはクローンしてから `git push`
+### 1. リポジトリのクローン
 
 ```bash
-git clone https://github.com/onotakanori/kyowa-menu-scrape.git
-cd kyowa-menu-scrape
-git remote set-url origin https://github.com/YOUR_USERNAME/kyowa-menu-scrape.git
-git push -u origin main
+git clone https://github.com/1onotakanori-art/kyowa-menu-optimizer.git
+cd kyowa-menu-optimizer
 ```
 
-### 3. GitHub Pages を有効化
+### 2. 依存関係のインストール
+
+```bash
+npm install
+```
+
+### 3. スクレイピング実行（ローカル）
+
+```bash
+node prescrap.js
+```
+
+スクレイピングされたメニューは `menus/` ディレクトリに保存されます。
+
+### 4. GitHub Pages の設定
 
 リポジトリの Settings → Pages → Source を以下に設定：
 - **Source**: Deploy from a branch
 - **Branch**: main
 - **Folder**: / (root)
 
-### 4. GitHub Actions を実行
+### 5. デプロイ
 
-リポジトリの Actions タブで "🔄 Weekly Menu Scrape" を実行
+```bash
+git add -A
+git commit -m "メニューデータ更新"
+git push origin main
+```
 
-**初回実行：**
-- Actions タブ → "🔄 Weekly Menu Scrape" → "Run workflow"
-
-**スケジュール実行：**
-- 毎週日曜日 21:00（JST）に自動実行
-
-### 5. アプリにアクセス
-
-GitHub Pages の URL：`https://YOUR_USERNAME.github.io/kyowa-menu-scrape/`
-
-## 🔄 スケジュール設定
-
-スクレイピングは毎週日曜日 21:00（JST）に自動実行されます。
-
-手動実行の場合：
-1. Actions タブを開く
-2. "🔄 Weekly Menu Scrape" をクリック
-3. "Run workflow" ボタンをクリック
 
 ## 📱 使用方法
 
 1. **日付を選択** - ドロップダウンから希望日を選択
-2. **メニューを確認** - スクレイピング済みメニューを表示
-3. **栄養目標を設定** - チェックボックスで選択、目標値を入力
+2. **栄養目標を設定** - E/P/F/C/V の目標値を入力
+3. **最大メニュー数** - 1回で選べる上限数を設定（1-100）
 4. **メニューを選択**
-   - ○ 通常：グリーンで選択
-   - ＋ 固定：必ず含める
-   - ✕ 除外：除外する
-5. **最適化実行** - 「最適化実行」ボタンをクリック
-6. **結果を確認** - 提案メニューと栄養情報を表示
+   - 📗 推奨（緑）：最適化が推奨するメニュー
+   - 📘 固定（青）：必ず含める（タップで設定）
+   - 📕 除外（赤）：除外する（タップ2回で設定）
+5. **最適化実行** - ボタンをクリック
+6. **結果を確認** - 提案メニューと栄養チャートを表示
 
 ## 📂 ディレクトリ構造
 
 ```
-kyowa-menu-scrape/
-├── .github/
-│   └── workflows/
-│       └── scrape.yml              # GitHub Actions 自動実行設定
-├── docs/                           # GitHub Pages ホスティング
-│   ├── index.html                  # Web UI
-│   ├── app.js                      # フロントエンド（最適化を実行）
-│   ├── style.css                   # スタイル
-│   ├── menus/                      # 自動生成されるメニュー JSON
-│   │   ├── menus_2026-01-13.json
-│   │   └── ...
-│   └── available-dates.json        # 自動生成される日付リスト
+kyowa-menu-optimizer/
+├── index.html                      # Web UI
+├── app.js                          # フロントエンド（最適化実行）
+├── style.css                       # スタイル
+├── menus/                          # スクレイピング済みメニュー JSON
+│   ├── menus_2026-01-13.json
+│   └── ...
 ├── src/
 │   ├── scraper/
 │   │   └── fetchMenus.js           # Playwright スクレイピング
 │   ├── utils/
 │   │   └── date.js                 # 日付ユーティリティ
-│   ├── optimizer/
-│   │   └── optimizeMenus.js        # 最適化アルゴリズム
-│   └── index.js                    # ローカル実行用サーバー（不要）
-├── prescrap.js                     # GitHub Actions で実行するスクリプト
+│   └── optimizer/
+│       └── optimizeMenus.js        # 最適化アルゴリズム
+├── prescrap.js                     # スクレイピングメインスクリプト
 └── package.json
 ```
 
-## 🚀 ローカル開発（オプション）
+## 🔧 スクレイピング詳細
 
-ローカルでテストする場合：
+### 実行タイミング
 
-```bash
-# 1. 依存パッケージをインストール
-npm install
+- **手動実行**: `node prescrap.js`（Mac/Linux/WSLのみ）
+- **頻度**: 週1回程度を推奨（メニューは週次更新）
 
-# 2. メニューをスクレイピング（初回）
-node prescrap.js
+### スクレイピング対象
 
-# 3. ローカルサーバーを起動
-npm start
+- **対象サイト**: https://kyowa2407225.uguide.info
+- **取得日数**: 5日分（デフォルト）
+- **取得項目**:
+  - メニュー名
+  - 栄養成分（エネルギー/たんぱく質/脂質/炭水化物/ビタミン群）
 
-# 4. ブラウザで開く
-# http://localhost:3000
-```
+### トラブルシューティング
+
+**エラー: 日付が見つかりません**
+- サイトが未更新の可能性があります
+- 翌営業日以降に再実行してください
+
+**メニュー数が少ない**
+- サイトの読み込み遅延による可能性があります
+- `src/scraper/fetchMenus.js` の `waitForTimeout` を調整してください
+
+**Playwright エラー**
+- Chromium のインストール: `npx playwright install chromium`
+
+## 📊 最適化アルゴリズム
+
+- **手法**: 0-1ナップサック問題の動的計画法
+- **制約条件**:
+  - 最大メニュー数
+  - 固定メニューは必須
+  - 除外メニューは不可
+- **目標**: 栄養目標との差の最小化
+
+## 🌐 GitHub Pages URL
+
+https://1onotakanori-art.github.io/kyowa-menu-optimizer/
+
+## 📜 ライセンス
+
+MIT License
+
+## 👤 作成者
+
+- GitHub: [@1onotakanori-art](https://github.com/1onotakanori-art)
+
+---
+
+**Note**: このプロジェクトは個人利用目的で作成されました。スクレイピング対象サイトの利用規約を遵守してください。
 
 ## 🔧 主要なファイル説明
 
