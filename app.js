@@ -29,7 +29,13 @@ class MenuOptimizationApp {
 
     // 栄養目標アイテムクリック処理
     document.querySelectorAll('.nutrition-item').forEach(item => {
-      item.addEventListener('click', (e) => this.toggleNutritionItem(e.currentTarget));
+      item.addEventListener('click', (e) => {
+        // input要素をクリックした場合は何もしない（編集モードに）
+        if (e.target.classList.contains('nutrition-value')) {
+          return;
+        }
+        this.toggleNutritionItem(e.currentTarget);
+      });
     });
 
     // 日付選択変更
