@@ -115,7 +115,9 @@ class MenuOptimizationApp {
   }
 
   /**
-   * 利用可能な日付を読込（JSON ファイルから）
+   * 利用可能な日付を読込（menus/ フォルダのデータから）
+   * - ページ開いている日以降のみを選択可能
+   * - デフォルトは本日（存在する場合）
    */
   async loadAvailableDates() {
     try {
@@ -124,29 +126,65 @@ class MenuOptimizationApp {
         throw new Error('利用可能な日付の取得に失敗しました');
       }
       const data = await response.json();
-      const dates = data.dates || [];
+      const availableDates = data.dates || [];
       
-      const dateSelect = document.getElementById('date-input');
-      dateSelect.innerHTML = '';
-
-      if (dates.length === 0) {
-        dateSelect.innerHTML = '<option value="">メニュー データがありません</option>';
+      if (availableDates.length === 0) {
+        const dateSelect = document.getElementById('date-input');
+        dateSelect.innerHTML = '<option value="">メニューデータがありません</option>';
         return;
       }
 
-      // 最初の日付をデフォルト選択
-      dates.forEach((date, index) => {
+      // 本日の日付を取得（"M/D" 形式）
+      const today = new Date();
+      const todayMonthDay = `${today.getMonth() + 1}/${today.getDate()}`;
+
+      // ページ開いている日以降の日付をフィルタリング
+      const filteredDates = availableDates.filter(dateLabel => {
+        const match = dateLabel.match(/(\d{1,2})\/(\d{1,2})/);
+        if (!match) return false;
+
+        const [, month, day] = match;
+        const monthNum = parseInt(month);
+        const dayNum = parseInt(day);
+
+        // 本日以降の日付か判定
+        // 注：月の跨ぎや年の跨ぎには対応していません
+        // スクレイプが最新なら、今月の日付のみで問題ありません
+        if (monthNum > today.getMonth() + 1) {
+          return true; // 翌月以降
+        }
+        if (monthNum === today.getMonth() + 1 && dayNum >= today.getDate()) {
+          return true; // 今月で本日以降
+        }
+        return false;
+      });
+
+      if (filteredDates.length === 0) {
+        const dateSelect = document.getElementById('date-input');
+        dateSelect.innerHTML = '<option value="">本日以降のメニューデータがありません</option>';
+        return;
+      }
+
+      const dateSelect = document.getElementById('date-input');
+      dateSelect.innerHTML = '';
+
+      // フィルター後の日付をオプションに追加
+      filteredDates.forEach(date => {
         const option = document.createElement('option');
         option.value = date; // "1/13(火)" 形式
         option.textContent = date; // "1/13(火)" 形式で表示
         dateSelect.appendChild(option);
       });
 
-      // 最初の日付を選択
-      if (dates.length > 0) {
-        dateSelect.value = dates[0];
-        await this.loadMenus(); // メニュー読込
+      // デフォルトは本日（存在する場合）、なければ最初の利用可能日付
+      const todayOption = filteredDates.find(d => d.startsWith(todayMonthDay));
+      if (todayOption) {
+        dateSelect.value = todayOption;
+      } else {
+        dateSelect.value = filteredDates[0];
       }
+
+      await this.loadMenus(); // メニュー読込
     } catch (error) {
       console.error('利用可能な日付の読込エラー:', error);
       const dateSelect = document.getElementById('date-input');
