@@ -168,6 +168,11 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  margin-bottom: 20px;
+}
+
+.form-row .form-group {
+  margin-bottom: 0;
 }
 
 @media (max-width: 600px) {
