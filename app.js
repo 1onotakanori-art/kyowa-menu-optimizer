@@ -121,12 +121,22 @@ class MenuOptimizationApp {
    */
   async loadAvailableDates() {
     try {
-      const response = await fetch('./available-dates.json');
+      console.log('📅 loadAvailableDates() 実行開始');
+      
+      // ✅ 修正：ファイルパスを menus/ フォルダに統一
+      const response = await fetch('./menus/available-dates.json');
+      
+      console.log('🔗 Fetch response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('利用可能な日付の取得に失敗しました');
+        throw new Error(`HTTP ${response.status}: 利用可能な日付の取得に失敗しました`);
       }
+      
       const data = await response.json();
+      console.log('✅ データ取得成功:', data);
+      
       const availableDates = data.dates || [];
+      console.log('📅 利用可能な日付:', availableDates);
       
       if (availableDates.length === 0) {
         const dateSelect = document.getElementById('date-input');
@@ -159,6 +169,8 @@ class MenuOptimizationApp {
         return false;
       });
 
+      console.log('🔍 フィルター後の日付:', filteredDates);
+
       if (filteredDates.length === 0) {
         const dateSelect = document.getElementById('date-input');
         dateSelect.innerHTML = '<option value="">本日以降のメニューデータがありません</option>';
@@ -179,14 +191,16 @@ class MenuOptimizationApp {
       // デフォルトは本日（存在する場合）、なければ最初の利用可能日付
       const todayOption = filteredDates.find(d => d.startsWith(todayMonthDay));
       if (todayOption) {
+        console.log('✅ 本日のメニューが利用可能:', todayOption);
         dateSelect.value = todayOption;
       } else {
+        console.log('ℹ️ 本日のメニューなし。最初の利用可能日付を選択:', filteredDates[0]);
         dateSelect.value = filteredDates[0];
       }
 
       await this.loadMenus(); // メニュー読込
     } catch (error) {
-      console.error('利用可能な日付の読込エラー:', error);
+      console.error('❌ 利用可能な日付の読込エラー:', error);
       const dateSelect = document.getElementById('date-input');
       dateSelect.innerHTML = '<option value="">エラー: 日付を取得できません</option>';
     }
