@@ -88,6 +88,9 @@ body {
   border-bottom: 1px solid var(--medium-gray);
   flex-shrink: 0;
   box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .tab-button {
@@ -159,6 +162,18 @@ body {
 
 .form-group {
   margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .form-group label {
@@ -308,9 +323,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-height: 500px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--medium-gray);
 }
 

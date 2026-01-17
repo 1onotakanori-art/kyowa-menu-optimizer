@@ -29,32 +29,35 @@
       <!-- 入力タブ -->
       <section id="input-tab" class="tab-content active">
         <div class="form-section">
-          <!-- 日付選択 -->
-          <div class="form-group">
-            <label for="date-input">📅 日付</label>
-            <select 
-              id="date-input" 
-              class="form-input"
-              title="メニューが取得できた日付のみを選択可能"
-            >
-              <option value="">読込中...</option>
-            </select>
-            <small>利用可能な日付のみを表示</small>
-          </div>
+          <!-- 日付と最大メニュー数（横並び） -->
+          <div class="form-row">
+            <!-- 日付選択 -->
+            <div class="form-group">
+              <label for="date-input">📅 日付</label>
+              <select 
+                id="date-input" 
+                class="form-input"
+                title="メニューが取得できた日付のみを選択可能"
+              >
+                <option value="">読込中...</option>
+              </select>
+              <small>利用可能な日付のみを表示</small>
+            </div>
 
-          <!-- 最大メニュー数 -->
-          <div class="form-group">
-            <label for="max-menus-input">🔢 最大メニュー数</label>
-            <input 
-              type="number" 
-              id="max-menus-input" 
-              class="form-input" 
-              value="10" 
-              min="1" 
-              max="100"
-              placeholder="10"
-            >
-            <small>最適化で選択する最大メニュー数</small>
+            <!-- 最大メニュー数 -->
+            <div class="form-group">
+              <label for="max-menus-input">🔢 最大メニュー数</label>
+              <input 
+                type="number" 
+                id="max-menus-input" 
+                class="form-input" 
+                value="10" 
+                min="1" 
+                max="100"
+                placeholder="10"
+              >
+              <small>最適化で選択する最大メニュー数</small>
+            </div>
           </div>
 
           <!-- 栄養目標 -->
@@ -122,16 +125,17 @@
             </div>
           </div>
 
-          <!-- 実行ボタン -->
-          <button id="optimize-button" class="button button-primary">
-            🚀 最適化を実行
-          </button>
         </div>
       </section>
 
       <!-- メニュータブ -->
       <section id="menus-tab" class="tab-content">
         <div class="form-section">
+          <!-- 実行ボタン -->
+          <button id="optimize-button" class="button button-primary" style="width: 100%; margin-bottom: 20px;">
+            🚀 最適化を実行
+          </button>
+
           <!-- メニュー一覧 -->
           <div class="form-section-title">📋 メニュー選択</div>
           <div class="menu-legend">
