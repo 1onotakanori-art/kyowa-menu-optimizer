@@ -1,7 +1,13 @@
 /**
- * メニュープリスクレイピング
+ * メニュープリスクレイピング（Version 2）
+ * 
+ * 参照: SCRAPER_REBUILD_PLAN.md の「Phase 5: 統合テスト」
  * 複数日分のメニューを事前にキャッシュに保存
- * GitHub Pages 用に docs/menus/ に出力
+ * menus/ ディレクトリに出力
+ * 
+ * 実行方法:
+ *   node prescrap_v2.js          # デフォルト: 5日分
+ *   node prescrap_v2.js 3        # 3日分
  */
 
 const fs = require('fs');
@@ -9,121 +15,110 @@ const path = require('path');
 const { fetchMenus } = require('./src/scraper/fetchMenus');
 const { toDateLabel, getNearestWeekday } = require('./src/utils/date');
 
-// 出力ディレクトリ（GitHub Pages 用）
-const OUTPUT_DIR = path.join(__dirname, 'docs', 'menus');
+// 出力ディレクトリ
+const OUTPUT_DIR = path.join(__dirname, 'menus');
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
 /**
  * キャッシュファイル名を生成
+ * 参照: SCRAPER_REBUILD_PLAN.md の「出力ファイル形式」
+ * 
+ * @param {string} dateLabel - "1/12(月)" 形式
+ * @returns {string} "menus_2026-01-12.json" 形式
  */
 function getCacheFileName(dateLabel) {
-  const match = dateLabel.match(/(\d{1,2})\/(\d{1,2})/);
-  if (!match) return null;
-  
-  // 2026年を想定（実装では相対的に計算）
   const today = new Date();
-  const month = parseInt(match[1]);
-  const day = parseInt(match[2]);
-  
-  let year = today.getFullYear();
-  if (month < today.getMonth() + 1 || (month === today.getMonth() + 1 && day < today.getDate())) {
-    year = today.getFullYear() + 1;
-  }
-  
-  const monthStr = String(month).padStart(2, '0');
-  const dayStr = String(day).padStart(2, '0');
-  return `menus_${year}-${monthStr}-${dayStr}.json`;
+  const [month, day] = dateLabel.match(/(\d{1,2})\/(\d{1,2})/).slice(1).map(Number);
+  const year = today.getFullYear() + (month < today.getMonth() + 1 || (month === today.getMonth() + 1 && day < today.getDate()) ? 1 : 0);
+  return `menus_${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}.json`;
 }
 
 /**
- * メニューを docs/menus/ に保存
+ * メニューを JSON で保存
+ * 
+ * @param {string} dateLabel - "1/12(月)" 形式
+ * @param {Object} data - {dateLabel, count, menus}
+ * @returns {void}
  */
 function saveMenusToOutput(dateLabel, data) {
-  try {
-    const fileName = getCacheFileName(dateLabel);
-    if (!fileName) {
-      console.error(`❌ 日付フォーマットエラー: ${dateLabel}`);
-      return false;
-    }
-    const filePath = path.join(OUTPUT_DIR, fileName);
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-    console.log(`✅ メニュー保存: ${fileName}`);
-    return true;
-  } catch (error) {
-    console.error(`❌ メニュー保存エラー (${dateLabel}):`, error.message);
-    return false;
-  }
+  const fileName = getCacheFileName(dateLabel);
+  const filePath = path.join(OUTPUT_DIR, fileName);
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  console.log(`✅ 保存完了: ${fileName}`);
 }
 
 /**
- * 複数日のメニューをスクレイプ
+ * 利用可能日付リスト（available-dates.json）を生成
+ * 
+ * @param {Array<string>} dates - 日付ラベルの配列
+ * @returns {void}
+ */
+function generateAvailableDatesFile(dates) {
+  const filePath = path.join(OUTPUT_DIR, 'available-dates.json');
+  fs.writeFileSync(filePath, JSON.stringify({ dates: dates.sort() }, null, 2), 'utf-8');
+  console.log('✅ available-dates.json を生成しました');
+}
+
+/**
+ * 複数日分のメニューをプリスクレイピング
+ * 参照: SCRAPER_REBUILD_PLAN.md の「Phase 5: 統合テスト」
+ * 
+ * @param {number} numDays - 取得日数（デフォルト: 5日）
+ * @returns {Promise<void>}
  */
 async function prescrapMultipleDays(numDays = 5) {
-  console.log(`\n🔥 メニュープリスクレイピング開始 (${numDays}日間)`);
-  console.log('='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
+  console.log(`🔥 メニュープリスクレイピング開始 (${numDays}日間)`);
+  console.log(`${'='.repeat(60)}`);
 
-  let date = getNearestWeekday();
-  let successCount = 0;
-  let failureCount = 0;
   const scrapedDates = [];
+  let date = getNearestWeekday();
+
+  console.log(`🔍 最初の平日: ${toDateLabel(date)}\n`);
 
   for (let i = 0; i < numDays; i++) {
     const dateLabel = toDateLabel(date);
     console.log(`\n📅 [${i + 1}/${numDays}] ${dateLabel}`);
 
     try {
+      // Phase 4 完了のスクレイピング処理を実行
       const result = await fetchMenus(dateLabel);
-      if (saveMenusToOutput(dateLabel, result)) {
-        console.log(`   メニュー数: ${result.menus?.length || 0}`);
-        successCount++;
-        scrapedDates.push(dateLabel);
-      } else {
-        failureCount++;
-      }
+      
+      // JSON ファイルで保存
+      saveMenusToOutput(dateLabel, result);
+      console.log(`   ✅ メニュー数: ${result.menus?.length || 0}`);
+      
+      // 成功した日付をリストに追加
+      scrapedDates.push(dateLabel);
+      
     } catch (error) {
       console.error(`   ❌ エラー: ${error.message}`);
-      failureCount++;
     }
 
     // 次の営業日に進む
-    date.setDate(date.getDate() + 1);
-    // 日曜日（0）と土曜日（6）をスキップ
-    while (date.getDay() === 0 || date.getDay() === 6) {
+    do {
       date.setDate(date.getDate() + 1);
-    }
+    } while (date.getDay() === 0 || date.getDay() === 6);
 
-    // サーバーに優しく、スリープを入れる
+    // サーバー負荷軽減のためスリープ
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
-  // available-dates.json を生成
+  // 利用可能日付リストを生成
   generateAvailableDatesFile(scrapedDates);
 
   console.log('\n' + '='.repeat(60));
   console.log(`📊 プリスクレイピング完了`);
-  console.log(`   成功: ${successCount}, 失敗: ${failureCount}`);
+  console.log(`   成功日付数: ${scrapedDates.length}/${numDays}`);
   console.log(`   保存日付: ${scrapedDates.join(', ')}`);
-  console.log('='.repeat(60) + '\n');
-}
-
-/**
- * available-dates.json ファイルを生成
- */
-function generateAvailableDatesFile(dates) {
-  try {
-    const filePath = path.join(__dirname, 'docs', 'available-dates.json');
-    const data = { dates: dates.sort() };
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-    console.log(`\n✅ available-dates.json を生成しました`);
-  } catch (error) {
-    console.error(`❌ available-dates.json 生成エラー:`, error.message);
-  }
+  console.log('='.repeat(60));
 }
 
 // 実行
-prescrapMultipleDays(10).catch(error => {
+const numDays = parseInt(process.argv[2], 10) || 5;
+prescrapMultipleDays(numDays).catch(error => {
   console.error('❌ プリスクレイピングエラー:', error);
   process.exit(1);
 });
