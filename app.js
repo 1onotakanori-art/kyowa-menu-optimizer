@@ -807,9 +807,11 @@ class MenuOptimizationApp {
     let currentNutrition = { ...fixedNutrition };
     const remaining = [...availableMenus];
 
+    let currentScore = this.calculateDistance(targets, currentNutrition);
+
     for (let i = 0; i < maxMenus && remaining.length > 0; i++) {
-      let bestIdx = 0;
-      let bestScore = Infinity;
+      let bestIdx = -1;
+      let bestScore = currentScore;
 
       // 最も目標に近づくメニューを探す
       remaining.forEach((menu, idx) => {
@@ -822,15 +824,15 @@ class MenuOptimizationApp {
         }
       });
 
+      // 改善しないなら終了（固定だけが最善等）
+      if (bestIdx === -1) break;
+
       // 最高スコアのメニューを追加
       selected.push(remaining[bestIdx]);
       currentNutrition = this.addNutritionObjects(currentNutrition, remaining[bestIdx].nutrition || {});
       remaining.splice(bestIdx, 1);
 
-      // スコアが十分改善しなくなったら終了
-      if (i > 0 && bestScore > selected[i - 1].score) {
-        break;
-      }
+      currentScore = bestScore;
     }
 
     return selected;
@@ -871,19 +873,105 @@ class MenuOptimizationApp {
   }
 
   /**
-   * ユークリッド距離を計算
+   * 距離を計算（非対称・正規化 + 片側は誤差無視）
+   *
+   * ルール:
+   * - P/V: 不足は許容 10% で評価、超過は誤差を無視
+   * - F/C: 超過は許容 10% で評価、不足は誤差を無視
+   * - E  : 超過 10% / 不足 20% をそのまま評価
    */
   calculateDistance(targets, actual) {
-    let sumSquares = 0;
+    const keys = Object.keys(targets || {});
+    if (keys.length === 0) return 0;
 
-    Object.keys(targets).forEach(key => {
-      const target = targets[key] || 0;
-      const actualVal = actual[key] || 0;
-      const diff = actualVal - target;
-      sumSquares += diff * diff;
+    const rules = {
+      'エネルギー': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: false },
+      'たんぱく質': { overTol: 0.20, underTol: 0.10, ignoreOver: true, ignoreUnder: false },
+      '脂質': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: true },
+      '炭水化物': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: true },
+      '野菜重量': { overTol: 0.20, underTol: 0.10, ignoreOver: true, ignoreUnder: false },
+      // 互換（ラベルだけのキーを使う場合）
+      'E': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: false },
+      'P': { overTol: 0.20, underTol: 0.10, ignoreOver: true, ignoreUnder: false },
+      'F': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: true },
+      'C': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: true },
+      'V': { overTol: 0.20, underTol: 0.10, ignoreOver: true, ignoreUnder: false }
+    };
+
+    const power = 2;
+    const epsilon = 1e-6;
+    let total = 0;
+
+    keys.forEach(key => {
+      const target = Number(targets[key]) || 0;
+      const actualVal = Number(actual?.[key]) || 0;
+      const diff = actualVal - target; // +:超過, -:不足
+
+      const rule = rules[key];
+      if (rule) {
+        if (diff >= 0 && rule.ignoreOver) return;
+        if (diff < 0 && rule.ignoreUnder) return;
+      }
+
+      // 目標が 0 の場合は正規化が難しいので絶対誤差
+      if (target <= 0) {
+        total += Math.abs(diff);
+        return;
+      }
+
+      const overTol = rule?.overTol ?? 0.15;
+      const underTol = rule?.underTol ?? 0.15;
+      const tol = diff >= 0 ? overTol : underTol;
+      const scale = Math.max(target * tol, epsilon);
+
+      const normalized = diff / scale;
+      total += Math.pow(Math.abs(normalized), power);
     });
 
-    return Math.sqrt(sumSquares);
+    return total / keys.length;
+  }
+
+  updateResultTotalSummary(result) {
+    const summaryEl = document.getElementById('result-total-summary');
+    const countEl = document.getElementById('result-total-summary-count');
+    const valuesEl = document.getElementById('result-total-summary-values');
+    if (!summaryEl || !countEl || !valuesEl) return;
+
+    const selectedMenus = result?.selectedMenus || [];
+    countEl.textContent = `${selectedMenus.length}件`;
+
+    const totals = result?.totalNutrition || {};
+    const targets = result?.targets || {};
+
+    const display = [
+      { key: 'エネルギー', label: 'E' },
+      { key: 'たんぱく質', label: 'P' },
+      { key: '脂質', label: 'F' },
+      { key: '炭水化物', label: 'C' },
+      { key: '野菜重量', label: 'V' }
+    ];
+
+    valuesEl.innerHTML = '';
+    display.forEach(({ key, label }) => {
+      const pill = document.createElement('div');
+      pill.className = 'fixed-summary-pill';
+
+      const totalValue = totals[key] || 0;
+      const targetValue = targets[key];
+      const hasTarget = targetValue !== undefined;
+      const diff = hasTarget ? (totalValue - targetValue) : null;
+
+      const formattedTotal = Number.isFinite(totalValue) ? (Math.round(totalValue * 10) / 10) : '-';
+      const formattedDiff = hasTarget ? `${diff >= 0 ? '+' : ''}${Math.round(diff * 10) / 10}` : '—';
+
+      pill.innerHTML = `
+        <div class="fixed-summary-pill-label">${label}</div>
+        <div class="fixed-summary-pill-value">${formattedTotal}</div>
+        <div class="fixed-summary-pill-diff">${formattedDiff}</div>
+      `;
+
+      valuesEl.appendChild(pill);
+    });
   }
 
   /**
@@ -909,6 +997,9 @@ class MenuOptimizationApp {
       if (distanceScoreEl) {
         distanceScoreEl.textContent = (distance || 0).toFixed(2);
       }
+
+      // 合計（固定+提案）サマリーを表示
+      this.updateResultTotalSummary(result);
 
       // 固定メニューがある場合は表示
       if (fixedMenus && fixedMenus.length > 0) {

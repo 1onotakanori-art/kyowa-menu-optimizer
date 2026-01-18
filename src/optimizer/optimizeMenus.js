@@ -26,13 +26,19 @@ function calculateDistance(nutrition, targets, options = {}) {
   if (keys.length === 0) return 0;
 
   const preferences = options.preferences || {};
-  const overshootBadKeys = new Set(preferences.overshootBadKeys || ['E', 'F', 'C']);
-  const undershootBadKeys = new Set(preferences.undershootBadKeys || ['P', 'V']);
-
-  const tolerances = preferences.tolerances || {
-    overshootBad: { over: 0.10, under: 0.20 },
-    undershootBad: { over: 0.20, under: 0.10 },
-    neutral: { over: 0.15, under: 0.15 }
+  const rules = preferences.rules || {
+    // 日本語キー（本アプリのデータ）
+    'エネルギー': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: false },
+    'たんぱく質': { overTol: 0.20, underTol: 0.10, ignoreOver: true, ignoreUnder: false },
+    '脂質': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: true },
+    '炭水化物': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: true },
+    '野菜重量': { overTol: 0.20, underTol: 0.10, ignoreOver: true, ignoreUnder: false },
+    // 互換（ラベルキー）
+    'E': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: false },
+    'P': { overTol: 0.20, underTol: 0.10, ignoreOver: true, ignoreUnder: false },
+    'F': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: true },
+    'C': { overTol: 0.10, underTol: 0.20, ignoreOver: false, ignoreUnder: true },
+    'V': { overTol: 0.20, underTol: 0.10, ignoreOver: true, ignoreUnder: false }
   };
 
   const power = Number.isFinite(preferences.power) ? preferences.power : 2;
@@ -52,12 +58,11 @@ function calculateDistance(nutrition, targets, options = {}) {
 
     const error = actual - target; // +: 超過, -: 不足
 
-    let group = 'neutral';
-    if (overshootBadKeys.has(key)) group = 'overshootBad';
-    else if (undershootBadKeys.has(key)) group = 'undershootBad';
+    const rule = rules[key] || {};
+    if (error >= 0 && rule.ignoreOver) continue;
+    if (error < 0 && rule.ignoreUnder) continue;
 
-    const tol = tolerances[group] || tolerances.neutral;
-    const tolFrac = error >= 0 ? (tol.over ?? 0.15) : (tol.under ?? 0.15);
+    const tolFrac = error >= 0 ? (rule.overTol ?? 0.15) : (rule.underTol ?? 0.15);
 
     const scale = Math.max(target * tolFrac, epsilon);
     const normalized = error / scale;
