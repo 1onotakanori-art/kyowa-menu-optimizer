@@ -127,6 +127,14 @@ body {
   padding-bottom: 20px;
 }
 
+.menus-sticky-bar {
+  position: sticky;
+  top: 52px;
+  z-index: 85;
+  background: white;
+  padding-bottom: 12px;
+}
+
 /* ========================================
    タブコンテンツ
    ======================================== */
@@ -337,9 +345,6 @@ body {
   border-radius: 10px;
   padding: 12px;
   margin-bottom: 14px;
-  position: sticky;
-  top: 52px;
-  z-index: 80;
 }
 
 .fixed-summary-header {

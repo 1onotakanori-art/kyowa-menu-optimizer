@@ -63,6 +63,12 @@ class MenuOptimizationApp {
     // 最適化実行ボタン
     document.getElementById('optimize-button').addEventListener('click', () => this.runOptimization());
 
+    // 最適化なしで結果表示（固定のみ）
+    const fixedOnlyBtn = document.getElementById('fixed-only-result-button');
+    if (fixedOnlyBtn) {
+      fixedOnlyBtn.addEventListener('click', () => this.showFixedOnlyResult());
+    }
+
     // 再最適化ボタン
     document.getElementById('re-optimize-button').addEventListener('click', () => this.runOptimization());
 
@@ -323,6 +329,10 @@ class MenuOptimizationApp {
 
       const fixedToggleWrap = document.createElement('div');
       fixedToggleWrap.className = 'menu-fixed-toggle';
+      // スイッチ周辺のタップが行タップに伝播しないようにする
+      fixedToggleWrap.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
 
       const fixedToggleLabel = document.createElement('span');
       fixedToggleLabel.className = 'menu-fixed-toggle-label';
@@ -331,6 +341,10 @@ class MenuOptimizationApp {
       const switchLabel = document.createElement('label');
       switchLabel.className = 'ios-switch';
       switchLabel.setAttribute('aria-label', '固定');
+      switchLabel.addEventListener('click', (e) => {
+        // iOS Safari では label クリックが行タップに伝播しやすい
+        e.stopPropagation();
+      });
 
       const switchInput = document.createElement('input');
       switchInput.type = 'checkbox';
@@ -347,6 +361,9 @@ class MenuOptimizationApp {
       const switchSlider = document.createElement('span');
       switchSlider.className = 'ios-switch-slider';
       switchSlider.setAttribute('aria-hidden', 'true');
+      switchSlider.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
 
       switchLabel.appendChild(switchInput);
       switchLabel.appendChild(switchSlider);
@@ -684,6 +701,56 @@ class MenuOptimizationApp {
     }
   }
 
+  showFixedOnlyResult() {
+    this.hideError();
+    this.showLoading(true);
+    try {
+      const dateSelect = document.getElementById('date-input');
+      const dateLabelValue = dateSelect ? dateSelect.value : '';
+
+      const fixedMenus = this.getFixedMenusData();
+      if (!fixedMenus || fixedMenus.length === 0) {
+        this.showError('固定メニューがありません（固定を1つ以上選択してください）');
+        return;
+      }
+
+      const targets = this.getNutritionTargetsFromUI();
+      const fixedNutrition = this.calculateTotalNutrition(fixedMenus);
+      const additionalNutrition = {};
+      const totalNutrition = { ...fixedNutrition };
+
+      const difference = {};
+      Object.keys(targets).forEach(key => {
+        difference[key] = (totalNutrition[key] || 0) - targets[key];
+      });
+
+      const distance = Object.keys(targets).length > 0 ? this.calculateDistance(targets, totalNutrition) : 0;
+
+      const result = {
+        date: dateLabelValue,
+        dateLabel: dateLabelValue,
+        fixedMenus,
+        additionalMenus: [],
+        selectedMenus: [...fixedMenus],
+        fixedNutrition,
+        additionalNutrition,
+        totalNutrition,
+        targets,
+        difference,
+        distance,
+        minimumLimits: {}
+      };
+
+      this.displayResults(result);
+      this.switchTab('result-tab');
+    } catch (error) {
+      console.error('固定のみ結果表示エラー:', error);
+      this.showError(`エラー: ${error.message}`);
+    } finally {
+      this.showLoading(false);
+    }
+  }
+
   /**
    * フロントエンド側での最適化処理（簡易版）
    */
@@ -911,6 +978,12 @@ class MenuOptimizationApp {
         }
         // 提案メニュー（追加メニュー）は .suggested クラスなし（デフォルト=推奨スタイル）
 
+        // 結果タブの追加メニュー：一時除外を反映
+        const isTempExcluded = isAdditional && this.tempExcludedMenus.has(menu.name);
+        if (isTempExcluded) {
+          item.classList.add('excluded');
+        }
+
         const details = document.createElement('div');
         details.className = 'menu-list-item-details';
 
@@ -953,34 +1026,37 @@ class MenuOptimizationApp {
         details.appendChild(priceEl);
         details.appendChild(nutrition);
 
-        // 除外ボタン（提案メニューのみ）をメニュー名の右に表示
-        if (isAdditional && elementId !== 'fixed-menus-result') {
-          const excludeBtn = document.createElement('button');
-          excludeBtn.className = 'result-exclude-btn';
-          excludeBtn.textContent = '✕';
-          excludeBtn.title = 'この提案を除外';
-          excludeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.tempExcludedMenus.add(menu.name);
-            item.style.opacity = '0.5';
-            excludeBtn.disabled = true;
-          });
-          
-          // メニュー名と除外ボタンをヘッダーレイアウトに
-          const header = document.createElement('div');
-          header.className = 'menu-result-header';
-          header.appendChild(name);
-          header.appendChild(excludeBtn);
-          
-          const detailsWrapper = document.createElement('div');
-          detailsWrapper.className = 'menu-list-item-details';
-          detailsWrapper.appendChild(header);
-          detailsWrapper.appendChild(priceEl);
-          detailsWrapper.appendChild(nutrition);
-          
-          item.appendChild(detailsWrapper);
+        item.appendChild(details);
+
+        // 結果タブの見た目をメニュータブに合わせる（状態ラベル）
+        const footer = document.createElement('div');
+        footer.className = 'menu-list-item-footer';
+
+        const stateLabel = document.createElement('div');
+        stateLabel.className = 'menu-state-label';
+        if (elementId === 'fixed-menus-result') {
+          stateLabel.textContent = '固定';
+        } else if (isTempExcluded) {
+          stateLabel.textContent = '除外';
         } else {
-          item.appendChild(details);
+          stateLabel.textContent = '推奨';
+        }
+
+        footer.appendChild(stateLabel);
+        item.appendChild(footer);
+
+        // 追加メニューは行タップで一時除外をトグル（結果タブ内）
+        if (isAdditional && elementId !== 'fixed-menus-result') {
+          item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (this.tempExcludedMenus.has(menu.name)) {
+              this.tempExcludedMenus.delete(menu.name);
+            } else {
+              this.tempExcludedMenus.add(menu.name);
+            }
+            // 再描画して状態を反映
+            this.displayMenuGrid(elementId, menus, isAdditional);
+          });
         }
 
         container.appendChild(item);
