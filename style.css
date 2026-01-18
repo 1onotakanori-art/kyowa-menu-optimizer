@@ -131,7 +131,7 @@ body {
   position: sticky;
   top: 52px;
   z-index: 85;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.7);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   padding: 10px 0 12px 0;
@@ -198,11 +198,7 @@ body {
   margin-bottom: 0;
 }
 
-@media (max-width: 600px) {
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
+
 
 .form-group label {
   display: block;
