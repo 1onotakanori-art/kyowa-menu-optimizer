@@ -493,7 +493,6 @@ class MenuOptimizationApp {
     const summaryEl = document.getElementById('fixed-summary');
     const countEl = document.getElementById('fixed-summary-count');
     const valuesEl = document.getElementById('fixed-summary-values');
-    const hintEl = document.getElementById('fixed-summary-hint');
     if (!summaryEl || !countEl || !valuesEl) return;
 
     const fixedMenus = this.getFixedMenusData();
@@ -531,10 +530,6 @@ class MenuOptimizationApp {
 
       valuesEl.appendChild(pill);
     });
-
-    if (hintEl) {
-      hintEl.style.display = fixedMenus.length === 0 ? 'block' : 'none';
-    }
   }
 
   ensureNutritionItemActive(item) {

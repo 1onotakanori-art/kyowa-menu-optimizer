@@ -133,14 +133,15 @@
         <div class="form-section">
           <!-- 上部固定バー（常に表示） -->
           <div class="menus-sticky-bar">
-            <!-- 実行ボタン -->
-            <button id="optimize-button" class="button button-primary" style="width: 100%;">
-              🚀 最適化を実行
-            </button>
+            <div class="menus-sticky-actions">
+              <button id="optimize-button" class="button button-primary">
+                🚀 最適化
+              </button>
 
-            <button id="fixed-only-result-button" class="button button-secondary" style="width: 100%; margin-top: 10px;">
-              📊 最適化なしで結果表示（固定のみ）
-            </button>
+              <button id="fixed-only-result-button" class="button button-secondary">
+                📊 結果表示
+              </button>
+            </div>
 
             <!-- 固定のみ集計サマリー -->
             <div id="fixed-summary" class="fixed-summary" aria-live="polite">
@@ -149,7 +150,6 @@
                 <div id="fixed-summary-count" class="fixed-summary-count">0件</div>
               </div>
               <div id="fixed-summary-values" class="fixed-summary-values"></div>
-              <div id="fixed-summary-hint" class="fixed-summary-hint">メニューを「固定」にすると、ここに合計が表示されます。</div>
             </div>
           </div>
 
