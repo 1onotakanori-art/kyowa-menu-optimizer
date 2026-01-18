@@ -331,6 +331,79 @@ body {
   border: 1px solid var(--medium-gray);
 }
 
+.fixed-summary {
+  background: var(--light-gray);
+  border: 1px solid var(--medium-gray);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.fixed-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.fixed-summary-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.fixed-summary-count {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+
+.fixed-summary-values {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.fixed-summary-pill {
+  background: white;
+  border: 1px solid var(--medium-gray);
+  border-radius: 8px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 48px;
+}
+
+.fixed-summary-pill-label {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--text-secondary);
+}
+
+.fixed-summary-pill-value {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.fixed-summary-pill-diff {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-secondary);
+  line-height: 1.1;
+}
+
+.fixed-summary-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
 .menu-list-item {
   background-color: white;
   border: none;
@@ -345,6 +418,54 @@ body {
   box-shadow: none;
   cursor: pointer;
   border-left: 4px solid var(--medium-gray);
+}
+
+.menu-list-item-footer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.menu-state-btn {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--medium-gray);
+  background: white;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.menu-state-btn:active {
+  transform: scale(0.98);
+  opacity: 0.85;
+}
+
+.menu-state-btn.fixed {
+  border-color: var(--success-color);
+  color: var(--success-color);
+}
+
+.menu-state-btn.fixed.active {
+  background: var(--success-color);
+  color: white;
+}
+
+.menu-state-btn.excluded {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}
+
+.menu-state-btn.excluded.active {
+  background: var(--danger-color);
+  color: white;
 }
 
 .menu-list-item:last-child {

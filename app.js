@@ -27,14 +27,26 @@ class MenuOptimizationApp {
       button.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
     });
 
-    // 栄養目標アイテムクリック処理
+    // 栄養目標：外枠タップは選択ON/OFF（キーボードは出さない）
+    // 入力欄タップは編集（必要なら選択ON+デフォルト投入）
     document.querySelectorAll('.nutrition-item').forEach(item => {
       item.addEventListener('click', (e) => {
-        // input要素をクリックした場合は何もしない（編集モードに）
-        if (e.target.classList.contains('nutrition-value')) {
+        const clickedInput = e.target.closest && e.target.closest('.nutrition-value');
+        if (clickedInput) {
+          // 入力欄をタップ：編集はブラウザに任せる。未選択なら選択ON+デフォルト投入だけ行う。
+          this.ensureNutritionItemActive(item);
           return;
         }
-        this.toggleNutritionItem(e.currentTarget);
+
+        // 外枠タップ：ON/OFF 切替（編集はしない）
+        this.toggleNutritionItem(item, { focusInput: false });
+      });
+    });
+
+    document.querySelectorAll('.nutrition-value').forEach(input => {
+      input.addEventListener('input', () => {
+        // 目標値変更時は固定のみ集計の差分表示も更新
+        this.updateFixedSummary();
       });
     });
 
@@ -113,6 +125,7 @@ class MenuOptimizationApp {
       this.allMenus = data.menus || [];
       this.filteredMenus = [...this.allMenus];
       this.renderMenusList();
+      this.updateFixedSummary();
     } catch (error) {
       console.error('メニュー読込エラー:', error);
       document.getElementById('menus-list-container').innerHTML = 
@@ -300,37 +313,77 @@ class MenuOptimizationApp {
       details.appendChild(nutrition);
       item.appendChild(details);
 
-      // クリック時に状態を切り替え
+      // フッター（状態操作）
+      const footer = document.createElement('div');
+      footer.className = 'menu-list-item-footer';
+
+      const fixedBtn = document.createElement('button');
+      fixedBtn.type = 'button';
+      fixedBtn.className = `menu-state-btn fixed ${isFixed ? 'active' : ''}`;
+      fixedBtn.textContent = isFixed ? '固定' : '固定';
+      fixedBtn.setAttribute('aria-pressed', String(isFixed));
+      fixedBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleFixed(menu.name);
+      });
+
+      const excludedBtn = document.createElement('button');
+      excludedBtn.type = 'button';
+      excludedBtn.className = `menu-state-btn excluded ${isExcluded ? 'active' : ''}`;
+      excludedBtn.textContent = isExcluded ? '除外' : '除外';
+      excludedBtn.setAttribute('aria-pressed', String(isExcluded));
+      excludedBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleExcluded(menu.name);
+      });
+
+      footer.appendChild(fixedBtn);
+      footer.appendChild(excludedBtn);
+      item.appendChild(footer);
+
+      // 行タップ：固定のON/OFF（ユーザー要望：固定はタップで色変更）
       item.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.cycleMenuState(menu.name);
+        this.toggleFixed(menu.name);
       });
 
       container.appendChild(item);
     });
+
+    this.updateFixedSummary();
   }
 
-  /**
-   * メニューの状態を循環的に切り替え（推奨 → 固定 → 除外 → 推奨）
-   */
-  cycleMenuState(menuName) {
+  toggleFixed(menuName) {
     const isFixed = this.fixedMenus.has(menuName);
-    const isExcluded = this.excludedMenus.has(menuName);
 
     if (isFixed) {
-      // 固定 → 除外
       this.fixedMenus.delete(menuName);
-      this.excludedMenus.add(menuName);
-    } else if (isExcluded) {
-      // 除外 → 推奨
-      this.excludedMenus.delete(menuName);
     } else {
-      // 推奨 → 固定
+      // ユーザー合意: 固定ONで除外は自動解除
       this.fixedMenus.add(menuName);
+      this.excludedMenus.delete(menuName);
     }
 
     this.renderMenusList();
   }
+
+  toggleExcluded(menuName) {
+    const isExcluded = this.excludedMenus.has(menuName);
+
+    if (isExcluded) {
+      this.excludedMenus.delete(menuName);
+    } else {
+      // excluded と fixed は両立不可: 除外ONの場合は固定を解除
+      this.excludedMenus.add(menuName);
+      this.fixedMenus.delete(menuName);
+    }
+
+    this.renderMenusList();
+  }
+
+  // 旧: cycleMenuState（循環タップ） は UI 方針変更により未使用
 
   /**
    * メニューを通常に設定
@@ -359,6 +412,100 @@ class MenuOptimizationApp {
     this.renderMenusList();
   }
 
+  getNutritionTargetsFromUI() {
+    const targets = {};
+    document.querySelectorAll('.nutrition-item.active').forEach(item => {
+      const key = item.dataset.key;
+      const input = item.querySelector('.nutrition-value');
+      const value = parseFloat(input.value);
+      if (!isNaN(value) && value > 0) {
+        targets[key] = value;
+      }
+    });
+    return targets;
+  }
+
+  getFixedMenusData() {
+    if (!this.allMenus || this.allMenus.length === 0) return [];
+    const fixedNames = this.fixedMenus;
+    return this.allMenus.filter(m => fixedNames.has(m.name));
+  }
+
+  calculateNutritionTotals(menus) {
+    const totals = {
+      'エネルギー': 0,
+      'たんぱく質': 0,
+      '脂質': 0,
+      '炭水化物': 0,
+      '野菜重量': 0
+    };
+
+    menus.forEach(menu => {
+      Object.keys(totals).forEach(key => {
+        const value = menu?.nutrition?.[key];
+        const numeric = typeof value === 'number' ? value : parseFloat(value);
+        if (!isNaN(numeric)) {
+          totals[key] += numeric;
+        }
+      });
+    });
+
+    return totals;
+  }
+
+  updateFixedSummary() {
+    const summaryEl = document.getElementById('fixed-summary');
+    const countEl = document.getElementById('fixed-summary-count');
+    const valuesEl = document.getElementById('fixed-summary-values');
+    const hintEl = document.getElementById('fixed-summary-hint');
+    if (!summaryEl || !countEl || !valuesEl) return;
+
+    const fixedMenus = this.getFixedMenusData();
+    countEl.textContent = `${fixedMenus.length}件`;
+
+    const totals = this.calculateNutritionTotals(fixedMenus);
+    const targets = this.getNutritionTargetsFromUI();
+
+    const display = [
+      { key: 'エネルギー', label: 'E' },
+      { key: 'たんぱく質', label: 'P' },
+      { key: '脂質', label: 'F' },
+      { key: '炭水化物', label: 'C' },
+      { key: '野菜重量', label: 'V' }
+    ];
+
+    valuesEl.innerHTML = '';
+    display.forEach(({ key, label }) => {
+      const pill = document.createElement('div');
+      pill.className = 'fixed-summary-pill';
+
+      const totalValue = totals[key] || 0;
+      const targetValue = targets[key];
+      const hasTarget = targetValue !== undefined;
+      const diff = hasTarget ? (totalValue - targetValue) : null;
+
+      const formattedTotal = Number.isFinite(totalValue) ? (Math.round(totalValue * 10) / 10) : '-';
+      const formattedDiff = hasTarget ? `${diff >= 0 ? '+' : ''}${Math.round(diff * 10) / 10}` : '—';
+
+      pill.innerHTML = `
+        <div class="fixed-summary-pill-label">${label}</div>
+        <div class="fixed-summary-pill-value">${formattedTotal}</div>
+        <div class="fixed-summary-pill-diff">${formattedDiff}</div>
+      `;
+
+      valuesEl.appendChild(pill);
+    });
+
+    if (hintEl) {
+      hintEl.style.display = fixedMenus.length === 0 ? 'block' : 'none';
+    }
+  }
+
+  ensureNutritionItemActive(item) {
+    if (!item || item.classList.contains('active')) return;
+    this.toggleNutritionItem(item, { focusInput: false, forceActive: true });
+  }
+
   /**
    * タブを切り替える
    */
@@ -377,11 +524,13 @@ class MenuOptimizationApp {
   /**
    * 栄養目標アイテムをクリック（選択/解除）
    */
-  toggleNutritionItem(item) {
+  toggleNutritionItem(item, options = {}) {
     const key = item.dataset.key;
     const input = item.querySelector('.nutrition-value');
 
-    if (item.classList.contains('active')) {
+    const { focusInput = true, forceActive = false } = options;
+
+    if (item.classList.contains('active') && !forceActive) {
       // 選択解除
       item.classList.remove('active');
       input.value = '';
@@ -399,8 +548,12 @@ class MenuOptimizationApp {
       if (!input.value) {
         input.value = defaults[key] || '';
       }
-      input.focus();
+      if (focusInput) {
+        input.focus();
+      }
     }
+
+    this.updateFixedSummary();
   }
 
   /**
