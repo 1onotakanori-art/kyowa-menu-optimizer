@@ -5,28 +5,79 @@
  */
 
 /**
- * 複数項目の加重距離を計算
- * 理由：複数の栄養目標に対して、距離を統一的に評価
- * 
+ * 複数項目の距離を計算（非対称・正規化）
+ * 目的：各項目が目標に対してどれだけズレているかを「許容誤差」で規格化し、
+ *       さらに超過/不足の嫌さを非対称に反映する。
+ *
+ * スコアの考え方：
+ *   error = actual - target
+ *   scale = target * toleranceFraction (超過/不足で違う)
+ *   component = |error/scale|^p
+ *   score = 平均(component)
+ *
  * @param {Object} nutrition - 栄養データ { キー: 値 }
  * @param {Object} targets - 目標値 { キー: 目標値 }
+ * @param {Object} options - オプション
+ *   - preferences: { overshootBadKeys, undershootBadKeys, tolerances, power }
  * @returns {number} 距離（小さいほど目標に近い）
  */
-function calculateDistance(nutrition, targets) {
-  let totalDistance = 0;
+function calculateDistance(nutrition, targets, options = {}) {
   const keys = Object.keys(targets);
-  
+  if (keys.length === 0) return 0;
+
+  const preferences = options.preferences || {};
+  const overshootBadKeys = new Set(preferences.overshootBadKeys || ['E', 'F', 'C']);
+  const undershootBadKeys = new Set(preferences.undershootBadKeys || ['P', 'V']);
+
+  const tolerances = preferences.tolerances || {
+    overshootBad: { over: 0.10, under: 0.20 },
+    undershootBad: { over: 0.20, under: 0.10 },
+    neutral: { over: 0.15, under: 0.15 }
+  };
+
+  const power = Number.isFinite(preferences.power) ? preferences.power : 2;
+  const epsilon = 1e-6;
+
+  let totalScore = 0;
+
   for (const key of keys) {
-    const target = targets[key];
-    const actual = nutrition[key] || 0;
-    
-    // 各項目の差の絶対値を累積
-    // 理由：どの項目も等しく重要だと仮定
-    totalDistance += Math.abs(actual - target);
+    const target = Number(targets[key]) || 0;
+    const actual = Number(nutrition[key]) || 0;
+
+    // target が 0 の場合は正規化が破綻するため、絶対誤差をそのまま使う
+    if (target <= 0) {
+      totalScore += Math.abs(actual - target);
+      continue;
+    }
+
+    const error = actual - target; // +: 超過, -: 不足
+
+    let group = 'neutral';
+    if (overshootBadKeys.has(key)) group = 'overshootBad';
+    else if (undershootBadKeys.has(key)) group = 'undershootBad';
+
+    const tol = tolerances[group] || tolerances.neutral;
+    const tolFrac = error >= 0 ? (tol.over ?? 0.15) : (tol.under ?? 0.15);
+
+    const scale = Math.max(target * tolFrac, epsilon);
+    const normalized = error / scale;
+    totalScore += Math.pow(Math.abs(normalized), power);
   }
-  
-  // 項目数で正規化（複数項目を公正に比較できるように）
-  return totalDistance / Math.max(keys.length, 1);
+
+  return totalScore / keys.length;
+}
+
+function addNutrition(baseNutrition, additionalNutrition, keys) {
+  const total = {};
+  const keyList = keys || Array.from(new Set([
+    ...Object.keys(baseNutrition || {}),
+    ...Object.keys(additionalNutrition || {})
+  ]));
+
+  for (const key of keyList) {
+    total[key] = (baseNutrition?.[key] || 0) + (additionalNutrition?.[key] || 0);
+  }
+  return total;
 }
 
 /**
@@ -155,38 +206,55 @@ function prepareCandidateMenus(menus, fixedMenus, excludedMenuNames) {
  * @param {number} maxMenus - 選択メニュー数上限
  * @returns {Object} { selectedMenus, totalNutrition, distance }
  */
-function greedyOptimize(menus, targets, maxMenus) {
+function greedyOptimize(menus, targets, maxMenus, options = {}) {
+  const baseNutrition = options.baseNutrition || {};
+  const preferences = options.preferences;
+
   const selected = [];
   const remaining = menus.slice(); // コピー
-  
+
+  // 0 個の状態から開始（固定メニューのみの状態）
+  let currentAdditional = calculateTotalNutrition(selected);
+  let currentTotal = addNutrition(baseNutrition, currentAdditional, Object.keys(targets));
+  let currentDistance = calculateDistance(currentTotal, targets, { preferences });
+
   while (selected.length < maxMenus && remaining.length > 0) {
-    let bestIdx = 0;
-    let bestDistance = Infinity;
-    
+    let bestIdx = -1;
+    let bestDistance = currentDistance;
+
     // 各候補メニューについて、追加した場合の距離を計算
     for (let i = 0; i < remaining.length; i++) {
       const testSelected = [...selected, remaining[i]];
-      const testTotal = calculateTotalNutrition(testSelected);
-      const testDistance = calculateDistance(testTotal, targets);
-      
+      const testAdditional = calculateTotalNutrition(testSelected);
+      const testTotal = addNutrition(baseNutrition, testAdditional, Object.keys(targets));
+      const testDistance = calculateDistance(testTotal, targets, { preferences });
+
       if (testDistance < bestDistance) {
         bestDistance = testDistance;
         bestIdx = i;
       }
     }
-    
+
+    // どの追加も改善しないなら打ち切り（固定だけが最善のケース等）
+    if (bestIdx === -1) break;
+
     // 最良のメニューを選択に追加
     selected.push(remaining[bestIdx]);
     remaining.splice(bestIdx, 1);
-    
+
+    currentAdditional = calculateTotalNutrition(selected);
+    currentTotal = addNutrition(baseNutrition, currentAdditional, Object.keys(targets));
+    currentDistance = bestDistance;
+
     console.log(`   [貪欲法] メニュー ${selected.length}: ${selected[selected.length - 1].name}`);
   }
-  
-  const total = calculateTotalNutrition(selected);
+
+  const additionalNutrition = calculateTotalNutrition(selected);
+  const total = addNutrition(baseNutrition, additionalNutrition, Object.keys(targets));
   return {
     selectedMenus: selected,
     totalNutrition: total,
-    distance: calculateDistance(total, targets)
+    distance: calculateDistance(total, targets, { preferences })
   };
 }
 
@@ -199,9 +267,15 @@ function greedyOptimize(menus, targets, maxMenus) {
  * @param {Object} targets - 目標値
  * @returns {Object} 改善後の結果
  */
-function localSearch(currentSelected, menus, targets) {
+function localSearch(currentSelected, menus, targets, options = {}) {
+  const baseNutrition = options.baseNutrition || {};
+  const preferences = options.preferences;
+  const maxMenus = Number.isFinite(options.maxMenus) ? options.maxMenus : currentSelected.length;
+
   let selected = currentSelected.slice();
-  let currentDistance = calculateDistance(calculateTotalNutrition(selected), targets);
+  const initialAdditional = calculateTotalNutrition(selected);
+  let currentTotal = addNutrition(baseNutrition, initialAdditional, Object.keys(targets));
+  let currentDistance = calculateDistance(currentTotal, targets, { preferences });
   
   let improved = true;
   let iterations = 0;
@@ -210,6 +284,29 @@ function localSearch(currentSelected, menus, targets) {
   while (improved && iterations < maxIterations) {
     improved = false;
     iterations++;
+
+    // 0. 1 個削除（選びすぎを解消）
+    if (selected.length > 0) {
+      for (let i = 0; i < selected.length; i++) {
+        const testSelected = [
+          ...selected.slice(0, i),
+          ...selected.slice(i + 1)
+        ];
+        const testAdditional = calculateTotalNutrition(testSelected);
+        const testTotal = addNutrition(baseNutrition, testAdditional, Object.keys(targets));
+        const testDistance = calculateDistance(testTotal, targets, { preferences });
+
+        if (testDistance < currentDistance) {
+          selected = testSelected;
+          currentTotal = testTotal;
+          currentDistance = testDistance;
+          improved = true;
+          console.log(`   [ローカルサーチ] 改善: 1 個削除（距離: ${testDistance.toFixed(2)}）`);
+          break;
+        }
+      }
+      if (improved) continue;
+    }
     
     // 1. 1 個のメニューを入れ替える試行
     for (let i = 0; i < selected.length; i++) {
@@ -223,12 +320,14 @@ function localSearch(currentSelected, menus, targets) {
           candidate,
           ...selected.slice(i + 1)
         ];
-        const testTotal = calculateTotalNutrition(testSelected);
-        const testDistance = calculateDistance(testTotal, targets);
+        const testAdditional = calculateTotalNutrition(testSelected);
+        const testTotal = addNutrition(baseNutrition, testAdditional, Object.keys(targets));
+        const testDistance = calculateDistance(testTotal, targets, { preferences });
         
         // 改善できたら採用
         if (testDistance < currentDistance) {
           selected = testSelected;
+          currentTotal = testTotal;
           currentDistance = testDistance;
           improved = true;
           console.log(`   [ローカルサーチ] 改善: ${selected[i].name} に入れ替え（距離: ${testDistance.toFixed(2)}）`);
@@ -237,9 +336,33 @@ function localSearch(currentSelected, menus, targets) {
       }
       if (improved) break; // 外側のループも抜ける
     }
+
+    if (improved) continue;
+
+    // 2. 1 個追加（まだ余地がある場合）
+    if (selected.length < maxMenus) {
+      for (const candidate of menus) {
+        if (selected.includes(candidate)) continue;
+
+        const testSelected = [...selected, candidate];
+        const testAdditional = calculateTotalNutrition(testSelected);
+        const testTotal = addNutrition(baseNutrition, testAdditional, Object.keys(targets));
+        const testDistance = calculateDistance(testTotal, targets, { preferences });
+
+        if (testDistance < currentDistance) {
+          selected = testSelected;
+          currentTotal = testTotal;
+          currentDistance = testDistance;
+          improved = true;
+          console.log(`   [ローカルサーチ] 改善: 1 個追加（距離: ${testDistance.toFixed(2)}）`);
+          break;
+        }
+      }
+    }
   }
   
-  const total = calculateTotalNutrition(selected);
+  const additionalNutrition = calculateTotalNutrition(selected);
+  const total = addNutrition(baseNutrition, additionalNutrition, Object.keys(targets));
   return {
     selectedMenus: selected,
     totalNutrition: total,
@@ -266,6 +389,7 @@ function optimizeMenus(menus, targets, options = {}) {
   const multiStart = options.multiStart || 3;
   const fixedMenuNames = options.fixedMenuNames || [];
   const excludedMenuNames = options.excludedMenuNames || [];
+  const preferences = options.preferences;
   
   console.log(`\n🔍 [最適化開始] メニュー数: ${menus.length}, 目標: ${JSON.stringify(targets)}`);
   console.log(`   設定: 最大メニュー数=${maxMenus}, マルチスタート=${multiStart}`);
@@ -290,9 +414,7 @@ function optimizeMenus(menus, targets, options = {}) {
   // 下限値を計算
   const minimumLimits = calculateMinimumLimits(fixedNutrition, targets);
   
-  // 調整目標値を計算（固定メニューの値を差し引いた目標値）
-  const adjustedTargets = calculateAdjustedTargets(targets, fixedNutrition);
-  console.log(`   調整目標値（固定を除く）: ${JSON.stringify(adjustedTargets)}`);
+  // 目標値は「固定込みの総量」で評価する（固定超過も含めて距離に反映）
   
   // 候補メニューを準備（除外・固定を除く）
   const candidateMenus = prepareCandidateMenus(menus, fixedMenus, excludedMenuNames);
@@ -307,11 +429,11 @@ function optimizeMenus(menus, targets, options = {}) {
     
     // 貪欲法で初期解を構築
     console.log(`   [貪欲法]`);
-    const greedyResult = greedyOptimize(candidateMenus, adjustedTargets, maxMenus);
+    const greedyResult = greedyOptimize(candidateMenus, targets, maxMenus, { baseNutrition: fixedNutrition, preferences });
     
     // ローカルサーチで改善
     console.log(`   [ローカルサーチ]`);
-    const improvedResult = localSearch(greedyResult.selectedMenus, candidateMenus, adjustedTargets);
+    const improvedResult = localSearch(greedyResult.selectedMenus, candidateMenus, targets, { baseNutrition: fixedNutrition, preferences, maxMenus });
     
     console.log(`   → 距離: ${improvedResult.distance.toFixed(2)}`);
     
@@ -322,14 +444,9 @@ function optimizeMenus(menus, targets, options = {}) {
     }
   }
   
-  // 追加メニューの栄養値
-  const additionalNutrition = bestResult.totalNutrition;
-  
-  // 全体の栄養値を計算
-  const totalNutrition = {};
-  for (const key of Object.keys(targets)) {
-    totalNutrition[key] = (fixedNutrition[key] || 0) + (additionalNutrition[key] || 0);
-  }
+  // bestResult.totalNutrition は固定込みの総量
+  const totalNutrition = bestResult.totalNutrition;
+  const additionalNutrition = calculateTotalNutrition(bestResult.selectedMenus);
   
   // 最終結果を構築
   const difference = calculateDifference(totalNutrition, targets);
