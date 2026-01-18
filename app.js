@@ -317,36 +317,52 @@ class MenuOptimizationApp {
       const footer = document.createElement('div');
       footer.className = 'menu-list-item-footer';
 
-      const fixedBtn = document.createElement('button');
-      fixedBtn.type = 'button';
-      fixedBtn.className = `menu-state-btn fixed ${isFixed ? 'active' : ''}`;
-      fixedBtn.textContent = isFixed ? '固定' : '固定';
-      fixedBtn.setAttribute('aria-pressed', String(isFixed));
-      fixedBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+      const stateLabel = document.createElement('div');
+      stateLabel.className = 'menu-state-label';
+      stateLabel.textContent = isFixed ? '固定' : (isExcluded ? '除外' : '推奨');
+
+      const fixedToggleWrap = document.createElement('div');
+      fixedToggleWrap.className = 'menu-fixed-toggle';
+
+      const fixedToggleLabel = document.createElement('span');
+      fixedToggleLabel.className = 'menu-fixed-toggle-label';
+      fixedToggleLabel.textContent = '固定';
+
+      const switchLabel = document.createElement('label');
+      switchLabel.className = 'ios-switch';
+      switchLabel.setAttribute('aria-label', '固定');
+
+      const switchInput = document.createElement('input');
+      switchInput.type = 'checkbox';
+      switchInput.checked = isFixed;
+      switchInput.addEventListener('click', (e) => {
+        // 行タップに伝播させない
         e.stopPropagation();
-        this.toggleFixed(menu.name);
+      });
+      switchInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        this.setFixed(menu.name, e.target.checked);
       });
 
-      const excludedBtn = document.createElement('button');
-      excludedBtn.type = 'button';
-      excludedBtn.className = `menu-state-btn excluded ${isExcluded ? 'active' : ''}`;
-      excludedBtn.textContent = isExcluded ? '除外' : '除外';
-      excludedBtn.setAttribute('aria-pressed', String(isExcluded));
-      excludedBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.toggleExcluded(menu.name);
-      });
+      const switchSlider = document.createElement('span');
+      switchSlider.className = 'ios-switch-slider';
+      switchSlider.setAttribute('aria-hidden', 'true');
 
-      footer.appendChild(fixedBtn);
-      footer.appendChild(excludedBtn);
+      switchLabel.appendChild(switchInput);
+      switchLabel.appendChild(switchSlider);
+
+      fixedToggleWrap.appendChild(fixedToggleLabel);
+      fixedToggleWrap.appendChild(switchLabel);
+
+      footer.appendChild(stateLabel);
+      footer.appendChild(fixedToggleWrap);
       item.appendChild(footer);
 
-      // 行タップ：固定のON/OFF（ユーザー要望：固定はタップで色変更）
+      // 行タップ：推奨/除外を切り替え
+      // ただし固定ONの場合は「固定解除→除外」に切り替える
       item.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.toggleFixed(menu.name);
+        this.onMenuRowTapped(menu.name);
       });
 
       container.appendChild(item);
@@ -355,29 +371,32 @@ class MenuOptimizationApp {
     this.updateFixedSummary();
   }
 
-  toggleFixed(menuName) {
-    const isFixed = this.fixedMenus.has(menuName);
-
-    if (isFixed) {
-      this.fixedMenus.delete(menuName);
-    } else {
-      // ユーザー合意: 固定ONで除外は自動解除
+  setFixed(menuName, isOn) {
+    if (isOn) {
+      // 仕様: 固定ONで除外は自動解除
       this.fixedMenus.add(menuName);
       this.excludedMenus.delete(menuName);
+    } else {
+      this.fixedMenus.delete(menuName);
     }
-
     this.renderMenusList();
   }
 
-  toggleExcluded(menuName) {
+  onMenuRowTapped(menuName) {
+    const isFixed = this.fixedMenus.has(menuName);
     const isExcluded = this.excludedMenus.has(menuName);
 
-    if (isExcluded) {
-      this.excludedMenus.delete(menuName);
-    } else {
-      // excluded と fixed は両立不可: 除外ONの場合は固定を解除
-      this.excludedMenus.add(menuName);
+    if (isFixed) {
+      // 仕様: 固定ON中に行タップ -> 固定解除して除外へ
       this.fixedMenus.delete(menuName);
+      this.excludedMenus.add(menuName);
+    } else {
+      // 推奨/除外 をトグル
+      if (isExcluded) {
+        this.excludedMenus.delete(menuName);
+      } else {
+        this.excludedMenus.add(menuName);
+      }
     }
 
     this.renderMenusList();
