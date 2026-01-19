@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔐 管理者ページ - 食事記録</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* 管理者ページ専用スタイル */
+    .auth-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      padding: 20px;
+    }
+
+    .auth-card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .auth-card h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 24px;
+      color: var(--text-primary);
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--medium-gray);
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .auth-button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-button:hover {
+      background: #0051D5;
+    }
+
+    .auth-error {
+      color: var(--danger-color);
+      text-align: center;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: white;
+      border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .logout-button {
+      padding: 8px 16px;
+      background: var(--danger-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .admin-content {
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .section-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .date-selector {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .date-selector input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid var(--medium-gray);
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .load-button {
+      padding: 12px 24px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .menu-selection {
+      display: grid;
+      gap: 8px;
+    }
+
+    .menu-checkbox-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: var(--light-gray);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .menu-checkbox-item:hover {
+      background: #e0e0e0;
+    }
+
+    .menu-checkbox-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      cursor: pointer;
+    }
+
+    .menu-checkbox-label {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .menu-nutrition-info {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-left: 32px;
+    }
+
+    .save-button {
+      width: 100%;
+      padding: 16px;
+      background: var(--success-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .save-button:disabled {
+      background: var(--medium-gray);
+      cursor: not-allowed;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .history-item {
+      padding: 16px;
+      background: var(--light-gray);
+      border-radius: 8px;
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .history-date {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .history-menus {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .status-message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .nutrition-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+      padding: 16px;
+      background: #f0f8ff;
+      border-radius: 8px;
+    }
+
+    .nutrition-summary-item {
+      text-align: center;
+    }
+
+    .nutrition-summary-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 700;
+    }
+
+    .nutrition-summary-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 認証画面 -->
+  <div id="auth-screen" class="auth-screen">
+    <div class="auth-card">
+      <h2>🔐 管理者認証</h2>
+      <input 
+        type="password" 
+        id="password-input" 
+        class="auth-input" 
+        placeholder="パスワードを入力"
+        autocomplete="off"
+      >
+      <button id="login-button" class="auth-button">ログイン</button>
+      <div id="auth-error" class="auth-error hidden"></div>
+    </div>
+  </div>
+
+  <!-- メイン画面 -->
+  <div id="main-screen" class="app-container hidden">
+    <!-- ヘッダー -->
+    <div class="admin-header">
+      <h1 style="font-size: 20px; margin: 0;">🍽️ 食事記録管理</h1>
+      <button id="logout-button" class="logout-button">ログアウト</button>
+    </div>
+
+    <div class="admin-content">
+      <!-- 日付選択 & メニュー読込 -->
+      <div class="section-card">
+        <div class="section-title">📅 日付選択</div>
+        <div class="date-selector">
+          <input type="date" id="date-input" class="form-input">
+          <button id="load-menus-button" class="load-button">メニュー読込</button>
+        </div>
+        <div id="load-status" class="hidden"></div>
+      </div>
+
+      <!-- メニュー選択 -->
+      <div class="section-card">
+        <div class="section-title">
+          🍱 食べたメニューを選択
+          <span id="selected-count" style="font-size: 14px; color: var(--text-secondary); font-weight: 400;">(0件)</span>
+        </div>
+        <div id="menu-selection" class="menu-selection">
+          <p style="color: var(--text-secondary); text-align: center;">日付を選択してメニューを読み込んでください</p>
+        </div>
+
+        <!-- 栄養合計 -->
+        <div id="nutrition-summary" class="nutrition-summary hidden">
+          <div class="nutrition-summary-item">
+            <div class="nutrition-summary-label">エネルギー</div>
+            <div id="summary-energy" class="nutrition-summary-value">0</div>
+          </div>
+          <div class="nutrition-summary-item">
+            <div class="nutrition-summary-label">たんぱく質</div>
+            <div id="summary-protein" class="nutrition-summary-value">0</div>
+          </div>
+          <div class="nutrition-summary-item">
+            <div class="nutrition-summary-label">脂質</div>
+            <div id="summary-fat" class="nutrition-summary-value">0</div>
+          </div>
+          <div class="nutrition-summary-item">
+            <div class="nutrition-summary-label">炭水化物</div>
+            <div id="summary-carb" class="nutrition-summary-value">0</div>
+          </div>
+          <div class="nutrition-summary-item">
+            <div class="nutrition-summary-label">野菜重量</div>
+            <div id="summary-veg" class="nutrition-summary-value">0</div>
+          </div>
+        </div>
+
+        <button id="save-button" class="save-button" disabled>💾 記録を保存</button>
+        <div id="save-status" class="hidden"></div>
+      </div>
+
+      <!-- 履歴表示 -->
+      <div class="section-card">
+        <div class="section-title">📊 最近の記録</div>
+        <div id="history-list" class="history-list">
+          <p style="color: var(--text-secondary); text-align: center;">記録がありません</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
