@@ -309,19 +309,19 @@
       <!-- GitHub トークン設定 -->
       <div class="section-card" style="background: #fff3cd; border-left: 4px solid #ffc107;">
         <div class="section-title">🔑 GitHub Token 設定</div>
-        <div style="margin-bottom: 12px;">
+        <div style="margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap;">
           <input 
             type="text" 
             id="token-input" 
             class="form-input" 
             placeholder="Personal Access Token (ghp_...)" 
-            style="width: 100%; max-width: 500px;"
+            style="flex: 1; min-width: 200px; margin: 0;"
             autocomplete="off"
             autocorrect="off"
             autocapitalize="off"
             spellcheck="false"
           >
-          <button id="save-token-button" class="load-button" style="margin-left: 8px;">保存</button>
+          <button id="save-token-button" class="load-button" style="margin: 0; white-space: nowrap;">保存</button>
         </div>
         <div id="token-status" style="font-size: 13px; color: #666; margin-bottom: 8px;">
           ステータス: <span id="token-status-text">未設定（ローカルのみ保存）</span>
