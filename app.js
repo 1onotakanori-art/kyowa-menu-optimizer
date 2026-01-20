@@ -283,14 +283,6 @@ class MenuOptimizationApp {
       name.className = 'menu-list-item-name';
       name.textContent = menu.name;
 
-      // 価格を表示
-      const price = menu.nutrition?.['価格'];
-      const priceEl = document.createElement('div');
-      priceEl.className = 'menu-list-item-price';
-      if (price !== undefined && price !== null) {
-        priceEl.textContent = `¥${price}`;
-      }
-
       // 栄養情報を表示（E, P, F, C, V で表示）
       const nutrition = document.createElement('div');
       nutrition.className = 'menu-list-item-nutrition';
@@ -315,11 +307,10 @@ class MenuOptimizationApp {
       });
 
       details.appendChild(name);
-      details.appendChild(priceEl);
       details.appendChild(nutrition);
       item.appendChild(details);
 
-      // フッター（状態操作）
+      // フッター（状態ラベル + 固定トグル、絶対配置で右上に表示）
       const footer = document.createElement('div');
       footer.className = 'menu-list-item-footer';
 
