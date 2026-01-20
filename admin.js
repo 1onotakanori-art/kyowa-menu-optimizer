@@ -196,8 +196,16 @@ class AdminApp {
       checkbox.type = 'checkbox';
       checkbox.id = `menu-${index}`;
       checkbox.checked = this.selectedMenus.has(menu.name);
-      checkbox.addEventListener('change', (e) => {
-        if (e.target.checked) {
+      
+      const label = document.createElement('label');
+      label.className = 'menu-checkbox-label';
+      label.htmlFor = `menu-${index}`;
+      label.textContent = menu.name;
+      
+      // アイテム全体をクリック可能に
+      item.addEventListener('click', () => {
+        checkbox.checked = !checkbox.checked;
+        if (checkbox.checked) {
           this.selectedMenus.add(menu.name);
         } else {
           this.selectedMenus.delete(menu.name);
@@ -206,23 +214,27 @@ class AdminApp {
         this.updateNutritionSummary();
       });
       
-      const label = document.createElement('label');
-      label.className = 'menu-checkbox-label';
-      label.htmlFor = `menu-${index}`;
-      label.textContent = menu.name;
-      
       item.appendChild(checkbox);
       item.appendChild(label);
       
-      // 栄養情報を簡易表示
+      // 栄養情報を色付きバッジで表示
       if (menu.nutrition) {
         const nutritionInfo = document.createElement('div');
         nutritionInfo.className = 'menu-nutrition-info';
-        const e = menu.nutrition['エネルギー'] || 0;
-        const p = menu.nutrition['たんぱく質'] || 0;
-        const f = menu.nutrition['脂質'] || 0;
-        const c = menu.nutrition['炭水化物'] || 0;
-        nutritionInfo.textContent = `E:${e} P:${p} F:${f} C:${c}`;
+        
+        const e = Math.round(menu.nutrition['エネルギー'] || 0);
+        const p = Math.round((menu.nutrition['たんぱく質'] || 0) * 10) / 10;
+        const f = Math.round((menu.nutrition['脂質'] || 0) * 10) / 10;
+        const c = Math.round((menu.nutrition['炭水化物'] || 0) * 10) / 10;
+        const v = Math.round(menu.nutrition['野菜重量'] || 0);
+        
+        nutritionInfo.innerHTML = `
+          <span class="nutrition-badge energy"><span class="nutrition-label-small">E</span>${e}</span>
+          <span class="nutrition-badge protein"><span class="nutrition-label-small">P</span>${p}</span>
+          <span class="nutrition-badge fat"><span class="nutrition-label-small">F</span>${f}</span>
+          <span class="nutrition-badge carb"><span class="nutrition-label-small">C</span>${c}</span>
+          <span class="nutrition-badge veg"><span class="nutrition-label-small">V</span>${v}</span>
+        `;
         item.appendChild(nutritionInfo);
       }
       
