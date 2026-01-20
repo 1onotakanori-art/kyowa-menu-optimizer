@@ -623,30 +623,35 @@ body {
   white-space: nowrap;
 }
 
-/* 栄養成分の背景色設定（オプションB：明色背景＋黒文字） */
+/* 栄養成分の背景色設定（管理者ページと統一） */
 .nutrition-e {
-  background-color: #d5dbdb;
-  color: #000;
+  background: rgba(255, 99, 71, 0.15);
+  color: #d63031;
+  border: 1.5px solid rgba(255, 99, 71, 0.4);
 }
 
 .nutrition-p {
-  background-color: #fadbd8;
-  color: #000;
+  background: rgba(52, 152, 219, 0.15);
+  color: #2980b9;
+  border: 1.5px solid rgba(52, 152, 219, 0.4);
 }
 
 .nutrition-f {
-  background-color: #fef5e7;
-  color: #000;
+  background: rgba(241, 196, 15, 0.15);
+  color: #d4a60a;
+  border: 1.5px solid rgba(241, 196, 15, 0.4);
 }
 
 .nutrition-c {
-  background-color: #d6eaf8;
-  color: #000;
+  background: rgba(46, 204, 113, 0.15);
+  color: #27ae60;
+  border: 1.5px solid rgba(46, 204, 113, 0.4);
 }
 
 .nutrition-v {
-  background-color: #d5f4e6;
-  color: #000;
+  background: rgba(155, 89, 182, 0.15);
+  color: #8e44ad;
+  border: 1.5px solid rgba(155, 89, 182, 0.4);
 }
 
 .menu-list-item-buttons {
