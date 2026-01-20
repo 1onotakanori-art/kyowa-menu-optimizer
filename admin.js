@@ -17,8 +17,10 @@ class AdminApp {
     
     // GitHub設定（プライベートリポジトリ）
     this.GITHUB_OWNER = '1onotakanori-art'; // あなたのGitHubユーザー名
-    this.GITHUB_REPO = 'kyowa-menu-history'; // プライベートリポジトリ名（後で作成）
-    this.GITHUB_TOKEN = null; // Personal Access Token（後で設定）
+    this.GITHUB_REPO = 'kyowa-menu-history'; // プライベートリポジトリ名
+    
+    // Personal Access Token はローカルストレージから読み込む
+    this.GITHUB_TOKEN = localStorage.getItem('github_token') || null;
     
     this.currentDate = null;
     this.availableMenus = [];
@@ -40,6 +42,12 @@ class AdminApp {
     
     // ログアウト
     document.getElementById('logout-button').addEventListener('click', () => this.handleLogout());
+    
+    // トークン保存
+    document.getElementById('save-token-button').addEventListener('click', () => this.saveToken());
+    document.getElementById('token-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') this.saveToken();
+    });
     
     // 日付選択（デフォルトは今日）
     const dateInput = document.getElementById('date-input');
@@ -108,6 +116,49 @@ class AdminApp {
   showMainScreen() {
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('main-screen').classList.remove('hidden');
+    this.updateTokenStatus();
+  }
+
+  /**
+   * トークン保存
+   */
+  saveToken() {
+    const tokenInput = document.getElementById('token-input');
+    const token = tokenInput.value.trim();
+    
+    if (!token) {
+      alert('トークンを入力してください');
+      return;
+    }
+    
+    if (!token.startsWith('ghp_')) {
+      alert('無効なトークン形式です。GitHub Personal Access Token は ghp_ で始まります。');
+      return;
+    }
+    
+    localStorage.setItem('github_token', token);
+    this.GITHUB_TOKEN = token;
+    tokenInput.value = '';
+    this.updateTokenStatus();
+    alert('✅ トークンを保存しました！');
+  }
+
+  /**
+   * トークン状態を更新
+   */
+  updateTokenStatus() {
+    const statusText = document.getElementById('token-status-text');
+    const tokenInput = document.getElementById('token-input');
+    
+    if (this.GITHUB_TOKEN) {
+      statusText.textContent = '✅ 設定済み（GitHub保存有効）';
+      statusText.style.color = '#28a745';
+      tokenInput.placeholder = '新しいトークンで上書きする場合は入力';
+    } else {
+      statusText.textContent = '❌ 未設定（ローカルのみ保存）';
+      statusText.style.color = '#dc3545';
+      tokenInput.placeholder = 'Personal Access Token (ghp_...)';
+    }
   }
 
   /**

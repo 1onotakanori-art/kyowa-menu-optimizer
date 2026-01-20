@@ -306,6 +306,27 @@
     </div>
 
     <div class="admin-content">
+      <!-- GitHub トークン設定 -->
+      <div class="section-card" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+        <div class="section-title">🔑 GitHub Token 設定</div>
+        <div style="margin-bottom: 12px;">
+          <input 
+            type="password" 
+            id="token-input" 
+            class="form-input" 
+            placeholder="Personal Access Token (ghp_...)" 
+            style="width: 100%; max-width: 500px;"
+          >
+          <button id="save-token-button" class="load-button" style="margin-left: 8px;">保存</button>
+        </div>
+        <div id="token-status" style="font-size: 13px; color: #666;">
+          ステータス: <span id="token-status-text">未設定（ローカルのみ保存）</span>
+        </div>
+        <div style="margin-top: 8px; font-size: 12px; color: #856404;">
+          💡 <a href="https://github.com/settings/tokens" target="_blank" style="color: #856404; text-decoration: underline;">こちら</a>でトークンを作成（スコープ: repo）
+        </div>
+      </div>
+
       <!-- 日付選択 & メニュー読込 -->
       <div class="section-card">
         <div class="section-title">📅 日付選択</div>
