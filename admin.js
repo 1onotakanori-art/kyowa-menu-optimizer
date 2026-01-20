@@ -20,7 +20,13 @@ class AdminApp {
     this.GITHUB_REPO = 'kyowa-menu-history'; // プライベートリポジトリ名
     
     // Personal Access Token はローカルストレージから読み込む
-    this.GITHUB_TOKEN = localStorage.getItem('github_token') || null;
+    try {
+      this.GITHUB_TOKEN = localStorage.getItem('github_token') || null;
+      console.log('トークン読み込み:', this.GITHUB_TOKEN ? '成功' : 'なし');
+    } catch (error) {
+      console.error('localStorage読み込みエラー:', error);
+      this.GITHUB_TOKEN = null;
+    }
     
     this.currentDate = null;
     this.availableMenus = [];
@@ -126,21 +132,38 @@ class AdminApp {
     const tokenInput = document.getElementById('token-input');
     const token = tokenInput.value.trim();
     
+    console.log('トークン保存開始:', token.substring(0, 10) + '...');
+    
     if (!token) {
       alert('トークンを入力してください');
       return;
     }
     
     if (!token.startsWith('ghp_')) {
-      alert('無効なトークン形式です。GitHub Personal Access Token は ghp_ で始まります。');
+      alert(`無効なトークン形式です。\n入力値: ${token.substring(0, 10)}...\nGitHub Personal Access Token は ghp_ で始まります。`);
       return;
     }
     
-    localStorage.setItem('github_token', token);
-    this.GITHUB_TOKEN = token;
-    tokenInput.value = '';
-    this.updateTokenStatus();
-    alert('✅ トークンを保存しました！');
+    try {
+      // localStorageへの保存を試行
+      localStorage.setItem('github_token', token);
+      
+      // 保存確認
+      const saved = localStorage.getItem('github_token');
+      if (saved !== token) {
+        throw new Error('localStorageに保存できませんでした');
+      }
+      
+      this.GITHUB_TOKEN = token;
+      tokenInput.value = '';
+      this.updateTokenStatus();
+      console.log('✅ トークン保存成功');
+      alert('✅ トークンを保存しました！\n\nGitHub保存が有効になりました。');
+      
+    } catch (error) {
+      console.error('トークン保存エラー:', error);
+      alert(`❌ トークンの保存に失敗しました。\n\nエラー: ${error.message}\n\niOSのプライベートブラウジングモードでは保存できません。通常モードでお試しください。`);
+    }
   }
 
   /**
@@ -150,8 +173,10 @@ class AdminApp {
     const statusText = document.getElementById('token-status-text');
     const tokenInput = document.getElementById('token-input');
     
+    console.log('トークン状態更新:', this.GITHUB_TOKEN ? 'あり' : 'なし');
+    
     if (this.GITHUB_TOKEN) {
-      statusText.textContent = '✅ 設定済み（GitHub保存有効）';
+      statusText.textContent = `✅ 設定済み（GitHub保存有効）- ${this.GITHUB_TOKEN.substring(0, 10)}...`;
       statusText.style.color = '#28a745';
       tokenInput.placeholder = '新しいトークンで上書きする場合は入力';
     } else {

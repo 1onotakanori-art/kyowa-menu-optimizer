@@ -311,17 +311,30 @@
         <div class="section-title">🔑 GitHub Token 設定</div>
         <div style="margin-bottom: 12px;">
           <input 
-            type="password" 
+            type="text" 
             id="token-input" 
             class="form-input" 
             placeholder="Personal Access Token (ghp_...)" 
             style="width: 100%; max-width: 500px;"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
           >
           <button id="save-token-button" class="load-button" style="margin-left: 8px;">保存</button>
         </div>
-        <div id="token-status" style="font-size: 13px; color: #666;">
+        <div id="token-status" style="font-size: 13px; color: #666; margin-bottom: 8px;">
           ステータス: <span id="token-status-text">未設定（ローカルのみ保存）</span>
         </div>
+        <details style="margin-top: 8px; font-size: 12px; color: #856404;">
+          <summary style="cursor: pointer; font-weight: 600;">📱 iOSで設定できない場合</summary>
+          <div style="margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px;">
+            <p style="margin: 4px 0;">1. Safariのプライベートブラウズを無効にする</p>
+            <p style="margin: 4px 0;">2. 設定 → Safari → プライバシーとセキュリティ → 「サイト越えトラッキングを防ぐ」をOFF</p>
+            <p style="margin: 4px 0;">3. トークンを貼り付ける前に余分なスペースがないか確認</p>
+            <p style="margin: 4px 0;">4. ブラウザのコンソールログを確認（開発者ツール）</p>
+          </div>
+        </details>
         <div style="margin-top: 8px; font-size: 12px; color: #856404;">
           💡 <a href="https://github.com/settings/tokens" target="_blank" style="color: #856404; text-decoration: underline;">こちら</a>でトークンを作成（スコープ: repo）
         </div>
