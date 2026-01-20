@@ -11,10 +11,6 @@
 
 class AdminApp {
   constructor() {
-    // 簡易パスワード（本番では環境変数から取得）
-    // TODO: GitHub Secretsから取得する仕組みに変更
-    this.PASSWORD = 'kyowa2026'; // デフォルトパスワード
-    
     // GitHub設定（プライベートリポジトリ）
     this.GITHUB_OWNER = '1onotakanori-art'; // あなたのGitHubユーザー名
     this.GITHUB_REPO = 'kyowa-menu-history'; // プライベートリポジトリ名
@@ -33,22 +29,14 @@ class AdminApp {
     this.selectedMenus = new Set();
     
     this.initializeEventListeners();
-    this.checkAuth();
+    this.showMainScreen();
+    this.loadRecentHistory();
   }
 
   /**
    * イベントリスナー初期化
    */
   initializeEventListeners() {
-    // 認証
-    document.getElementById('login-button').addEventListener('click', () => this.handleLogin());
-    document.getElementById('password-input').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') this.handleLogin();
-    });
-    
-    // ログアウト
-    document.getElementById('logout-button').addEventListener('click', () => this.handleLogout());
-    
     // トークン保存
     document.getElementById('save-token-button').addEventListener('click', () => this.saveToken());
     document.getElementById('token-input').addEventListener('keypress', (e) => {
@@ -78,50 +66,9 @@ class AdminApp {
   }
 
   /**
-   * 認証状態チェック
-   */
-  checkAuth() {
-    const isAuthenticated = sessionStorage.getItem('admin_authenticated') === 'true';
-    if (isAuthenticated) {
-      this.showMainScreen();
-      this.loadRecentHistory();
-    }
-  }
-
-  /**
-   * ログイン処理
-   */
-  handleLogin() {
-    const passwordInput = document.getElementById('password-input');
-    const password = passwordInput.value;
-    const errorEl = document.getElementById('auth-error');
-    
-    if (password === this.PASSWORD) {
-      sessionStorage.setItem('admin_authenticated', 'true');
-      errorEl.classList.add('hidden');
-      this.showMainScreen();
-      this.loadRecentHistory();
-    } else {
-      errorEl.textContent = 'パスワードが正しくありません';
-      errorEl.classList.remove('hidden');
-      passwordInput.value = '';
-    }
-  }
-
-  /**
-   * ログアウト処理
-   */
-  handleLogout() {
-    sessionStorage.removeItem('admin_authenticated');
-    location.reload();
-  }
-
-  /**
    * メイン画面表示
    */
   showMainScreen() {
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('main-screen').classList.remove('hidden');
     this.updateTokenStatus();
   }
 
@@ -199,6 +146,7 @@ class AdminApp {
     }
     
     this.currentDate = date;
+    this.selectedMenus.clear(); // 前回の選択をクリア
     this.showLoadStatus('メニュー読込中...', 'info');
     
     try {
@@ -222,6 +170,7 @@ class AdminApp {
       console.error('メニュー読込エラー:', error);
       this.showLoadStatus(`エラー: ${error.message}`, 'error');
       this.availableMenus = [];
+      this.selectedMenus.clear(); // エラー時もクリア
       this.renderMenuSelection();
     }
   }
