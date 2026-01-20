@@ -320,14 +320,24 @@ class AdminApp {
         timestamp: new Date().toISOString()
       };
       
-      // Phase 1: ローカルストレージに保存（仮実装）
+      // Phase 1: ローカルストレージに保存
       const storageKey = `history_${this.currentDate}`;
       localStorage.setItem(storageKey, JSON.stringify(historyData));
       
-      // TODO: Phase 2でGitHub API経由の保存を実装
-      // await this.saveToGitHub(historyData);
-      
-      this.showSaveStatus('保存しました！', 'success');
+      // Phase 2: GitHub API経由の保存
+      let githubSaveSuccess = false;
+      try {
+        if (this.GITHUB_TOKEN) {
+          await this.saveToGitHub(historyData);
+          githubSaveSuccess = true;
+          this.showSaveStatus('GitHub にも保存しました！', 'success');
+        } else {
+          this.showSaveStatus('保存しました（ローカルのみ）', 'success');
+        }
+      } catch (githubError) {
+        console.error('GitHub保存エラー:', githubError);
+        this.showSaveStatus(`ローカル保存成功、GitHub保存失敗: ${githubError.message}`, 'warning');
+      }
       this.loadRecentHistory();
       
       // 5秒後にメッセージを消す
@@ -342,16 +352,70 @@ class AdminApp {
   }
 
   /**
-   * GitHub API経由で保存（Phase 2で実装予定）
+   * GitHub API経由で保存（Phase 2実装）
    */
   async saveToGitHub(data) {
-    // TODO: GitHub API実装
-    // 1. Personal Access Tokenの取得
-    // 2. プライベートリポジトリへのファイルアップロード
-    // 3. コミット作成
+    if (!this.GITHUB_TOKEN) {
+      throw new Error('GitHub Personal Access Tokenが設定されていません');
+    }
     
-    console.log('GitHub保存（未実装）:', data);
-    throw new Error('GitHub API連携は未実装です');
+    const fileName = `data/history/${data.date}.json`;
+    const content = JSON.stringify(data, null, 2);
+    const contentBase64 = btoa(unescape(encodeURIComponent(content)));
+    
+    // 既存ファイルのSHA取得（更新の場合）
+    let existingSha = null;
+    try {
+      const getResponse = await fetch(
+        `https://api.github.com/repos/${this.GITHUB_OWNER}/${this.GITHUB_REPO}/contents/${fileName}`,
+        {
+          headers: {
+            'Authorization': `token ${this.GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        }
+      );
+      if (getResponse.ok) {
+        const existingFile = await getResponse.json();
+        existingSha = existingFile.sha;
+      }
+    } catch (error) {
+      // ファイルが存在しない場合は新規作成
+      console.log('新規ファイル作成:', fileName);
+    }
+    
+    // ファイルのコミット
+    const requestBody = {
+      message: `Update history for ${data.date}`,
+      content: contentBase64,
+      branch: 'main'
+    };
+    
+    if (existingSha) {
+      requestBody.sha = existingSha;
+    }
+    
+    const response = await fetch(
+      `https://api.github.com/repos/${this.GITHUB_OWNER}/${this.GITHUB_REPO}/contents/${fileName}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${this.GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      }
+    );
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`GitHub API エラー: ${errorData.message}`);
+    }
+    
+    const result = await response.json();
+    console.log('GitHub保存成功:', result.content.html_url);
+    return result;
   }
 
   /**
