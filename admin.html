@@ -89,8 +89,17 @@
       flex-wrap: wrap;
     }
 
-    .menu-checkbox-item:hover {
+    /* ホバー効果はマウスのみ（タッチデバイスでは無効） */
+    @media (hover: hover) {
+      .menu-checkbox-item:hover {
+        background: #e0e0e0;
+      }
+    }
+
+    /* タッチデバイス用のアクティブ状態 */
+    .menu-checkbox-item:active {
       background: #e0e0e0;
+      transition: none;
     }
 
     .menu-checkbox-item input[type="checkbox"] {
