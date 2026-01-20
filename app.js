@@ -306,34 +306,20 @@ class MenuOptimizationApp {
         }
       });
 
-      details.appendChild(name);
-      details.appendChild(nutrition);
-      item.appendChild(details);
-
-      // フッター（状態ラベル + 固定トグル、絶対配置で右上に表示）
+      // 固定トグル（6列目に配置）
       const footer = document.createElement('div');
       footer.className = 'menu-list-item-footer';
 
-      const stateLabel = document.createElement('div');
-      stateLabel.className = 'menu-state-label';
-      stateLabel.textContent = isFixed ? '固定' : (isExcluded ? '除外' : '推奨');
-
       const fixedToggleWrap = document.createElement('div');
       fixedToggleWrap.className = 'menu-fixed-toggle';
-      // スイッチ周辺のタップが行タップに伝播しないようにする
       fixedToggleWrap.addEventListener('click', (e) => {
         e.stopPropagation();
       });
-
-      const fixedToggleLabel = document.createElement('span');
-      fixedToggleLabel.className = 'menu-fixed-toggle-label';
-      fixedToggleLabel.textContent = '固定';
 
       const switchLabel = document.createElement('label');
       switchLabel.className = 'ios-switch';
       switchLabel.setAttribute('aria-label', '固定');
       switchLabel.addEventListener('click', (e) => {
-        // iOS Safari では label クリックが行タップに伝播しやすい
         e.stopPropagation();
       });
 
@@ -341,7 +327,6 @@ class MenuOptimizationApp {
       switchInput.type = 'checkbox';
       switchInput.checked = isFixed;
       switchInput.addEventListener('click', (e) => {
-        // 行タップに伝播させない
         e.stopPropagation();
       });
       switchInput.addEventListener('change', (e) => {
@@ -358,13 +343,19 @@ class MenuOptimizationApp {
 
       switchLabel.appendChild(switchInput);
       switchLabel.appendChild(switchSlider);
-
-      fixedToggleWrap.appendChild(fixedToggleLabel);
       fixedToggleWrap.appendChild(switchLabel);
-
-      footer.appendChild(stateLabel);
       footer.appendChild(fixedToggleWrap);
-      item.appendChild(footer);
+      nutrition.appendChild(footer);
+
+      // 状態ラベル（絶対配置で右上に表示）
+      const stateLabel = document.createElement('div');
+      stateLabel.className = 'menu-state-label';
+      stateLabel.textContent = isFixed ? '固定' : (isExcluded ? '除外' : '推奨');
+
+      details.appendChild(name);
+      details.appendChild(nutrition);
+      item.appendChild(details);
+      item.appendChild(stateLabel);
 
       // 行タップ：推奨/除外を切り替え
       // ただし固定ONの場合は「固定解除→除外」に切り替える

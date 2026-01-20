@@ -452,13 +452,12 @@ body {
 }
 
 .menu-list-item-footer {
-  position: absolute;
-  top: 4px;
-  right: 12px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 0;
+  grid-column: 6;
+  padding: 0;
 }
 
 .menu-state-label {
@@ -598,19 +597,21 @@ body {
 
 .menu-list-item-details {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 6px;
   flex: 1;
-  padding-right: 80px;
-  min-height: 40px;
+  padding-right: 0;
+  width: 100%;
 }
 
 .menu-list-item-name {
   font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
-  min-width: 120px;
-  flex-shrink: 0;
+  padding-right: 80px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
 }
 
 .menu-list-item-price {
@@ -625,34 +626,33 @@ body {
 
 .menu-list-item-nutrition {
   font-size: 10px;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 4px;
   padding: 0;
   margin: 0;
-  flex-wrap: nowrap;
+  padding-right: 0;
 }
 
 .menu-list-item-nutrition-item {
-  display: inline-flex;
+  display: flex;
   justify-content: center;
   align-items: center;
-  padding: 3px 7px;
+  padding: 3px 4px;
   border-radius: 4px;
   min-height: 22px;
   font-weight: 700;
   font-size: 10px;
-  overflow: visible;
+  overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
-  min-width: 42px;
-  flex: 1;
 }
 
 @media (max-width: 600px) {
   .menu-list-item-nutrition-item {
-    font-size: 10px;
-    padding: 2px 5px;
-    min-width: 38px;
+    font-size: 9px;
+    padding: 2px 3px;
+    min-height: 20px;
   }
 }
 
@@ -729,21 +729,20 @@ body {
 .menu-fixed-toggle {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
 }
 
 .menu-fixed-toggle-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  white-space: nowrap;
+  display: none;
 }
 
 .ios-switch {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 26px;
+  width: 40px;
+  height: 24px;
 }
 
 .ios-switch input {
@@ -761,14 +760,14 @@ body {
   bottom: 0;
   background-color: var(--medium-gray);
   transition: 0.2s;
-  border-radius: 26px;
+  border-radius: 24px;
 }
 
 .ios-switch-slider:before {
   position: absolute;
   content: "";
-  height: 22px;
-  width: 22px;
+  height: 20px;
+  width: 20px;
   left: 2px;
   top: 2px;
   background-color: white;
@@ -782,7 +781,7 @@ body {
 }
 
 .ios-switch input:checked + .ios-switch-slider:before {
-  transform: translateX(18px);
+  transform: translateX(16px);
 }
 
 .ios-switch input:focus + .ios-switch-slider {
@@ -790,6 +789,9 @@ body {
 }
 
 .menu-state-label {
+  position: absolute;
+  top: 8px;
+  right: 12px;
   font-size: 11px;
   font-weight: 700;
   padding: 2px 8px;
@@ -797,6 +799,7 @@ body {
   color: white;
   background-color: var(--success-color);
   white-space: nowrap;
+  z-index: 1;
 }
 
 .menu-state-label.excluded {
@@ -1377,47 +1380,44 @@ body {
   /* メニュー表示のコンパクト化（スマホ対応） */
   .menu-list-item {
     padding: 8px 10px;
-    gap: 8px;
+    gap: 6px;
   }
 
   .menu-list-item-details {
-    gap: 8px;
-    padding-right: 70px;
+    gap: 4px;
   }
 
   .menu-list-item-name {
     font-size: 13px;
-    min-width: 100px;
+    padding-right: 60px;
   }
 
   .menu-list-item-nutrition {
     gap: 3px;
   }
 
-  .menu-list-item-footer {
-    right: 10px;
-  }
-
   .menu-state-label {
+    top: 6px;
+    right: 10px;
     font-size: 10px;
     padding: 2px 6px;
   }
 
-  .menu-fixed-toggle-label {
-    display: none;
+  .ios-switch {
+    width: 36px;
+    height: 22px;
   }
 
-  .ios-switch {
-    width: 40px;
-    height: 24px;
+  .ios-switch-slider {
+    border-radius: 22px;
   }
 
   .ios-switch-slider:before {
-    height: 20px;
-    width: 20px;
+    height: 18px;
+    width: 18px;
   }
 
   .ios-switch input:checked + .ios-switch-slider:before {
-    transform: translateX(16px);
+    transform: translateX(14px);
   }
 }
