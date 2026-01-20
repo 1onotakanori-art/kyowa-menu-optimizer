@@ -426,23 +426,39 @@ body {
   border: none;
   border-bottom: 1px solid var(--medium-gray);
   border-radius: 0;
-  padding: 12px;
+  padding: 10px 12px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
   transition: all 0.2s ease;
   box-shadow: none;
   cursor: pointer;
   border-left: 4px solid var(--medium-gray);
+  position: relative;
+}
+
+/* ホバー効果はマウスのみ（タッチデバイスでは無効） */
+@media (hover: hover) {
+  .menu-list-item:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+/* タッチデバイス用のアクティブ状態 */
+.menu-list-item:active {
+  background-color: #f5f5f5;
+  transition: none;
 }
 
 .menu-list-item-footer {
-  width: 100%;
+  position: absolute;
+  top: 4px;
+  right: 12px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .menu-state-label {
@@ -581,46 +597,63 @@ body {
 }
 
 .menu-list-item-details {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   flex: 1;
-  width: 100%;
+  padding-right: 80px;
+  min-height: 40px;
 }
 
 .menu-list-item-name {
   font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
+  min-width: 120px;
+  flex-shrink: 0;
 }
 
 .menu-list-item-price {
+  display: none;
+}
+
+.menu-list-item-price-visible {
   font-size: 12px;
   color: var(--text-secondary);
   font-weight: 600;
 }
 
 .menu-list-item-nutrition {
-  font-size: 12px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  font-size: 10px;
+  display: flex;
   gap: 4px;
   padding: 0;
-  margin-top: 4px;
+  margin: 0;
+  flex-wrap: nowrap;
 }
 
 .menu-list-item-nutrition-item {
-  display: flex;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
-  padding: 6px 2px;
+  padding: 3px 7px;
   border-radius: 4px;
-  min-height: 24px;
+  min-height: 22px;
   font-weight: 700;
-  font-size: 13px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 10px;
+  overflow: visible;
+  text-overflow: clip;
   white-space: nowrap;
+  min-width: 42px;
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .menu-list-item-nutrition-item {
+    font-size: 10px;
+    padding: 2px 5px;
+    min-width: 38px;
+  }
 }
 
 /* 栄養成分の背景色設定（管理者ページと統一） */
@@ -691,6 +724,83 @@ body {
 .result-exclude-btn:active {
   opacity: 0.7;
   transform: scale(0.95);
+}
+
+.menu-fixed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu-fixed-toggle-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.ios-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 26px;
+}
+
+.ios-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ios-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--medium-gray);
+  transition: 0.2s;
+  border-radius: 26px;
+}
+
+.ios-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 2px;
+  top: 2px;
+  background-color: white;
+  transition: 0.2s;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+}
+
+.ios-switch input:checked + .ios-switch-slider {
+  background-color: var(--success-color);
+}
+
+.ios-switch input:checked + .ios-switch-slider:before {
+  transform: translateX(18px);
+}
+
+.ios-switch input:focus + .ios-switch-slider {
+  box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.18);
+}
+
+.menu-state-label {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: white;
+  background-color: var(--success-color);
+  white-space: nowrap;
+}
+
+.menu-state-label.excluded {
+  background-color: var(--danger-color);
 }
 
 .menu-result-header {
@@ -821,48 +931,6 @@ body {
   font-weight: 700;
   font-size: 12px;
   text-align: center;
-}
-
-.menu-list-item-details {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 4px;
-  flex: 1;
-}
-
-.menu-list-item-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.menu-list-item-price {
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: 600;
-}
-
-.menu-list-item-nutrition {
-  font-size: 12px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  padding: 0;
-  margin-top: 4px;
-}
-
-.menu-list-item-nutrition-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 6px 2px;
-  border-radius: 4px;
-  min-height: 24px;
-  font-weight: 700;
-  font-size: 13px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .menu-list-item-buttons {
@@ -1304,5 +1372,52 @@ body {
   .button {
     padding: 12px 14px;
     font-size: 14px;
+  }
+
+  /* メニュー表示のコンパクト化（スマホ対応） */
+  .menu-list-item {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .menu-list-item-details {
+    gap: 8px;
+    padding-right: 70px;
+  }
+
+  .menu-list-item-name {
+    font-size: 13px;
+    min-width: 100px;
+  }
+
+  .menu-list-item-nutrition {
+    gap: 3px;
+  }
+
+  .menu-list-item-footer {
+    right: 10px;
+  }
+
+  .menu-state-label {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .menu-fixed-toggle-label {
+    display: none;
+  }
+
+  .ios-switch {
+    width: 40px;
+    height: 24px;
+  }
+
+  .ios-switch-slider:before {
+    height: 20px;
+    width: 20px;
+  }
+
+  .ios-switch input:checked + .ios-switch-slider:before {
+    transform: translateX(16px);
   }
 }
