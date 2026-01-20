@@ -199,11 +199,16 @@ class AdminApp {
       
       const label = document.createElement('label');
       label.className = 'menu-checkbox-label';
-      label.htmlFor = `menu-${index}`;
       label.textContent = menu.name;
       
+      // チェックボックス自体のクリックを無効化
+      checkbox.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+      
       // アイテム全体をクリック可能に
-      item.addEventListener('click', () => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
         checkbox.checked = !checkbox.checked;
         if (checkbox.checked) {
           this.selectedMenus.add(menu.name);
