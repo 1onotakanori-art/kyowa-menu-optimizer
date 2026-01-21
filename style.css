@@ -359,7 +359,8 @@ body {
 }
 
 .fixed-summary-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 6px;
   align-items: center;
 }
@@ -377,7 +378,7 @@ body {
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  flex-shrink: 0;
+  grid-column: 6;
 }
 
 /* メニュー状態表示の色 */
@@ -404,11 +405,11 @@ body {
 }
 
 .fixed-summary-values {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
   align-items: center;
-  flex-wrap: wrap;
-  flex: 1;
+  grid-column: 1 / 6;
 }
 
 .fixed-summary-pill {
@@ -684,7 +685,8 @@ body {
 
   /* 固定のみ表示のスマホ対応 */
   .fixed-summary-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     gap: 4px;
     align-items: center;
   }
@@ -695,15 +697,15 @@ body {
     color: var(--text-secondary);
     text-align: center;
     white-space: nowrap;
-    flex-shrink: 0;
+    grid-column: 6;
   }
 
   .fixed-summary-values {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 4px;
     align-items: center;
-    flex-wrap: wrap;
-    flex: 1;
+    grid-column: 1 / 6;
   }
 
   .fixed-summary-pill {
