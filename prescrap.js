@@ -122,3 +122,16 @@ prescrapMultipleDays(numDays).catch(error => {
   console.error('❌ プリスクレイピングエラー:', error);
   process.exit(1);
 });
+
+// prescrap.js の最後に追加
+const { execSync } = require('child_process');
+
+console.log('📤 GitHub にプッシュ中...');
+try {
+  execSync('git add menus/ && git commit -m "chore: Auto-update menu data" && git push origin main', {
+    stdio: 'inherit'
+  });
+  console.log('✅ GitHub へのプッシュ完了');
+} catch (error) {
+  console.error('❌ プッシュエラー:', error.message);
+}
