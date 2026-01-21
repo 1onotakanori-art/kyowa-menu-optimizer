@@ -943,6 +943,15 @@ class MenuOptimizationApp {
     const totals = result?.totalNutrition || {};
     const targets = result?.targets || {};
 
+    // 栄養項目にColorClassを追加
+    const colorClassMap = {
+      'エネルギー': 'nutrition-e',
+      'たんぱく質': 'nutrition-p',
+      '脂質': 'nutrition-f',
+      '炭水化物': 'nutrition-c',
+      '野菜重量': 'nutrition-v'
+    };
+
     const display = [
       { key: 'エネルギー', label: 'E' },
       { key: 'たんぱく質', label: 'P' },
@@ -954,7 +963,7 @@ class MenuOptimizationApp {
     valuesEl.innerHTML = '';
     display.forEach(({ key, label }) => {
       const pill = document.createElement('div');
-      pill.className = 'fixed-summary-pill';
+      pill.className = `fixed-summary-pill ${colorClassMap[key] || ''}`;
 
       const totalValue = totals[key] || 0;
       const targetValue = targets[key];
