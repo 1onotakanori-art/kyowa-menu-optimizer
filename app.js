@@ -515,8 +515,11 @@ class MenuOptimizationApp {
       valuesEl.appendChild(pill);
     });
     
-    // 件数を6列目に追加
-    valuesEl.appendChild(countEl);
+    // 件数ラッパーを6列目に追加（ラベルと件数は既にHTMLに存在）
+    const countWrapper = valuesEl.querySelector('.fixed-summary-count-wrapper');
+    if (countWrapper) {
+      valuesEl.appendChild(countWrapper);
+    }
   }
 
   ensureNutritionItemActive(item) {

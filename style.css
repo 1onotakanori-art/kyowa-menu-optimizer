@@ -362,12 +362,20 @@ body {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 6px;
-  align-items: start;
-  grid-auto-rows: auto;
+  align-items: center;
 }
 
 .fixed-summary-title {
   display: none;
+}
+
+.fixed-summary-count-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  grid-column: 6;
 }
 
 .fixed-summary-label {
@@ -375,8 +383,6 @@ body {
   font-weight: 800;
   color: var(--text-secondary);
   text-align: center;
-  grid-column: 6;
-  grid-row: 1;
 }
 
 .fixed-summary-count {
@@ -384,8 +390,6 @@ body {
   font-weight: 800;
   color: var(--text-secondary);
   text-align: center;
-  grid-column: 6;
-  grid-row: 2;
 }
 
 /* メニュー状態表示の色 */
@@ -669,11 +673,11 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 3px 4px;
+  padding: 4px 5px;
   border-radius: 4px;
-  min-height: 22px;
+  min-height: 24px;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
   overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
@@ -681,9 +685,9 @@ body {
 
 @media (max-width: 600px) {
   .menu-list-item-nutrition-item {
-    font-size: 9px;
-    padding: 2px 3px;
-    min-height: 20px;
+    font-size: 10px;
+    padding: 3px 4px;
+    min-height: 22px;
   }
 
   /* 固定のみ表示のスマホ対応 */
@@ -691,8 +695,16 @@ body {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 4px;
-    align-items: start;
-    grid-auto-rows: auto;
+    align-items: center;
+  }
+
+  .fixed-summary-count-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    grid-column: 6;
   }
 
   .fixed-summary-label {
@@ -700,8 +712,6 @@ body {
     font-weight: 800;
     color: var(--text-secondary);
     text-align: center;
-    grid-column: 6;
-    grid-row: 1;
   }
 
   .fixed-summary-count {
@@ -709,8 +719,6 @@ body {
     font-weight: 800;
     color: var(--text-secondary);
     text-align: center;
-    grid-column: 6;
-    grid-row: 2;
   }
 
   .fixed-summary-pill {
