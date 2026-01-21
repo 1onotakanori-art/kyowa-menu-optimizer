@@ -685,6 +685,69 @@ body {
     padding: 2px 3px;
     min-height: 20px;
   }
+
+  /* 固定のみ表示のスマホ対応 */
+  .fixed-summary-header {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    align-items: start;
+    grid-auto-rows: auto;
+  }
+
+  .fixed-summary-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-secondary);
+    text-align: center;
+    grid-column: 6;
+    grid-row: 1;
+  }
+
+  .fixed-summary-count {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-secondary);
+    text-align: center;
+    grid-column: 6;
+    grid-row: 2;
+  }
+
+  .fixed-summary-pill {
+    padding: 6px 4px;
+    min-height: 40px;
+  }
+
+  .fixed-summary-pill-label {
+    font-size: 10px;
+  }
+
+  .fixed-summary-pill-value {
+    font-size: 12px;
+  }
+
+  .fixed-summary-pill-diff {
+    font-size: 9px;
+  }
+
+  /* メニュー状態ラベルのスマホ対応 */
+  .menu-state-label {
+    top: 6px;
+    right: 8px;
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+
+  /* 凡例のスマホ対応 */
+  .legend-menu-nutrition {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .legend-menu-nutrition span,
+  .legend-menu-state {
+    font-size: 9px;
+    padding: 3px 2px;
+  }
 }
 
 /* 栄養成分の背景色設定（管理者ページと統一） */
