@@ -1449,6 +1449,7 @@ body {
 .achievement-col-name {
   font-weight: 600;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .achievement-col-target,
@@ -1458,9 +1459,22 @@ body {
   color: var(--text-secondary);
 }
 
+/* ヘッダーの目標/実績/差分は中央揃え */
+.nutrition-achievement-header .achievement-col-target,
+.nutrition-achievement-header .achievement-col-actual,
+.nutrition-achievement-header .achievement-col-diff {
+  text-align: center;
+}
+
+/* ヘッダーの達成率は中央揃え */
+.nutrition-achievement-header .achievement-col-rate {
+  justify-content: center;
+}
+
 .achievement-col-rate {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .achievement-bar-container {
