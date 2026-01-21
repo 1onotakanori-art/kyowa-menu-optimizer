@@ -474,7 +474,7 @@ class MenuOptimizationApp {
   updateFixedSummary() {
     const summaryEl = document.getElementById('fixed-summary');
     const countEl = document.getElementById('fixed-summary-count');
-    const valuesEl = document.getElementById('fixed-summary-values');
+    const valuesEl = document.getElementById('fixed-summary-header');
     if (!summaryEl || !countEl || !valuesEl) return;
 
     const fixedMenus = this.getFixedMenusData();
@@ -491,7 +491,9 @@ class MenuOptimizationApp {
       { key: '野菜重量', label: 'V' }
     ];
 
+    // valuesElをクリアして、6列グリッドとして再構築
     valuesEl.innerHTML = '';
+    
     display.forEach(({ key, label }) => {
       const pill = document.createElement('div');
       pill.className = 'fixed-summary-pill';
@@ -512,6 +514,9 @@ class MenuOptimizationApp {
 
       valuesEl.appendChild(pill);
     });
+    
+    // 件数を6列目に追加
+    valuesEl.appendChild(countEl);
   }
 
   ensureNutritionItemActive(item) {

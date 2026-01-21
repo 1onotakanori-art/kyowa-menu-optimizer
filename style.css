@@ -354,34 +354,31 @@ body {
   background: var(--light-gray);
   border: 1px solid var(--medium-gray);
   border-radius: 10px;
-  padding: 12px;
+  padding: 10px 12px;
   margin-bottom: 5px;
 }
 
 .fixed-summary-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
 }
 
 .fixed-summary-title {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--text-primary);
+  display: none;
 }
 
 .fixed-summary-count {
   font-size: 12px;
   font-weight: 800;
   color: var(--text-secondary);
+  text-align: center;
+  grid-column: 6;
 }
 
 .fixed-summary-values {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  display: none;
 }
 
 .fixed-summary-pill {
