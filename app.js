@@ -1174,8 +1174,8 @@ class MenuOptimizationApp {
       <div class="achievement-col-name">栄養項目</div>
       <div class="achievement-col-target">目標</div>
       <div class="achievement-col-actual">実績</div>
-      <div class="achievement-col-rate">達成率</div>
       <div class="achievement-col-diff">差分</div>
+      <div class="achievement-col-rate">達成率</div>
     `;
     tableContainer.appendChild(headerRow);
 
@@ -1196,7 +1196,7 @@ class MenuOptimizationApp {
       const actual = (totalNutrition && totalNutrition[key]) || 0;
       
       let ratePercent = 0;
-      let rateText = '設定なし';
+      let rateText = '-';
       let barColor = '#999';
       let diff = 0;
       let diffText = '-';
@@ -1233,13 +1233,13 @@ class MenuOptimizationApp {
         <div class="achievement-col-name">${label}</div>
         <div class="achievement-col-target">${target ? target.toFixed(1) : '-'}</div>
         <div class="achievement-col-actual">${actual.toFixed(1)}</div>
+        <div class="achievement-col-diff" style="color: ${diff >= 0 ? '#27ae60' : '#e74c3c'}">${diffText}</div>
         <div class="achievement-col-rate">
           <div class="achievement-bar-container">
             <div class="achievement-bar" style="width: ${barWidth}%; background-color: ${barColor};"></div>
             <div class="achievement-bar-text">${rateText}</div>
           </div>
         </div>
-        <div class="achievement-col-diff" style="color: ${diff >= 0 ? '#27ae60' : '#e74c3c'}">${diffText}</div>
       `;
       tableContainer.appendChild(row);
     });
