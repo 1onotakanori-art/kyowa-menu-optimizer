@@ -369,27 +369,15 @@ body {
   display: none;
 }
 
-.fixed-summary-count-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  grid-column: 6;
-}
-
-.fixed-summary-label {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--text-secondary);
-  text-align: center;
-}
-
 .fixed-summary-count {
   font-size: 12px;
   font-weight: 800;
   color: var(--text-secondary);
   text-align: center;
+  grid-column: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* メニュー状態表示の色 */
@@ -698,27 +686,12 @@ body {
     align-items: center;
   }
 
-  .fixed-summary-count-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1px;
-    grid-column: 6;
-  }
-
-  .fixed-summary-label {
-    font-size: 10px;
-    font-weight: 800;
-    color: var(--text-secondary);
-    text-align: center;
-  }
-
   .fixed-summary-count {
     font-size: 11px;
     font-weight: 800;
     color: var(--text-secondary);
     text-align: center;
+    grid-column: 6;
   }
 
   .fixed-summary-pill {
@@ -1017,11 +990,27 @@ body {
   background-color: white;
 }
 
+.legend-menu-example {
+  background: var(--light-gray);
+  padding: 8px;
+  border-radius: 6px;
+  border-left: 4px solid #27ae60;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
 .legend-menu-name {
   font-weight: 700;
   font-size: 13px;
   color: var(--text-primary);
-  margin-bottom: 6px;
 }
 
 .legend-menu-nutrition {
@@ -1036,9 +1025,20 @@ body {
   font-weight: 700;
   font-size: 10px;
   text-align: center;
+  background: white;
 }
 
 .legend-menu-state {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: white;
+  background-color: #27ae60;
+  white-space: nowrap;
+}
+
+.legend-menu-toggle {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1047,17 +1047,9 @@ body {
   font-weight: 700;
   font-size: 10px;
   text-align: center;
+  background: var(--medium-gray);
+  color: var(--text-secondary);
   white-space: nowrap;
-  color: white;
-  background-color: #27ae60;
-}
-
-.legend-menu-state.fixed {
-  background-color: #3498db;
-}
-
-.legend-menu-state.excluded {
-  background-color: #e74c3c;
 }
 
 .menu-list-item-buttons {
