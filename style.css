@@ -1427,8 +1427,8 @@ body {
   gap: 8px;
   align-items: center;
   padding: 12px;
-  background-color: var(--primary-color);
-  color: white;
+  background-color: #007AFF; /* 青背景 */
+  color: #ffffff; /* 白文字 */
   border-radius: 6px;
   font-size: 13px;
   font-weight: 700;
