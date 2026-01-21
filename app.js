@@ -1150,160 +1150,93 @@ class MenuOptimizationApp {
     }
     container.innerHTML = '';
 
-    // 常に表示する5つの栄養項目
-    const fixedLabels = ['エネルギー', 'たんぱく質', '脂質', '炭水化物', '野菜重量'];
-    
-    // テーブルコンテナ
+    // 達成率テーブルのコンテナ
     const tableContainer = document.createElement('div');
-    tableContainer.className = 'nutrition-table-container';
+    tableContainer.className = 'nutrition-achievement-table';
 
-    // ヘッダー
+    // ヘッダー行
     const headerRow = document.createElement('div');
-    headerRow.className = 'nutrition-row-table header';
+    headerRow.className = 'nutrition-achievement-header';
     headerRow.innerHTML = `
-      <div>栄養項目</div>
-      <div class="nutrition-value-cell">目標値</div>
-      <div class="nutrition-value-cell">実績</div>
-      <div class="nutrition-value-cell">差分</div>
+      <div class="achievement-col-name">栄養項目</div>
+      <div class="achievement-col-target">目標</div>
+      <div class="achievement-col-actual">実績</div>
+      <div class="achievement-col-rate">達成率</div>
+      <div class="achievement-col-diff">差分</div>
     `;
     tableContainer.appendChild(headerRow);
 
-    // チャート用データ
-    const labels = [];
-    const targetValues = [];
-    const actualValues = [];
+    // 栄養項目の定義（超過を嫌うかどうか）
+    const nutritionConfig = [
+      { key: 'エネルギー', label: 'エネルギー', avoidExcess: true },
+      { key: 'たんぱく質', label: 'たんぱく質', avoidExcess: false },
+      { key: '脂質', label: '脂質', avoidExcess: true },
+      { key: '炭水化物', label: '炭水化物', avoidExcess: true },
+      { key: '野菜重量', label: '野菜重量', avoidExcess: false }
+    ];
 
-    // 常に5項目を固定順序で処理
-    fixedLabels.forEach(key => {
+    nutritionConfig.forEach(({ key, label, avoidExcess }) => {
       const row = document.createElement('div');
-      row.className = 'nutrition-row-table';
+      row.className = 'nutrition-achievement-row';
 
-      const target = targets && targets[key] ? targets[key] : 0;
+      const target = targets && targets[key] ? targets[key] : null;
       const actual = (totalNutrition && totalNutrition[key]) || 0;
-      const diff = actual - target;
-      const diffColor = diff >= 0 ? '#34C759' : '#FF3B30';
+      
+      let ratePercent = 0;
+      let rateText = '設定なし';
+      let barColor = '#999';
+      let diff = 0;
+      let diffText = '-';
+
+      if (target && target > 0) {
+        ratePercent = (actual / target) * 100;
+        rateText = `${Math.round(ratePercent)}%`;
+        diff = actual - target;
+        diffText = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}`;
+
+        // 色の判定
+        if (avoidExcess) {
+          // 超過を嫌う項目（E, F, C）: 110%超→赤、110%以下→緑、50%以下→青
+          if (ratePercent > 110) {
+            barColor = '#e74c3c'; // 赤
+          } else if (ratePercent <= 50) {
+            barColor = '#3498db'; // 青
+          } else {
+            barColor = '#27ae60'; // 緑
+          }
+        } else {
+          // 不足を嫌う項目（P, V）: 90%以上→緑、90%以下→青
+          if (ratePercent >= 90) {
+            barColor = '#27ae60'; // 緑
+          } else {
+            barColor = '#3498db'; // 青
+          }
+        }
+      }
+
+      const barWidth = target ? Math.min(ratePercent, 200) : 0; // 最大200%まで表示
 
       row.innerHTML = `
-        <div class="nutrition-item-name">${key}</div>
-        <div class="nutrition-value-cell">${typeof target === 'number' ? target.toFixed(1) : target}</div>
-        <div class="nutrition-value-cell">${typeof actual === 'number' ? actual.toFixed(1) : actual}</div>
-        <div class="nutrition-value-cell" style="color: ${diffColor}">${diff > 0 ? '+' : ''}${typeof diff === 'number' ? diff.toFixed(1) : diff}</div>
+        <div class="achievement-col-name">${label}</div>
+        <div class="achievement-col-target">${target ? target.toFixed(1) : '-'}</div>
+        <div class="achievement-col-actual">${actual.toFixed(1)}</div>
+        <div class="achievement-col-rate">
+          <div class="achievement-bar-container">
+            <div class="achievement-bar" style="width: ${barWidth}%; background-color: ${barColor};"></div>
+            <div class="achievement-bar-text">${rateText}</div>
+          </div>
+        </div>
+        <div class="achievement-col-diff" style="color: ${diff >= 0 ? '#27ae60' : '#e74c3c'}">${diffText}</div>
       `;
       tableContainer.appendChild(row);
-
-      // チャート用データ（常に全5項目）
-      labels.push(key);
-      targetValues.push(typeof target === 'number' ? target : 0);
-      actualValues.push(typeof actual === 'number' ? actual : 0);
     });
 
-    // チャートコンテナ
-    const chartContainer = document.createElement('div');
-    chartContainer.style.marginBottom = '20px';
-    chartContainer.style.position = 'relative';
-    chartContainer.style.height = '300px';
-    chartContainer.innerHTML = '<canvas id="nutrition-chart"></canvas>';
-    
-    // テーブルを先に追加
     container.appendChild(tableContainer);
-    container.appendChild(chartContainer);
-
-    // レーダーチャートを描画（常に五角形で、目標値は点のみ）
-    setTimeout(() => this.drawRadarChart(labels, targetValues, actualValues), 100);
   }
 
   /**
    * レーダーチャートを描画
    */
-  drawRadarChart(labels, targetValues, actualValues) {
-    const canvas = document.getElementById('nutrition-chart');
-    if (!canvas) {
-      console.warn('nutrition-chart キャンバスが見つかりません');
-      return;
-    }
-
-    if (!window.Chart) {
-      console.warn('Chart.js がロードされていません');
-      return;
-    }
-
-    // 既存のチャートを破棄
-    if (this.nutritionChart) {
-      this.nutritionChart.destroy();
-    }
-
-    const ctx = canvas.getContext('2d');
-    try {
-      this.nutritionChart = new Chart(ctx, {
-        type: 'radar',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: '目標値',
-              data: targetValues,
-              borderColor: 'transparent',
-              backgroundColor: 'transparent',
-              borderWidth: 0,
-              fill: false,
-              pointBackgroundColor: '#007AFF',
-              pointBorderColor: '#fff',
-              pointBorderWidth: 2,
-              pointRadius: 5,
-              pointHoverRadius: 7,
-              showLine: false
-            },
-            {
-              label: '実績',
-              data: actualValues,
-              borderColor: '#34C759',
-              backgroundColor: 'rgba(52, 199, 89, 0.2)',
-              borderWidth: 2,
-              fill: true,
-              pointBackgroundColor: '#34C759',
-              pointBorderColor: '#fff',
-              pointBorderWidth: 2,
-              pointRadius: 5,
-              pointHoverRadius: 7
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                usePointStyle: true,
-                padding: 15,
-                font: {
-                  size: 12,
-                  weight: '600'
-                }
-              }
-            }
-          },
-          scales: {
-            r: {
-              beginAtZero: true,
-              ticks: {
-                font: {
-                  size: 11
-                }
-              },
-              grid: {
-                color: 'rgba(0, 0, 0, 0.1)'
-              }
-            }
-          }
-        }
-      });
-    } catch (error) {
-      console.error('チャート描画エラー:', error);
-    }
-  }
-
   /**
    * エラーメッセージを表示
    */
