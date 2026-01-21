@@ -14,6 +14,7 @@ class MenuOptimizationApp {
     this.tempExcludedMenus = new Set(); // 結果から一時的に除外するメニュー
     this.cachedDates = []; // キャッシュされた日付マッピング (dateLabel -> YYYY-MM-DD)
 
+    this.loadSettings(); // ローカルストレージから設定を復元
     this.initializeEventListeners();
     this.loadAvailableDates(); // 利用可能な日付を読込
   }
@@ -47,6 +48,8 @@ class MenuOptimizationApp {
       input.addEventListener('input', () => {
         // 目標値変更時は固定のみ集計の差分表示も更新
         this.updateFixedSummary();
+        // 設定を保存
+        this.saveSettings();
       });
     });
 
@@ -54,6 +57,14 @@ class MenuOptimizationApp {
     document.getElementById('date-input').addEventListener('change', () => {
       this.loadMenus();
     });
+
+    // 最大メニュー数の変更時に設定を保存
+    const maxMenusInput = document.getElementById('max-menus-input');
+    if (maxMenusInput) {
+      maxMenusInput.addEventListener('input', () => {
+        this.saveSettings();
+      });
+    }
 
     // メニュー検索
     document.getElementById('menu-search').addEventListener('input', (e) => {
@@ -572,6 +583,8 @@ class MenuOptimizationApp {
     }
 
     this.updateFixedSummary();
+    // 設定を保存
+    this.saveSettings();
   }
 
   /**
@@ -1263,6 +1276,90 @@ class MenuOptimizationApp {
       document.getElementById('result-content').classList.add('hidden');
     } else {
       loading.classList.add('hidden');
+    }
+  }
+
+  /**
+   * 設定をローカルストレージに保存
+   */
+  saveSettings() {
+    try {
+      const settings = {
+        // 最大メニュー数
+        maxMenus: document.getElementById('max-menus-input')?.value || 5,
+        
+        // 栄養目標の状態と値
+        nutritionTargets: {}
+      };
+
+      // 各栄養目標の状態と値を保存
+      document.querySelectorAll('.nutrition-item').forEach(item => {
+        const key = item.dataset.key;
+        const input = item.querySelector('.nutrition-value');
+        const isActive = item.classList.contains('active');
+        
+        settings.nutritionTargets[key] = {
+          active: isActive,
+          value: input.value || ''
+        };
+      });
+
+      localStorage.setItem('menuOptimizerSettings', JSON.stringify(settings));
+      console.log('✅ 設定を保存しました:', settings);
+    } catch (error) {
+      console.error('❌ 設定の保存に失敗:', error);
+    }
+  }
+
+  /**
+   * 設定をローカルストレージから復元
+   */
+  loadSettings() {
+    try {
+      const savedSettings = localStorage.getItem('menuOptimizerSettings');
+      if (!savedSettings) {
+        console.log('ℹ️ 保存された設定がありません');
+        return;
+      }
+
+      const settings = JSON.parse(savedSettings);
+      console.log('📥 設定を復元します:', settings);
+
+      // 最大メニュー数を復元
+      if (settings.maxMenus) {
+        const maxMenusInput = document.getElementById('max-menus-input');
+        if (maxMenusInput) {
+          maxMenusInput.value = settings.maxMenus;
+        }
+      }
+
+      // 栄養目標の状態と値を復元
+      if (settings.nutritionTargets) {
+        Object.entries(settings.nutritionTargets).forEach(([key, data]) => {
+          const item = document.querySelector(`.nutrition-item[data-key="${key}"]`);
+          if (!item) return;
+
+          const input = item.querySelector('.nutrition-value');
+          if (!input) return;
+
+          // 値を復元
+          if (data.value) {
+            input.value = data.value;
+          }
+
+          // アクティブ状態を復元
+          if (data.active) {
+            item.classList.add('active');
+            this.selectedNutritionTargets[key] = parseFloat(data.value) || 0;
+          } else {
+            item.classList.remove('active');
+          }
+        });
+      }
+
+      console.log('✅ 設定を復元しました');
+    } catch (error) {
+      console.error('❌ 設定の復元に失敗:', error);
     }
   }
 }
