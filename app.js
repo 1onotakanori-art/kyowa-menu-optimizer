@@ -1701,9 +1701,44 @@ class MenuOptimizationApp {
     }
 
     menus.forEach(menu => {
-      const card = this.createMenuCard(menu);
-      // 状態ボタンは非表示（CSSで制御済み）
-      gridEl.appendChild(card);
+      const item = document.createElement('div');
+      item.className = 'menu-list-item';
+
+      // メニュー詳細情報
+      const details = document.createElement('div');
+      details.className = 'menu-list-item-details';
+
+      const name = document.createElement('div');
+      name.className = 'menu-list-item-name';
+      name.textContent = menu.name;
+
+      // 栄養情報を表示
+      const nutrition = document.createElement('div');
+      nutrition.className = 'menu-list-item-nutrition';
+
+      const nutritionMap = [
+        { key: 'エネルギー', label: 'E', class: 'nutrition-e' },
+        { key: 'たんぱく質', label: 'P', class: 'nutrition-p' },
+        { key: '脂質', label: 'F', class: 'nutrition-f' },
+        { key: '炭水化物', label: 'C', class: 'nutrition-c' },
+        { key: '野菜重量', label: 'V', class: 'nutrition-v' }
+      ];
+
+      nutritionMap.forEach(({ key, label, class: className }) => {
+        const value = menu.nutrition?.[key];
+        if (value !== undefined && value !== null) {
+          const nutritionItem = document.createElement('div');
+          nutritionItem.className = `menu-list-item-nutrition-item ${className}`;
+          const displayValue = typeof value === 'number' ? value : value;
+          nutritionItem.innerHTML = `<span>${displayValue}</span>`;
+          nutrition.appendChild(nutritionItem);
+        }
+      });
+
+      details.appendChild(name);
+      details.appendChild(nutrition);
+      item.appendChild(details);
+      gridEl.appendChild(item);
     });
   }
 
