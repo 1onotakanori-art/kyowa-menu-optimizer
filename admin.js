@@ -331,7 +331,8 @@ class AdminApp {
     this.showSaveStatus('保存中...', 'info');
     
     try {
-      // 栄養合計を計算
+      // 選択されたメニューの詳細データを取得
+      const selectedMenusData = [];
       const nutritionTotal = {
         'エネルギー': 0,
         'たんぱく質': 0,
@@ -342,6 +343,13 @@ class AdminApp {
       
       this.availableMenus.forEach(menu => {
         if (this.selectedMenus.has(menu.name)) {
+          // メニュー詳細を追加
+          selectedMenusData.push({
+            name: menu.name,
+            nutrition: menu.nutrition || {}
+          });
+          
+          // 栄養合計を計算
           Object.keys(nutritionTotal).forEach(key => {
             const value = menu.nutrition?.[key];
             if (typeof value === 'number') {
@@ -351,15 +359,19 @@ class AdminApp {
         }
       });
       
-      // 保存データ作成
+      // 保存データ作成（新形式）
       const historyData = {
         date: this.currentDate,
-        eaten: Array.from(this.selectedMenus),
-        available: this.availableMenus.map(m => m.name),
-        nutrition: {
-          total: nutritionTotal
+        dayOfWeek: this.getDayOfWeek(this.currentDate),
+        user: "ONO",
+        timestamp: new Date().toISOString(),
+        settings: {
+          targets: {}, // 管理者ページでは目標設定なし
+          preferences: {}
         },
-        timestamp: new Date().toISOString()
+        selectedMenus: selectedMenusData,
+        totals: nutritionTotal,
+        achievement: {} // 目標がないので空
       };
       
       // Phase 1: ローカルストレージに保存
@@ -500,7 +512,13 @@ class AdminApp {
       
       const menusEl = document.createElement('div');
       menusEl.className = 'history-menus';
-      menusEl.textContent = `${history.eaten.length}件: ${history.eaten.join(', ')}`;
+      
+      // 新形式・旧形式の両方に対応
+      const menusList = history.selectedMenus 
+        ? history.selectedMenus.map(m => m.name)
+        : history.eaten || [];
+      
+      menusEl.textContent = `${menusList.length}件: ${menusList.join(', ')}`;
       
       item.appendChild(dateEl);
       item.appendChild(menusEl);
@@ -530,6 +548,15 @@ class AdminApp {
     statusEl.className = `status-message status-${type}`;
     statusEl.textContent = message;
     statusEl.classList.remove('hidden');
+  }
+
+  /**
+   * 日付から曜日を取得
+   */
+  getDayOfWeek(dateStr) {
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    const date = new Date(dateStr + 'T00:00:00');
+    return days[date.getDay()];
   }
 }
 
