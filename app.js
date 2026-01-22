@@ -1445,33 +1445,76 @@ class MenuOptimizationApp {
 
   /**
    * GitHubから履歴データを取得（公開読み取り）
+   * プライベートリポジトリの場合はGitHub Pages経由でアクセス
    */
   async fetchHistoryFromGitHub(date) {
     const owner = '1onotakanori-art';
     const repo = 'kyowa-menu-history';
     const path = `data/history/${date}.json`;
+    
+    // まずGitHub Pages経由でアクセスを試みる（プライベートリポジトリ対応）
+    const pagesUrl = `https://${owner}.github.io/${repo}/${path}`;
+    
+    try {
+      const response = await fetch(pagesUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        cache: 'no-cache' // キャッシュを無効化して最新データを取得
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`✅ 履歴データ取得成功 (GitHub Pages): ${date}`);
+        return data;
+      }
+      
+      if (response.status === 404) {
+        console.log(`📭 履歴データなし: ${date}`);
+        return null;
+      }
+      
+      // GitHub Pagesで失敗した場合はGitHub API経由を試す（パブリックリポジトリの場合）
+      console.log(`⚠️ GitHub Pages失敗 (${response.status}), GitHub API経由を試行...`);
+      return await this.fetchHistoryFromGitHubAPI(date);
+      
+    } catch (error) {
+      console.error('GitHub Pages呼び出しエラー:', error);
+      // フォールバック: GitHub API経由を試す
+      try {
+        return await this.fetchHistoryFromGitHubAPI(date);
+      } catch (apiError) {
+        console.error('GitHub API呼び出しもエラー:', apiError);
+        throw apiError;
+      }
+    }
+  }
+
+  /**
+   * GitHub API経由で履歴データを取得（フォールバック）
+   */
+  async fetchHistoryFromGitHubAPI(date) {
+    const owner = '1onotakanori-art';
+    const repo = 'kyowa-menu-history';
+    const path = `data/history/${date}.json`;
     const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 
-    try {
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        if (response.status === 404) {
-          console.log(`履歴データなし: ${date}`);
-          return null;
-        }
-        throw new Error(`GitHub API error: ${response.status}`);
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log(`履歴データなし: ${date}`);
+        return null;
       }
-
-      const data = await response.json();
-      
-      // Base64デコード
-      const content = decodeURIComponent(escape(atob(data.content)));
-      return JSON.parse(content);
-    } catch (error) {
-      console.error('GitHub API呼び出しエラー:', error);
-      throw error;
+      throw new Error(`GitHub API error: ${response.status}`);
     }
+
+    const data = await response.json();
+    
+    // Base64デコード
+    const content = decodeURIComponent(escape(atob(data.content)));
+    return JSON.parse(content);
   }
 
   /**
