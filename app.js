@@ -1521,19 +1521,36 @@ class MenuOptimizationApp {
    * 履歴データを表示
    */
   displayOnoMenus(historyData) {
-    // 記録日時を表示
-    this.displayOnoTimestamp(historyData.timestamp);
-
-    // サマリー表示
-    this.updateOnoSummary(historyData.totals, historyData.selectedMenus.length);
-
-    // 栄養テーブル表示（目標設定がある場合）
-    if (historyData.settings && historyData.settings.targets) {
-      this.updateOnoNutritionTable(historyData.totals, historyData.settings.targets);
+    // 旧形式と新形式の両方に対応
+    const isOldFormat = historyData.eaten && !historyData.selectedMenus;
+    
+    if (isOldFormat) {
+      console.log('⚠️ 旧形式のデータを検出しました。表示を制限します。');
+      // 旧形式の場合
+      this.displayOnoTimestamp(historyData.timestamp);
+      
+      // 栄養成分サマリーのみ表示
+      const totals = historyData.nutrition?.total || {};
+      const count = historyData.eaten?.length || 0;
+      this.updateOnoSummary(totals, count);
+      
+      // 簡易メニューリスト表示
+      this.displayOnoMenusGridSimple(historyData.eaten || []);
+      
+      // 栄養テーブルは非表示（目標情報がないため）
+      const nutritionSection = document.getElementById('ono-nutrition-section');
+      if (nutritionSection) nutritionSection.classList.add('hidden');
+    } else {
+      // 新形式の場合
+      this.displayOnoTimestamp(historyData.timestamp);
+      this.updateOnoSummary(historyData.totals, historyData.selectedMenus.length);
+      
+      if (historyData.settings && historyData.settings.targets) {
+        this.updateOnoNutritionTable(historyData.totals, historyData.settings.targets);
+      }
+      
+      this.displayOnoMenusGrid(historyData.selectedMenus);
     }
-
-    // メニュー一覧表示
-    this.displayOnoMenusGrid(historyData.selectedMenus);
   }
 
   /**
@@ -1688,6 +1705,43 @@ class MenuOptimizationApp {
       // 状態ボタンは非表示（CSSで制御済み）
       gridEl.appendChild(card);
     });
+  }
+
+  /**
+   * ONO Menus の簡易メニューリスト表示（旧形式用）
+   */
+  displayOnoMenusGridSimple(menuNames) {
+    const gridEl = document.getElementById('ono-menus-grid');
+    if (!gridEl) return;
+
+    gridEl.innerHTML = '';
+
+    if (!menuNames || menuNames.length === 0) {
+      gridEl.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">メニューデータがありません</p>';
+      return;
+    }
+
+    // 簡易表示：メニュー名のリスト
+    const listEl = document.createElement('div');
+    listEl.style.cssText = 'background: white; border-radius: 12px; padding: 20px;';
+    
+    const title = document.createElement('p');
+    title.style.cssText = 'font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;';
+    title.textContent = '※ 旧形式のデータのため、詳細情報は表示されません';
+    listEl.appendChild(title);
+    
+    const ul = document.createElement('ul');
+    ul.style.cssText = 'list-style: none; padding: 0; margin: 0;';
+    
+    menuNames.forEach((name, index) => {
+      const li = document.createElement('li');
+      li.style.cssText = 'padding: 10px 12px; border-bottom: 1px solid var(--light-gray); display: flex; align-items: center; gap: 8px;';
+      li.innerHTML = `<span style="color: var(--text-secondary); font-size: 14px;">${index + 1}.</span><span>${name}</span>`;
+      ul.appendChild(li);
+    });
+    
+    listEl.appendChild(ul);
+    gridEl.appendChild(listEl);
   }
 }
 
