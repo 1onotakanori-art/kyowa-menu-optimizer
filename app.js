@@ -1381,40 +1381,48 @@ class MenuOptimizationApp {
    */
   initOnoMenusTab() {
     const onoDatePicker = document.getElementById('ono-date-picker');
+    const settingsDateInput = document.getElementById('date-input');
     const onoTab = document.querySelector('[data-tab="ono-menus-tab"]');
     
-    if (!onoDatePicker || !onoTab) {
-      console.error('❌ ONO Menus: 必要な要素が見つかりません');
+    if (!onoDatePicker || !settingsDateInput || !onoTab) {
+      console.error('❌ AI タブ: 必要な要素が見つかりません');
       return;
     }
 
-    console.log('✅ ONO Menus: タブ初期化完了');
+    console.log('✅ AI タブ: 初期化完了');
 
-    // 日付ピッカーのデフォルト値を設定
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
-    onoDatePicker.value = dateStr;
+    // 設定タブの日付が変更されたらAIタブも同期
+    const syncDateToAI = () => {
+      onoDatePicker.value = settingsDateInput.value;
+      console.log('🔄 AI タブ: 日付を設定タブと同期', settingsDateInput.value);
+    };
 
-    // 日付変更時に履歴を読み込む
+    // 初期値を設定タブと同じにする
+    syncDateToAI();
+
+    // 設定タブの日付変更を監視
+    settingsDateInput.addEventListener('change', syncDateToAI);
+
+    // AIタブの日付変更時に履歴を読み込む
     onoDatePicker.addEventListener('change', () => {
-      console.log('📅 ONO Menus: 日付変更イベント', onoDatePicker.value);
+      console.log('📅 AI タブ: 日付変更イベント', onoDatePicker.value);
       this.loadOnoMenus(onoDatePicker.value);
     });
 
     // タブ切り替え時に履歴を読み込む
     onoTab.addEventListener('click', () => {
-      console.log('🔄 ONO Menus: タブクリックイベント');
-      const date = onoDatePicker.value || dateStr;
+      console.log('🔄 AI タブ: タブクリックイベント');
+      const date = onoDatePicker.value;
       const dataArea = document.getElementById('ono-data-area');
       const loadingEl = document.getElementById('ono-loading');
       
       // ローディング中でない、かつデータエリアが非表示の場合のみ読み込み
-      if (dataArea && dataArea.classList.contains('hidden') && 
+      if (date && dataArea && dataArea.classList.contains('hidden') && 
           loadingEl && loadingEl.classList.contains('hidden')) {
-        console.log('📥 ONO Menus: データ読み込み開始');
+        console.log('📥 AI タブ: データ読み込み開始');
         this.loadOnoMenus(date);
       } else {
-        console.log('⏭️ ONO Menus: 読み込みスキップ（既に表示済みまたは読み込み中）');
+        console.log('⏭️ AI タブ: 読み込みスキップ（既に表示済みまたは読み込み中）');
       }
     });
   }
