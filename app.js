@@ -1383,7 +1383,12 @@ class MenuOptimizationApp {
     const onoDatePicker = document.getElementById('ono-date-picker');
     const onoTab = document.querySelector('[data-tab="ono-menus-tab"]');
     
-    if (!onoDatePicker || !onoTab) return;
+    if (!onoDatePicker || !onoTab) {
+      console.error('❌ ONO Menus: 必要な要素が見つかりません');
+      return;
+    }
+
+    console.log('✅ ONO Menus: タブ初期化完了');
 
     // 日付ピッカーのデフォルト値を設定
     const today = new Date();
@@ -1392,20 +1397,26 @@ class MenuOptimizationApp {
 
     // 日付変更時に履歴を読み込む
     onoDatePicker.addEventListener('change', () => {
+      console.log('📅 ONO Menus: 日付変更イベント', onoDatePicker.value);
       this.loadOnoMenus(onoDatePicker.value);
     });
 
-    // タブ切り替え時に履歴を読み込む（初回のみ）
+    // タブ切り替え時に履歴を読み込む
     onoTab.addEventListener('click', () => {
+      console.log('🔄 ONO Menus: タブクリックイベント');
       const date = onoDatePicker.value || dateStr;
-      // データエリアが非表示＝まだ読み込んでいない
       const dataArea = document.getElementById('ono-data-area');
-      const noData = document.getElementById('ono-no-data');
+      const loadingEl = document.getElementById('ono-loading');
+      
+      // ローディング中でない、かつデータエリアが非表示の場合のみ読み込み
       if (dataArea && dataArea.classList.contains('hidden') && 
-          noData && noData.classList.contains('hidden')) {
+          loadingEl && loadingEl.classList.contains('hidden')) {
+        console.log('📥 ONO Menus: データ読み込み開始');
         this.loadOnoMenus(date);
+      } else {
+        console.log('⏭️ ONO Menus: 読み込みスキップ（既に表示済みまたは読み込み中）');
       }
-    }, { once: true });
+    });
   }
 
   /**
