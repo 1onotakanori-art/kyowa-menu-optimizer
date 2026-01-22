@@ -1429,10 +1429,10 @@ class MenuOptimizationApp {
 
     if (!loadingEl || !noDataEl || !dataArea) return;
 
-    // ローディング表示
-    loadingEl.classList.remove('hidden');
-    noDataEl.classList.add('hidden');
-    dataArea.classList.add('hidden');
+    // ローディング表示（直接スタイルを設定）
+    loadingEl.style.display = 'flex';
+    noDataEl.style.display = 'none';
+    dataArea.style.display = 'none';
 
     try {
       // GitHub APIから履歴データを取得
@@ -1440,41 +1440,24 @@ class MenuOptimizationApp {
 
       if (historyData) {
         // データが存在する場合、表示
-        try {
-          console.log('🎨 表示前の状態:', {
-            loadingHidden: loadingEl.classList.contains('hidden'),
-            noDataHidden: noDataEl.classList.contains('hidden'),
-            dataAreaHidden: dataArea.classList.contains('hidden')
-          });
-          
-          this.displayOnoMenus(historyData);
-          dataArea.classList.remove('hidden');
-          
-          console.log('🎨 表示後の状態:', {
-            loadingHidden: loadingEl.classList.contains('hidden'),
-            noDataHidden: noDataEl.classList.contains('hidden'),
-            dataAreaHidden: dataArea.classList.contains('hidden')
-          });
-          
-          console.log('✅ ONO Menus: 表示完了');
-        } catch (displayError) {
-          console.error('❌ ONO Menus: 表示処理でエラー:', displayError);
-          throw displayError;
-        }
+        this.displayOnoMenus(historyData);
+        dataArea.style.display = 'block';
+        noDataEl.style.display = 'none';
+        console.log('✅ ONO Menus: データ表示完了');
       } else {
         // データが存在しない
-        noDataEl.classList.remove('hidden');
+        dataArea.style.display = 'none';
+        noDataEl.style.display = 'block';
+        console.log('⚠️ ONO Menus: データなし');
       }
     } catch (error) {
       console.error('履歴データの取得に失敗:', error);
-      noDataEl.classList.remove('hidden');
+      dataArea.style.display = 'none';
+      noDataEl.style.display = 'block';
     } finally {
-      loadingEl.classList.add('hidden');
-      console.log('🎨 finally後の状態:', {
-        loadingHidden: loadingEl?.classList.contains('hidden'),
-        noDataHidden: noDataEl?.classList.contains('hidden'),
-        dataAreaHidden: dataArea?.classList.contains('hidden')
-      });
+      // ローディング非表示（直接スタイルを設定）
+      loadingEl.style.display = 'none';
+      console.log('✅ ONO Menus: 処理完了');
     }
   }
 
