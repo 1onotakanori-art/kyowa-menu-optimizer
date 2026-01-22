@@ -1430,8 +1430,21 @@ class MenuOptimizationApp {
       if (historyData) {
         // データが存在する場合、表示
         try {
+          console.log('🎨 表示前の状態:', {
+            loadingHidden: loadingEl.classList.contains('hidden'),
+            noDataHidden: noDataEl.classList.contains('hidden'),
+            dataAreaHidden: dataArea.classList.contains('hidden')
+          });
+          
           this.displayOnoMenus(historyData);
           dataArea.classList.remove('hidden');
+          
+          console.log('🎨 表示後の状態:', {
+            loadingHidden: loadingEl.classList.contains('hidden'),
+            noDataHidden: noDataEl.classList.contains('hidden'),
+            dataAreaHidden: dataArea.classList.contains('hidden')
+          });
+          
           console.log('✅ ONO Menus: 表示完了');
         } catch (displayError) {
           console.error('❌ ONO Menus: 表示処理でエラー:', displayError);
@@ -1446,6 +1459,11 @@ class MenuOptimizationApp {
       noDataEl.classList.remove('hidden');
     } finally {
       loadingEl.classList.add('hidden');
+      console.log('🎨 finally後の状態:', {
+        loadingHidden: loadingEl?.classList.contains('hidden'),
+        noDataHidden: noDataEl?.classList.contains('hidden'),
+        dataAreaHidden: dataArea?.classList.contains('hidden')
+      });
     }
   }
 
