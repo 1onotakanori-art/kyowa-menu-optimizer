@@ -1429,8 +1429,14 @@ class MenuOptimizationApp {
 
       if (historyData) {
         // データが存在する場合、表示
-        this.displayOnoMenus(historyData);
-        dataArea.classList.remove('hidden');
+        try {
+          this.displayOnoMenus(historyData);
+          dataArea.classList.remove('hidden');
+          console.log('✅ ONO Menus: 表示完了');
+        } catch (displayError) {
+          console.error('❌ ONO Menus: 表示処理でエラー:', displayError);
+          throw displayError;
+        }
       } else {
         // データが存在しない
         noDataEl.classList.remove('hidden');
