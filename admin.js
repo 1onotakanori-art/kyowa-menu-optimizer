@@ -304,18 +304,92 @@ class AdminApp {
    */
   async loadExistingHistory(date) {
     try {
-      // ローカルストレージから既存データを確認（仮実装）
+      // まずGitHub（kyowa-menu-history）から取得を試みる
+      const githubData = await this.fetchHistoryFromGitHub(date);
+      
+      if (githubData) {
+        // 新形式・旧形式の両方に対応
+        let menuNames = [];
+        if (githubData.selectedMenus) {
+          // 新形式
+          menuNames = githubData.selectedMenus.map(m => m.name);
+        } else if (githubData.eaten) {
+          // 旧形式
+          menuNames = githubData.eaten;
+        }
+        
+        if (menuNames.length > 0) {
+          this.selectedMenus = new Set(menuNames);
+          this.renderMenuSelection();
+          this.updateSelectionCount();
+          this.updateNutritionSummary();
+          this.showLoadStatus(`既存の記録を読み込みました（${menuNames.length}件）`, 'info');
+          return;
+        }
+      }
+      
+      // GitHubにデータがなければローカルストレージを確認
       const storageKey = `history_${date}`;
       const existingData = localStorage.getItem(storageKey);
       
       if (existingData) {
         const data = JSON.parse(existingData);
-        this.selectedMenus = new Set(data.eaten || []);
-        this.renderMenuSelection();
-        this.showLoadStatus('既存の記録を読み込みました', 'info');
+        let menuNames = [];
+        if (data.selectedMenus) {
+          menuNames = data.selectedMenus.map(m => m.name);
+        } else if (data.eaten) {
+          menuNames = data.eaten;
+        }
+        
+        if (menuNames.length > 0) {
+          this.selectedMenus = new Set(menuNames);
+          this.renderMenuSelection();
+          this.updateSelectionCount();
+          this.updateNutritionSummary();
+          this.showLoadStatus('既存の記録を読み込みました（ローカル）', 'info');
+        }
       }
     } catch (error) {
       console.error('既存履歴読込エラー:', error);
+      // エラーは無視して続行
+    }
+  }
+
+  /**
+   * GitHubから履歴データを取得
+   */
+  async fetchHistoryFromGitHub(date) {
+    const path = `data/history/${date}.json`;
+    
+    // GitHub Pages経由でアクセス（公開読み取り可能）
+    const pagesUrl = `https://${this.GITHUB_OWNER}.github.io/${this.GITHUB_REPO}/${path}`;
+    
+    try {
+      const response = await fetch(pagesUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        cache: 'no-cache'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`✅ 履歴データ取得成功: ${date}`);
+        return data;
+      }
+      
+      if (response.status === 404) {
+        console.log(`📭 履歴データなし: ${date}`);
+        return null;
+      }
+      
+      console.log(`⚠️ 履歴取得失敗 (${response.status})`);
+      return null;
+      
+    } catch (error) {
+      console.error('履歴取得エラー:', error);
+      return null;
     }
   }
 
