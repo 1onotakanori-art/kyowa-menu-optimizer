@@ -1371,6 +1371,281 @@ class MenuOptimizationApp {
       console.error('❌ 設定の復元に失敗:', error);
     }
   }
+
+  // ==========================================
+  // ONO Menus タブ機能
+  // ==========================================
+
+  /**
+   * ONO Menusタブの初期化
+   */
+  initOnoMenusTab() {
+    const onoDatePicker = document.getElementById('ono-date-picker');
+    const onoTab = document.querySelector('[data-tab="ono-menus-tab"]');
+    
+    if (!onoDatePicker || !onoTab) return;
+
+    // 日付ピッカーのデフォルト値を設定
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    onoDatePicker.value = dateStr;
+
+    // 日付変更時に履歴を読み込む
+    onoDatePicker.addEventListener('change', () => {
+      this.loadOnoMenus(onoDatePicker.value);
+    });
+
+    // タブ切り替え時に履歴を読み込む（初回のみ）
+    onoTab.addEventListener('click', () => {
+      const date = onoDatePicker.value || dateStr;
+      // データエリアが非表示＝まだ読み込んでいない
+      const dataArea = document.getElementById('ono-data-area');
+      const noData = document.getElementById('ono-no-data');
+      if (dataArea && dataArea.classList.contains('hidden') && 
+          noData && noData.classList.contains('hidden')) {
+        this.loadOnoMenus(date);
+      }
+    }, { once: true });
+  }
+
+  /**
+   * 履歴データを読み込んで表示
+   */
+  async loadOnoMenus(date) {
+    const loadingEl = document.getElementById('ono-loading');
+    const noDataEl = document.getElementById('ono-no-data');
+    const dataArea = document.getElementById('ono-data-area');
+
+    if (!loadingEl || !noDataEl || !dataArea) return;
+
+    // ローディング表示
+    loadingEl.classList.remove('hidden');
+    noDataEl.classList.add('hidden');
+    dataArea.classList.add('hidden');
+
+    try {
+      // GitHub APIから履歴データを取得
+      const historyData = await this.fetchHistoryFromGitHub(date);
+
+      if (historyData) {
+        // データが存在する場合、表示
+        this.displayOnoMenus(historyData);
+        dataArea.classList.remove('hidden');
+      } else {
+        // データが存在しない
+        noDataEl.classList.remove('hidden');
+      }
+    } catch (error) {
+      console.error('履歴データの取得に失敗:', error);
+      noDataEl.classList.remove('hidden');
+    } finally {
+      loadingEl.classList.add('hidden');
+    }
+  }
+
+  /**
+   * GitHubから履歴データを取得（公開読み取り）
+   */
+  async fetchHistoryFromGitHub(date) {
+    const owner = '1onotakanori-art';
+    const repo = 'kyowa-menu-history';
+    const path = `data/history/${date}.json`;
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+    try {
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.log(`履歴データなし: ${date}`);
+          return null;
+        }
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Base64デコード
+      const content = decodeURIComponent(escape(atob(data.content)));
+      return JSON.parse(content);
+    } catch (error) {
+      console.error('GitHub API呼び出しエラー:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 履歴データを表示
+   */
+  displayOnoMenus(historyData) {
+    // 記録日時を表示
+    this.displayOnoTimestamp(historyData.timestamp);
+
+    // サマリー表示
+    this.updateOnoSummary(historyData.totals, historyData.selectedMenus.length);
+
+    // 栄養テーブル表示（目標設定がある場合）
+    if (historyData.settings && historyData.settings.targets) {
+      this.updateOnoNutritionTable(historyData.totals, historyData.settings.targets);
+    }
+
+    // メニュー一覧表示
+    this.displayOnoMenusGrid(historyData.selectedMenus);
+  }
+
+  /**
+   * 記録日時を表示
+   */
+  displayOnoTimestamp(timestamp) {
+    const timestampEl = document.getElementById('ono-timestamp');
+    if (!timestampEl || !timestamp) return;
+
+    const date = new Date(timestamp);
+    const formatted = date.toLocaleString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    timestampEl.textContent = formatted;
+  }
+
+  /**
+   * ONO Menus のサマリー更新
+   */
+  updateOnoSummary(totals, count) {
+    const valuesEl = document.getElementById('ono-summary-values');
+    const countEl = document.getElementById('ono-summary-count');
+
+    if (!valuesEl || !countEl) return;
+
+    valuesEl.innerHTML = '';
+
+    const display = [
+      { key: 'エネルギー', label: 'E', class: 'nutrition-e' },
+      { key: 'たんぱく質', label: 'P', class: 'nutrition-p' },
+      { key: '脂質', label: 'F', class: 'nutrition-f' },
+      { key: '炭水化物', label: 'C', class: 'nutrition-c' },
+      { key: '野菜重量', label: 'V', class: 'nutrition-v' }
+    ];
+
+    display.forEach(({ key, label, class: colorClass }) => {
+      const pill = document.createElement('div');
+      pill.className = `fixed-summary-pill ${colorClass}`;
+
+      const value = totals[key] || 0;
+      const formattedValue = Math.round(value * 10) / 10;
+
+      pill.innerHTML = `
+        <div class="fixed-summary-pill-label">${label}</div>
+        <div class="fixed-summary-pill-value">${formattedValue}</div>
+      `;
+
+      valuesEl.appendChild(pill);
+    });
+
+    countEl.textContent = `${count}件`;
+  }
+
+  /**
+   * ONO Menus の栄養テーブル更新
+   */
+  updateOnoNutritionTable(totals, targets) {
+    const tableEl = document.getElementById('ono-nutrition-table');
+    const sectionEl = document.getElementById('ono-nutrition-section');
+
+    if (!tableEl || !sectionEl) return;
+
+    // 目標が一つも有効でない場合は非表示
+    const hasActiveTarget = Object.values(targets).some(t => t && t.enabled);
+    if (!hasActiveTarget) {
+      sectionEl.classList.add('hidden');
+      return;
+    }
+
+    sectionEl.classList.remove('hidden');
+    tableEl.innerHTML = '';
+
+    // ヘッダー
+    const header = document.createElement('div');
+    header.className = 'nutrition-achievement-header';
+    header.innerHTML = `
+      <div class="achievement-col-name">栄養項目</div>
+      <div class="achievement-col-target">目標</div>
+      <div class="achievement-col-actual">実績</div>
+      <div class="achievement-col-diff">差分</div>
+      <div class="achievement-col-rate">達成率</div>
+    `;
+    tableEl.appendChild(header);
+
+    // 各栄養項目
+    const nutritionItems = [
+      { key: 'エネルギー', label: 'Energy', unit: 'kcal', preference: 'dislikeExcess' },
+      { key: 'たんぱく質', label: 'Protein', unit: 'g', preference: 'dislikeDeficit' },
+      { key: '脂質', label: 'Fat', unit: 'g', preference: 'dislikeExcess' },
+      { key: '炭水化物', label: 'Carbs', unit: 'g', preference: 'dislikeExcess' },
+      { key: '野菜重量', label: 'Vegetable', unit: 'g', preference: 'dislikeDeficit' }
+    ];
+
+    nutritionItems.forEach(({ key, label, unit, preference }) => {
+      const target = targets[key];
+      if (!target || !target.enabled) return;
+
+      const targetValue = target.value;
+      const actualValue = totals[key] || 0;
+      const diff = actualValue - targetValue;
+      const achievement = targetValue > 0 ? (actualValue / targetValue) * 100 : 0;
+
+      // 色判定
+      let colorClass = '';
+      if (preference === 'dislikeExcess') {
+        // 超過嫌い：目標以下なら青、超過なら赤
+        colorClass = diff <= 0 ? 'achievement-good' : 'achievement-bad';
+      } else {
+        // 不足嫌い：目標以上なら青、不足なら赤
+        colorClass = diff >= 0 ? 'achievement-good' : 'achievement-bad';
+      }
+
+      const row = document.createElement('div');
+      row.className = 'nutrition-achievement-row';
+      row.innerHTML = `
+        <div class="achievement-col-name">${label}</div>
+        <div class="achievement-col-target">${Math.round(targetValue * 10) / 10}${unit}</div>
+        <div class="achievement-col-actual">${Math.round(actualValue * 10) / 10}${unit}</div>
+        <div class="achievement-col-diff">${diff >= 0 ? '+' : ''}${Math.round(diff * 10) / 10}${unit}</div>
+        <div class="achievement-col-rate">
+          <div class="achievement-bar-container">
+            <div class="achievement-bar ${colorClass}" style="width: ${Math.min(achievement, 100)}%"></div>
+            <span class="achievement-percentage">${Math.round(achievement)}%</span>
+          </div>
+        </div>
+      `;
+      tableEl.appendChild(row);
+    });
+  }
+
+  /**
+   * ONO Menus のメニュー一覧表示
+   */
+  displayOnoMenusGrid(menus) {
+    const gridEl = document.getElementById('ono-menus-grid');
+    if (!gridEl) return;
+
+    gridEl.innerHTML = '';
+
+    if (!menus || menus.length === 0) {
+      gridEl.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">メニューデータがありません</p>';
+      return;
+    }
+
+    menus.forEach(menu => {
+      const card = this.createMenuCard(menu);
+      // 状態ボタンは非表示（CSSで制御済み）
+      gridEl.appendChild(card);
+    });
+  }
 }
 
 /**
@@ -1378,6 +1653,7 @@ class MenuOptimizationApp {
  */
 document.addEventListener('DOMContentLoaded', () => {
   console.log('アプリ初期化...');
-  new MenuOptimizationApp();
+  const app = new MenuOptimizationApp();
+  app.initOnoMenusTab(); // ONO Menusタブを初期化
   console.log('アプリ準備完了');
 });

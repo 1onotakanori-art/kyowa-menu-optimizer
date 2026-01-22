@@ -24,6 +24,7 @@
         <button class="tab-button active" data-tab="input-tab">⚙️ 設定</button>
         <button class="tab-button" data-tab="menus-tab">📋 メニュー</button>
         <button class="tab-button" data-tab="result-tab">📊 結果</button>
+        <button class="tab-button" data-tab="ono-menus-tab">👤 ONO Menus</button>
       </div>
 
       <!-- 入力タブ -->
@@ -248,6 +249,62 @@
                 ← 設定に戻る
               </button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ONO Menusタブ -->
+      <section id="ono-menus-tab" class="tab-content">
+        <div class="container">
+          <!-- 日付選択 -->
+          <div class="form-section-title">📅 日付選択</div>
+          <div class="date-select-wrapper">
+            <input 
+              type="date" 
+              id="ono-date-picker" 
+              class="form-input"
+              aria-label="ONO Menus日付選択"
+            />
+          </div>
+
+          <!-- データ取得状態 -->
+          <div id="ono-loading" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p>履歴データを読み込み中...</p>
+          </div>
+
+          <!-- データなし表示 -->
+          <div id="ono-no-data" class="no-data-state hidden">
+            <p>📭 この日付の履歴データはありません</p>
+            <small>管理者ページで記録を保存すると表示されます</small>
+          </div>
+
+          <!-- データ表示エリア -->
+          <div id="ono-data-area" class="hidden">
+            <!-- 記録日時情報 -->
+            <div id="ono-info" class="ono-info-card">
+              <div class="info-label">記録日時</div>
+              <div id="ono-timestamp" class="info-value">-</div>
+            </div>
+
+            <!-- 栄養成分サマリー -->
+            <div class="form-section-title">📊 栄養成分合計</div>
+            <div id="ono-summary" class="fixed-summary" aria-live="polite">
+              <div id="ono-summary-header" class="fixed-summary-header">
+                <div id="ono-summary-values" class="fixed-summary-values"></div>
+                <div id="ono-summary-count" class="fixed-summary-count">0件</div>
+              </div>
+            </div>
+
+            <!-- 栄養情報テーブル -->
+            <div id="ono-nutrition-section" class="hidden">
+              <div class="form-section-title">🎯 目標との比較</div>
+              <div id="ono-nutrition-table" class="nutrition-achievement-table"></div>
+            </div>
+
+            <!-- メニュー一覧 -->
+            <div class="form-section-title">🍽️ 選択されたメニュー</div>
+            <div id="ono-menus-grid" class="menus-grid"></div>
           </div>
         </div>
       </section>
