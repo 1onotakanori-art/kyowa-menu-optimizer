@@ -143,8 +143,13 @@ class MenuOptimizationApp {
       this.allMenus = data.menus || [];
       this.filteredMenus = [...this.allMenus];
       
-      // AI推薦データを読み込み
-      await this.loadAISelections(selectedDate);
+      // AI推薦データを読み込み（エラーでも継続）
+      try {
+        await this.loadAISelections(selectedDate);
+      } catch (aiError) {
+        console.warn('AI推薦データの読み込みに失敗しましたが、メニュー表示は継続します:', aiError);
+        this.aiSelections = null;
+      }
       
       this.renderMenusList();
       this.updateFixedSummary();
