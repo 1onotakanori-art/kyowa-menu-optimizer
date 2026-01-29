@@ -2044,25 +2044,27 @@ class MenuOptimizationApp {
       card.appendChild(reasons);
     }
 
-    // 栄養情報
+    // 栄養情報（EPFCV）
     if (menu.nutrition) {
       const nutrition = document.createElement('div');
       nutrition.className = 'ai-nutrition';
       
-      const nutritionData = [
-        { key: 'エネルギー', label: 'E', unit: 'kcal' },
-        { key: 'たんぱく質', label: 'P', unit: 'g' },
-        { key: '脂質', label: 'F', unit: 'g' },
-        { key: '炭水化物', label: 'C', unit: 'g' }
+      const nutritionMap = [
+        { key: 'エネルギー', label: 'E', class: 'nutrition-e' },
+        { key: 'たんぱく質', label: 'P', class: 'nutrition-p' },
+        { key: '脂質', label: 'F', class: 'nutrition-f' },
+        { key: '炭水化物', label: 'C', class: 'nutrition-c' },
+        { key: '野菜重量', label: 'V', class: 'nutrition-v' }
       ];
 
-      nutritionData.forEach(({ key, label, unit }) => {
+      nutritionMap.forEach(({ key, label, class: className }) => {
         const value = menu.nutrition[key];
         if (value !== undefined && value !== null) {
-          const item = document.createElement('span');
-          item.className = 'ai-nutrition-item';
-          item.textContent = `${label}:${value}${unit}`;
-          nutrition.appendChild(item);
+          const nutritionItem = document.createElement('div');
+          nutritionItem.className = `ai-nutrition-item ${className}`;
+          const displayValue = typeof value === 'number' ? value : value;
+          nutritionItem.innerHTML = `<span>${displayValue}</span>`;
+          nutrition.appendChild(nutritionItem);
         }
       });
       
@@ -2085,25 +2087,27 @@ class MenuOptimizationApp {
     name.textContent = menu.name;
     card.appendChild(name);
 
-    // 栄養情報
+    // 栄養情報（EPFCV）
     if (menu.nutrition) {
       const nutrition = document.createElement('div');
       nutrition.className = 'ai-nutrition';
       
-      const nutritionData = [
-        { key: 'エネルギー', label: 'E', unit: 'kcal' },
-        { key: 'たんぱく質', label: 'P', unit: 'g' },
-        { key: '脂質', label: 'F', unit: 'g' },
-        { key: '炭水化物', label: 'C', unit: 'g' }
+      const nutritionMap = [
+        { key: 'エネルギー', label: 'E', class: 'nutrition-e' },
+        { key: 'たんぱく質', label: 'P', class: 'nutrition-p' },
+        { key: '脂質', label: 'F', class: 'nutrition-f' },
+        { key: '炭水化物', label: 'C', class: 'nutrition-c' },
+        { key: '野菜重量', label: 'V', class: 'nutrition-v' }
       ];
 
-      nutritionData.forEach(({ key, label, unit }) => {
+      nutritionMap.forEach(({ key, label, class: className }) => {
         const value = menu.nutrition[key];
         if (value !== undefined && value !== null) {
-          const item = document.createElement('span');
-          item.className = 'ai-nutrition-item';
-          item.textContent = `${label}:${value}${unit}`;
-          nutrition.appendChild(item);
+          const nutritionItem = document.createElement('div');
+          nutritionItem.className = `ai-nutrition-item ${className}`;
+          const displayValue = typeof value === 'number' ? value : value;
+          nutritionItem.innerHTML = `<span>${displayValue}</span>`;
+          nutrition.appendChild(nutritionItem);
         }
       });
       

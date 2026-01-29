@@ -117,12 +117,25 @@
 }
 
 .ai-nutrition-item {
-  font-size: 12px;
-  color: var(--text-secondary);
-  background: var(--light-gray);
-  padding: 4px 8px;
-  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
+/* 栄養項目の色分け（結果タブと同じスタイル） */
+.ai-nutrition-item.nutrition-e { background: linear-gradient(135deg, #FF9500, #FF8C00); }
+.ai-nutrition-item.nutrition-p { background: linear-gradient(135deg, #FF3B30, #DC143C); }
+.ai-nutrition-item.nutrition-f { background: linear-gradient(135deg, #34C759, #28A745); }
+.ai-nutrition-item.nutrition-c { background: linear-gradient(135deg, #007AFF, #0056CC); }
+.ai-nutrition-item.nutrition-v { background: linear-gradient(135deg, #5856D6, #4B49B8); }
 
 /* 栄養合計サマリー */
 .ai-nutrition-summary {
