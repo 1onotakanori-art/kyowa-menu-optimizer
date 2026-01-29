@@ -1785,23 +1785,37 @@ class MenuOptimizationApp {
    * AIタブのコンテンツを読み込む
    */
   async loadAITabContent() {
+    console.log('🔄 loadAITabContent() 実行開始');
+    
     const dateInput = document.getElementById('date-input');
     if (!dateInput || !dateInput.value) {
+      console.warn('⚠️ AIタブ: 日付が選択されていません');
       this.displayAIRecommendations(null, null);
       return;
     }
 
-    const selectedDate = dateInput.value;
+    // dateLabel（"1/30(金)"）をISO形式に変換
+    const dateLabel = dateInput.value;
+    const isoDate = this.dateLabelToISOString(dateLabel);
     
-    // AI推薦データを読み込み（既にロード済みならスキップ）
-    if (!this.aiSelections || this.aiSelections.date !== selectedDate) {
-      await this.loadAISelections(selectedDate);
+    console.log('📅 AIタブ: 日付変換', { dateLabel, isoDate });
+    
+    if (!isoDate) {
+      console.error('❌ AIタブ: 日付の変換に失敗しました');
+      this.displayAIRecommendations(null, null);
+      return;
     }
     
+    // AI推薦データを読み込み
+    console.log(`📡 AI推薦データを取得中: ${isoDate}`);
+    await this.loadAISelections(isoDate);
+    
     // 管理者推薦データを読み込み
-    const adminSelections = await this.loadAdminSelections(selectedDate);
+    console.log(`📡 管理者推薦データを取得中: ${isoDate}`);
+    const adminSelections = await this.loadAdminSelections(isoDate);
     
     // 表示
+    console.log('🎨 AI推薦を表示中...');
     this.displayAIRecommendations(this.aiSelections, adminSelections);
   }
 
@@ -1830,7 +1844,33 @@ class MenuOptimizationApp {
    */
   displayAIRecommendations(aiData, adminData) {
     const container = document.getElementById('ono-menus-grid');
-    if (!container) return;
+    const dataArea = document.getElementById('ono-data-area');
+    const loadingEl = document.getElementById('ono-loading');
+    const noDataEl = document.getElementById('ono-no-data');
+    
+    if (!container) {
+      console.error('❌ ono-menus-grid が見つかりません');
+      return;
+    }
+
+    // ローディング非表示
+    if (loadingEl) loadingEl.style.display = 'none';
+    
+    // データの有無に応じて表示切替
+    const hasAIData = aiData && aiData.selectedMenus && aiData.selectedMenus.length > 0;
+    const hasAdminData = adminData && adminData.selectedMenus && adminData.selectedMenus.length > 0;
+    
+    if (!hasAIData && !hasAdminData) {
+      // データなし
+      if (noDataEl) noDataEl.style.display = 'block';
+      if (dataArea) dataArea.style.display = 'none';
+      console.log('⚠️ AIタブ: 表示するデータがありません');
+      return;
+    }
+    
+    // データあり - 表示エリアを表示
+    if (noDataEl) noDataEl.style.display = 'none';
+    if (dataArea) dataArea.style.display = 'block';
 
     container.innerHTML = '';
 
