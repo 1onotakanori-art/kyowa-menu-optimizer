@@ -326,20 +326,7 @@ class MenuOptimizationApp {
 
       const name = document.createElement('div');
       name.className = 'menu-list-item-name';
-      
-      // AI推薦マークを追加
-      const aiRec = this.getAIRecommendation(menu.name);
-      if (aiRec && aiRec.rank <= 3) {
-        const aiStar = document.createElement('span');
-        aiStar.className = 'ai-recommendation-badge';
-        aiStar.textContent = '⭐';
-        aiStar.title = `AI推薦 ${aiRec.rank}位 (スコア: ${aiRec.score.toFixed(3)})`;
-        name.appendChild(aiStar);
-      }
-      
-      const nameText = document.createElement('span');
-      nameText.textContent = menu.name;
-      name.appendChild(nameText);
+      name.textContent = menu.name;
 
       // 栄養情報を表示（E, P, F, C, V で表示）
       const nutrition = document.createElement('div');
@@ -1483,41 +1470,23 @@ class MenuOptimizationApp {
       this.loadOnoMenus(onoDatePicker.value);
     });
 
-    // タブ切り替え時に履歴を読み込む
+    // タブ切り替え時にAI推薦を読み込む
     onoTab.addEventListener('click', () => {
-      console.log('🔄 AI タブ: タブクリックイベント');
+      console.log('🔄 AIタブ: タブクリックイベント');
       
       // タブクリック時に日付が空なら再同期を試みる
       if (!onoDatePicker.value) {
-        console.log('🔄 AI タブ: 日付が空のため再同期を試みます');
+        console.log('🔄 AIタブ: 日付が空のため再同期を試みます');
         syncDateToAI();
       }
       
       const date = onoDatePicker.value;
-      const dataArea = document.getElementById('ono-data-area');
-      const loadingEl = document.getElementById('ono-loading');
       
-      // ローディング中でない、かつデータエリアが非表示の場合のみ読み込み
-      const isDataHidden = !dataArea || dataArea.style.display === 'none' || dataArea.style.display === '';
-      const isLoadingHidden = !loadingEl || loadingEl.style.display === 'none' || loadingEl.style.display === '';
-      
-      console.log('📋 AI タブ 状態:', { 
-        date, 
-        isDataHidden, 
-        isLoadingHidden,
-        dataAreaDisplay: dataArea?.style.display,
-        loadingDisplay: loadingEl?.style.display
-      });
-      
-      if (date && isDataHidden && isLoadingHidden) {
-        console.log('✅ AI タブ: データ読み込み開始');
-        this.loadOnoMenus(date);
+      if (date) {
+        console.log('✅ AIタブ: データ読み込み開始');
+        this.loadAITabContent();
       } else {
-        if (!date) {
-          console.log('⚠️ AI タブ: 日付が設定されていません');
-        } else {
-          console.log('⏭️ AI タブ: 読み込みスキップ（既に表示済みまたは読み込み中）');
-        }
+        console.log('⚠️ AIタブ: 日付が設定されていません');
       }
     });
   }
@@ -1808,7 +1777,237 @@ class MenuOptimizationApp {
   }
 
   /**
-   * ONO Menus のメニュー一覧表示
+   * AIタブのコンテンツを読み込む
+   */
+  async loadAITabContent() {
+    const dateInput = document.getElementById('date-input');
+    if (!dateInput || !dateInput.value) {
+      this.displayAIRecommendations(null, null);
+      return;
+    }
+
+    const selectedDate = dateInput.value;
+    
+    // AI推薦データを読み込み（既にロード済みならスキップ）
+    if (!this.aiSelections || this.aiSelections.date !== selectedDate) {
+      await this.loadAISelections(selectedDate);
+    }
+    
+    // 管理者推薦データを読み込み
+    const adminSelections = await this.loadAdminSelections(selectedDate);
+    
+    // 表示
+    this.displayAIRecommendations(this.aiSelections, adminSelections);
+  }
+
+  /**
+   * 管理者推薦データを読み込む
+   */
+  async loadAdminSelections(date) {
+    try {
+      const response = await fetch(`https://raw.githubusercontent.com/1onotakanori-art/kyowa-menu-history/main/data/history/${date}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`✅ 管理者推薦データ読み込み完了: ${date}`);
+        return data;
+      } else {
+        console.log(`⚠️ 管理者推薦データが見つかりません: ${date}`);
+        return null;
+      }
+    } catch (error) {
+      console.warn('管理者推薦データ読み込みエラー:', error);
+      return null;
+    }
+  }
+
+  /**
+   * AI推薦と管理者推薦を表示
+   */
+  displayAIRecommendations(aiData, adminData) {
+    const container = document.getElementById('ono-menus-grid');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // AI推薦セクション
+    const aiSection = document.createElement('div');
+    aiSection.className = 'ai-section';
+    
+    const aiTitle = document.createElement('h3');
+    aiTitle.className = 'ai-section-title';
+    aiTitle.innerHTML = '🤖 AI推薦メニュー';
+    aiSection.appendChild(aiTitle);
+
+    if (aiData && aiData.selectedMenus && aiData.selectedMenus.length > 0) {
+      const aiGrid = document.createElement('div');
+      aiGrid.className = 'ai-recommendations-grid';
+      
+      aiData.selectedMenus.forEach((menu, index) => {
+        const card = this.createAIRecommendationCard(menu, index + 1);
+        aiGrid.appendChild(card);
+      });
+      
+      aiSection.appendChild(aiGrid);
+    } else {
+      const noData = document.createElement('p');
+      noData.className = 'no-data-message';
+      noData.textContent = 'AI推薦データがありません';
+      aiSection.appendChild(noData);
+    }
+
+    container.appendChild(aiSection);
+
+    // 管理者推薦セクション
+    const adminSection = document.createElement('div');
+    adminSection.className = 'ai-section';
+    
+    const adminTitle = document.createElement('h3');
+    adminTitle.className = 'ai-section-title';
+    adminTitle.innerHTML = '👤 管理者推薦メニュー <span style="font-size: 12px; color: var(--text-secondary); font-weight: 400;">(学習データ)</span>';
+    adminSection.appendChild(adminTitle);
+
+    if (adminData && adminData.selectedMenus && adminData.selectedMenus.length > 0) {
+      const adminGrid = document.createElement('div');
+      adminGrid.className = 'ai-recommendations-grid';
+      
+      adminData.selectedMenus.forEach(menuName => {
+        // メニューの詳細情報を取得
+        const menuDetail = this.allMenus.find(m => m.name === menuName);
+        if (menuDetail) {
+          const card = this.createAdminRecommendationCard(menuDetail);
+          adminGrid.appendChild(card);
+        }
+      });
+      
+      adminSection.appendChild(adminGrid);
+    } else {
+      const noData = document.createElement('p');
+      noData.className = 'no-data-message';
+      noData.textContent = '管理者推薦データがありません';
+      adminSection.appendChild(noData);
+    }
+
+    container.appendChild(adminSection);
+  }
+
+  /**
+   * AI推薦カードを作成
+   */
+  createAIRecommendationCard(menu, rank) {
+    const card = document.createElement('div');
+    card.className = 'ai-recommendation-card';
+
+    // ランクバッジ
+    const rankBadge = document.createElement('div');
+    rankBadge.className = 'ai-rank-badge';
+    rankBadge.textContent = `${rank}位`;
+    card.appendChild(rankBadge);
+
+    // メニュー名
+    const name = document.createElement('div');
+    name.className = 'ai-menu-name';
+    name.textContent = menu.name;
+    card.appendChild(name);
+
+    // スコア
+    const score = document.createElement('div');
+    score.className = 'ai-score';
+    score.innerHTML = `<span class="ai-score-label">スコア:</span> <span class="ai-score-value">${(menu.score * 100).toFixed(1)}%</span>`;
+    card.appendChild(score);
+
+    // 推薦理由
+    if (menu.reasons && menu.reasons.length > 0) {
+      const reasons = document.createElement('div');
+      reasons.className = 'ai-reasons';
+      
+      const reasonsTitle = document.createElement('div');
+      reasonsTitle.className = 'ai-reasons-title';
+      reasonsTitle.textContent = '推薦理由:';
+      reasons.appendChild(reasonsTitle);
+
+      const reasonsList = document.createElement('ul');
+      reasonsList.className = 'ai-reasons-list';
+      menu.reasons.forEach(reason => {
+        const li = document.createElement('li');
+        li.textContent = reason;
+        reasonsList.appendChild(li);
+      });
+      reasons.appendChild(reasonsList);
+      
+      card.appendChild(reasons);
+    }
+
+    // 栄養情報
+    if (menu.nutrition) {
+      const nutrition = document.createElement('div');
+      nutrition.className = 'ai-nutrition';
+      
+      const nutritionData = [
+        { key: 'エネルギー', label: 'E', unit: 'kcal' },
+        { key: 'たんぱく質', label: 'P', unit: 'g' },
+        { key: '脂質', label: 'F', unit: 'g' },
+        { key: '炭水化物', label: 'C', unit: 'g' }
+      ];
+
+      nutritionData.forEach(({ key, label, unit }) => {
+        const value = menu.nutrition[key];
+        if (value !== undefined && value !== null) {
+          const item = document.createElement('span');
+          item.className = 'ai-nutrition-item';
+          item.textContent = `${label}:${value}${unit}`;
+          nutrition.appendChild(item);
+        }
+      });
+      
+      card.appendChild(nutrition);
+    }
+
+    return card;
+  }
+
+  /**
+   * 管理者推薦カードを作成
+   */
+  createAdminRecommendationCard(menu) {
+    const card = document.createElement('div');
+    card.className = 'ai-recommendation-card admin';
+
+    // メニュー名
+    const name = document.createElement('div');
+    name.className = 'ai-menu-name';
+    name.textContent = menu.name;
+    card.appendChild(name);
+
+    // 栄養情報
+    if (menu.nutrition) {
+      const nutrition = document.createElement('div');
+      nutrition.className = 'ai-nutrition';
+      
+      const nutritionData = [
+        { key: 'エネルギー', label: 'E', unit: 'kcal' },
+        { key: 'たんぱく質', label: 'P', unit: 'g' },
+        { key: '脂質', label: 'F', unit: 'g' },
+        { key: '炭水化物', label: 'C', unit: 'g' }
+      ];
+
+      nutritionData.forEach(({ key, label, unit }) => {
+        const value = menu.nutrition[key];
+        if (value !== undefined && value !== null) {
+          const item = document.createElement('span');
+          item.className = 'ai-nutrition-item';
+          item.textContent = `${label}:${value}${unit}`;
+          nutrition.appendChild(item);
+        }
+      });
+      
+      card.appendChild(nutrition);
+    }
+
+    return card;
+  }
+
+  /**
+   * ONO Menus のメニュー一覧表示（旧関数、互換性のため残す）
    */
   displayOnoMenusGrid(menus) {
     const gridEl = document.getElementById('ono-menus-grid');
