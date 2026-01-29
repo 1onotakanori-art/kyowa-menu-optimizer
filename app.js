@@ -1391,16 +1391,28 @@ class MenuOptimizationApp {
 
     console.log('✅ AI タブ: 初期化完了');
 
-    // 設定タブの日付が変更されたらAIタブも同期
+    // 設定タブの日付（"1/13(火)"形式）をAIタブ（YYYY-MM-DD形式）に変換して同期
     const syncDateToAI = () => {
-      onoDatePicker.value = settingsDateInput.value;
-      console.log('🔄 AI タブ: 日付を設定タブと同期', settingsDateInput.value);
+      const dateLabel = settingsDateInput.value; // "1/13(火)" 形式
+      if (!dateLabel) return;
+      
+      const isoDate = this.dateLabelToISOString(dateLabel); // "YYYY-MM-DD" 形式に変換
+      if (isoDate) {
+        onoDatePicker.value = isoDate;
+        console.log('🔄 AI タブ: 日付を設定タブと同期', dateLabel, '→', isoDate);
+        
+        // データエリアをリセットして再読み込みを許可
+        const dataArea = document.getElementById('ono-data-area');
+        if (dataArea) {
+          dataArea.classList.add('hidden');
+        }
+      }
     };
 
     // 初期値を設定タブと同じにする
     syncDateToAI();
 
-    // 設定タブの日付変更を監視
+    // 設定タブの日付変更を監視（一方通行：設定→AI）
     settingsDateInput.addEventListener('change', syncDateToAI);
 
     // AIタブの日付変更時に履歴を読み込む
