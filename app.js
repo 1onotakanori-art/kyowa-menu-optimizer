@@ -145,7 +145,7 @@ class MenuOptimizationApp {
       
       // AI推薦データを読み込み（エラーでも継続）
       try {
-        await this.loadAISelections(selectedDate);
+        await this.loadAISelections(isoDate);
       } catch (aiError) {
         console.warn('AI推薦データの読み込みに失敗しましたが、メニュー表示は継続します:', aiError);
         this.aiSelections = null;
