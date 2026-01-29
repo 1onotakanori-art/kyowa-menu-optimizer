@@ -1389,31 +1389,46 @@ class MenuOptimizationApp {
       return;
     }
 
-    console.log('✅ AI タブ: 初期化完了');
+    console.log('✅ AI タブ: 初期化開始');
 
     // 設定タブの日付（"1/13(火)"形式）をAIタブ（YYYY-MM-DD形式）に変換して同期
     const syncDateToAI = () => {
       const dateLabel = settingsDateInput.value; // "1/13(火)" 形式
-      if (!dateLabel) return;
+      console.log('🔍 syncDateToAI: dateLabel =', dateLabel);
+      
+      if (!dateLabel || dateLabel === '' || dateLabel === '読込中...') {
+        console.log('⚠️ AI タブ: 設定タブの日付がまだロードされていません');
+        return false;
+      }
       
       const isoDate = this.dateLabelToISOString(dateLabel); // "YYYY-MM-DD" 形式に変換
+      console.log('🔍 syncDateToAI: isoDate =', isoDate);
+      
       if (isoDate) {
         onoDatePicker.value = isoDate;
-        console.log('🔄 AI タブ: 日付を設定タブと同期', dateLabel, '→', isoDate);
+        console.log('✅ AI タブ: 日付を設定タブと同期', dateLabel, '→', isoDate);
         
         // データエリアをリセットして再読み込みを許可
         const dataArea = document.getElementById('ono-data-area');
         if (dataArea) {
           dataArea.style.display = 'none';
         }
+        return true;
       }
+      return false;
     };
 
-    // 初期値を設定タブと同じにする
-    syncDateToAI();
+    // 初期値を設定タブと同じにする（非同期でロードされる可能性があるため遅延実行も追加）
+    setTimeout(() => {
+      const success = syncDateToAI();
+      console.log('🔍 初期同期結果:', success);
+    }, 100);
 
     // 設定タブの日付変更を監視（一方通行：設定→AI）
-    settingsDateInput.addEventListener('change', syncDateToAI);
+    settingsDateInput.addEventListener('change', () => {
+      console.log('📅 設定タブ: 日付変更イベント');
+      syncDateToAI();
+    });
 
     // AIタブの日付変更時に履歴を読み込む
     onoDatePicker.addEventListener('change', () => {
@@ -1424,6 +1439,13 @@ class MenuOptimizationApp {
     // タブ切り替え時に履歴を読み込む
     onoTab.addEventListener('click', () => {
       console.log('🔄 AI タブ: タブクリックイベント');
+      
+      // タブクリック時に日付が空なら再同期を試みる
+      if (!onoDatePicker.value) {
+        console.log('🔄 AI タブ: 日付が空のため再同期を試みます');
+        syncDateToAI();
+      }
+      
       const date = onoDatePicker.value;
       const dataArea = document.getElementById('ono-data-area');
       const loadingEl = document.getElementById('ono-loading');
@@ -1432,13 +1454,23 @@ class MenuOptimizationApp {
       const isDataHidden = !dataArea || dataArea.style.display === 'none' || dataArea.style.display === '';
       const isLoadingHidden = !loadingEl || loadingEl.style.display === 'none' || loadingEl.style.display === '';
       
-      console.log('📋 AI タブ 状態:', { date, isDataHidden, isLoadingHidden });
+      console.log('📋 AI タブ 状態:', { 
+        date, 
+        isDataHidden, 
+        isLoadingHidden,
+        dataAreaDisplay: dataArea?.style.display,
+        loadingDisplay: loadingEl?.style.display
+      });
       
       if (date && isDataHidden && isLoadingHidden) {
-        console.log('📥 AI タブ: データ読み込み開始');
+        console.log('✅ AI タブ: データ読み込み開始');
         this.loadOnoMenus(date);
       } else {
-        console.log('⏭️ AI タブ: 読み込みスキップ（既に表示済みまたは読み込み中）');
+        if (!date) {
+          console.log('⚠️ AI タブ: 日付が設定されていません');
+        } else {
+          console.log('⏭️ AI タブ: 読み込みスキップ（既に表示済みまたは読み込み中）');
+        }
       }
     });
   }
