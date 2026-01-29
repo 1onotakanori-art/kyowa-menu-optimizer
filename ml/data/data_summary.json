@@ -1,0 +1,11 @@
+{
+  "totalDays": 15,
+  "dateRange": {
+    "start": "2026-01-13",
+    "end": "2026-02-03"
+  },
+  "totalMenus": 606,
+  "totalSelections": 49,
+  "avgMenusPerDay": "40.4",
+  "avgSelectionsPerDay": "3.3"
+}
