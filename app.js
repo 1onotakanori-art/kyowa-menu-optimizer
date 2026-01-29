@@ -13,6 +13,7 @@ class MenuOptimizationApp {
     this.lastOptimizationResult = null; // 最後の最適化結果
     this.tempExcludedMenus = new Set(); // 結果から一時的に除外するメニュー
     this.cachedDates = []; // キャッシュされた日付マッピング (dateLabel -> YYYY-MM-DD)
+    this.aiSelections = null; // AI推薦データ { selectedMenus: [{name, score, rank, reasons}], allMenusWithScores: [...] }
 
     this.loadSettings(); // ローカルストレージから設定を復元
     this.initializeEventListeners();
@@ -141,6 +142,10 @@ class MenuOptimizationApp {
       const data = await response.json();
       this.allMenus = data.menus || [];
       this.filteredMenus = [...this.allMenus];
+      
+      // AI推薦データを読み込み
+      await this.loadAISelections(selectedDate);
+      
       this.renderMenusList();
       this.updateFixedSummary();
     } catch (error) {
@@ -243,6 +248,35 @@ class MenuOptimizationApp {
   }
 
   /**
+   * AI推薦データを読み込む
+   */
+  async loadAISelections(date) {
+    try {
+      const response = await fetch(`./docs/ai-selections/ai-selections_${date}.json`);
+      if (response.ok) {
+        this.aiSelections = await response.json();
+        console.log(`✅ AI推薦データ読み込み完了: ${date}`);
+      } else {
+        console.log(`⚠️  AI推薦データが見つかりません: ${date}`);
+        this.aiSelections = null;
+      }
+    } catch (error) {
+      console.warn('AI推薦データ読み込みエラー:', error);
+      this.aiSelections = null;
+    }
+  }
+
+  /**
+   * メニューのAI推薦情報を取得
+   */
+  getAIRecommendation(menuName) {
+    if (!this.aiSelections || !this.aiSelections.allMenusWithScores) {
+      return null;
+    }
+    return this.aiSelections.allMenusWithScores.find(m => m.name === menuName);
+  }
+
+  /**
    * メニューをフィルター（検索）
    */
   filterMenus(query) {
@@ -292,7 +326,20 @@ class MenuOptimizationApp {
 
       const name = document.createElement('div');
       name.className = 'menu-list-item-name';
-      name.textContent = menu.name;
+      
+      // AI推薦マークを追加
+      const aiRec = this.getAIRecommendation(menu.name);
+      if (aiRec && aiRec.rank <= 3) {
+        const aiStar = document.createElement('span');
+        aiStar.className = 'ai-recommendation-badge';
+        aiStar.textContent = '⭐';
+        aiStar.title = `AI推薦 ${aiRec.rank}位 (スコア: ${aiRec.score.toFixed(3)})`;
+        name.appendChild(aiStar);
+      }
+      
+      const nameText = document.createElement('span');
+      nameText.textContent = menu.name;
+      name.appendChild(nameText);
 
       // 栄養情報を表示（E, P, F, C, V で表示）
       const nutrition = document.createElement('div');
