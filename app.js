@@ -1884,6 +1884,10 @@ class MenuOptimizationApp {
     aiSection.appendChild(aiTitle);
 
     if (aiData && aiData.selectedMenus && aiData.selectedMenus.length > 0) {
+      // 栄養合計サマリーを追加
+      const aiSummary = this.createNutritionSummary(aiData.selectedMenus, 'ai');
+      aiSection.appendChild(aiSummary);
+      
       const aiGrid = document.createElement('div');
       aiGrid.className = 'ai-recommendations-grid';
       
@@ -1912,16 +1916,19 @@ class MenuOptimizationApp {
     adminSection.appendChild(adminTitle);
 
     if (adminData && adminData.selectedMenus && adminData.selectedMenus.length > 0) {
+      // adminData.selectedMenusは既に {name, nutrition} のオブジェクト配列
+      const adminMenuDetails = adminData.selectedMenus;
+      
+      // 栄養合計サマリーを追加
+      const adminSummary = this.createNutritionSummary(adminMenuDetails, 'admin');
+      adminSection.appendChild(adminSummary);
+      
       const adminGrid = document.createElement('div');
       adminGrid.className = 'ai-recommendations-grid';
       
-      adminData.selectedMenus.forEach(menuName => {
-        // メニューの詳細情報を取得
-        const menuDetail = this.allMenus.find(m => m.name === menuName);
-        if (menuDetail) {
-          const card = this.createAdminRecommendationCard(menuDetail);
-          adminGrid.appendChild(card);
-        }
+      adminMenuDetails.forEach(menuDetail => {
+        const card = this.createAdminRecommendationCard(menuDetail);
+        adminGrid.appendChild(card);
       });
       
       adminSection.appendChild(adminGrid);
@@ -1933,6 +1940,61 @@ class MenuOptimizationApp {
     }
 
     container.appendChild(adminSection);
+  }
+
+  /**
+   * 栄養合計サマリーを作成
+   */
+  createNutritionSummary(menus, type) {
+    const summary = document.createElement('div');
+    summary.className = `ai-nutrition-summary ${type}`;
+    
+    // 栄養合計を計算
+    const totals = {
+      'エネルギー': 0,
+      'たんぱく質': 0,
+      '脂質': 0,
+      '炭水化物': 0,
+      '野菜重量': 0
+    };
+    
+    menus.forEach(menu => {
+      const nutrition = menu.nutrition || {};
+      totals['エネルギー'] += parseFloat(nutrition['エネルギー']) || 0;
+      totals['たんぱく質'] += parseFloat(nutrition['たんぱく質']) || 0;
+      totals['脂質'] += parseFloat(nutrition['脂質']) || 0;
+      totals['炭水化物'] += parseFloat(nutrition['炭水化物']) || 0;
+      totals['野菜重量'] += parseFloat(nutrition['野菜重量']) || 0;
+    });
+    
+    // サマリーHTML
+    const nutritionItems = [
+      { key: 'エネルギー', label: 'E', value: Math.round(totals['エネルギー']), unit: 'kcal' },
+      { key: 'たんぱく質', label: 'P', value: totals['たんぱく質'].toFixed(1), unit: 'g' },
+      { key: '脂質', label: 'F', value: totals['脂質'].toFixed(1), unit: 'g' },
+      { key: '炭水化物', label: 'C', value: totals['炭水化物'].toFixed(1), unit: 'g' },
+      { key: '野菜重量', label: 'V', value: Math.round(totals['野菜重量']), unit: 'g' }
+    ];
+    
+    const valuesDiv = document.createElement('div');
+    valuesDiv.className = 'ai-summary-values';
+    
+    nutritionItems.forEach(({ label, value, unit }) => {
+      const item = document.createElement('span');
+      item.className = `ai-summary-item nutrition-${label.toLowerCase()}`;
+      item.innerHTML = `<span class="ai-summary-label">${label}</span><span class="ai-summary-value">${value}</span><span class="ai-summary-unit">${unit}</span>`;
+      valuesDiv.appendChild(item);
+    });
+    
+    // 品数
+    const countDiv = document.createElement('div');
+    countDiv.className = 'ai-summary-count';
+    countDiv.textContent = `${menus.length}品`;
+    
+    summary.appendChild(valuesDiv);
+    summary.appendChild(countDiv);
+    
+    return summary;
   }
 
   /**
