@@ -1404,7 +1404,7 @@ class MenuOptimizationApp {
         // データエリアをリセットして再読み込みを許可
         const dataArea = document.getElementById('ono-data-area');
         if (dataArea) {
-          dataArea.classList.add('hidden');
+          dataArea.style.display = 'none';
         }
       }
     };
@@ -1429,8 +1429,12 @@ class MenuOptimizationApp {
       const loadingEl = document.getElementById('ono-loading');
       
       // ローディング中でない、かつデータエリアが非表示の場合のみ読み込み
-      if (date && dataArea && dataArea.classList.contains('hidden') && 
-          loadingEl && loadingEl.classList.contains('hidden')) {
+      const isDataHidden = !dataArea || dataArea.style.display === 'none' || dataArea.style.display === '';
+      const isLoadingHidden = !loadingEl || loadingEl.style.display === 'none' || loadingEl.style.display === '';
+      
+      console.log('📋 AI タブ 状態:', { date, isDataHidden, isLoadingHidden });
+      
+      if (date && isDataHidden && isLoadingHidden) {
         console.log('📥 AI タブ: データ読み込み開始');
         this.loadOnoMenus(date);
       } else {
