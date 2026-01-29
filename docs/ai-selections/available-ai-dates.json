@@ -1,0 +1,111 @@
+{
+  "dates": [
+    {
+      "date": "2026-01-13",
+      "dateLabel": "1/13(火)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-14",
+      "dateLabel": "1/14(水)",
+      "menuCount": 10,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-15",
+      "dateLabel": "1/15(木)",
+      "menuCount": 39,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-16",
+      "dateLabel": "1/16(金)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-19",
+      "dateLabel": "1/19(月)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-20",
+      "dateLabel": "1/20(火)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-21",
+      "dateLabel": "1/21(水)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-22",
+      "dateLabel": "1/22(木)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-23",
+      "dateLabel": "1/23(金)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-26",
+      "dateLabel": "1/26(月)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-27",
+      "dateLabel": "1/27(火)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-28",
+      "dateLabel": "1/28(水)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-29",
+      "dateLabel": "1/29(木)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-30",
+      "dateLabel": "1/30(金)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-02",
+      "dateLabel": "2/2(月)",
+      "menuCount": 39,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-03",
+      "dateLabel": "2/3(火)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-04",
+      "dateLabel": "2/4(水)",
+      "menuCount": 8,
+      "selectedCount": 2
+    }
+  ],
+  "generatedAt": "2026-01-30T07:54:48.539110",
+  "modelInfo": {
+    "model": "RandomForest",
+    "accuracy": 0.9995
+  }
+}
