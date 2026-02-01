@@ -2,6 +2,61 @@
    AI推薦セクション
    ======================================== */
 
+.ai-summary-container {
+  margin-bottom: 24px;
+}
+
+.ai-summary-title {
+  margin-bottom: 16px;
+}
+
+.ai-summary-title h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* 結果タブと同じサマリースタイル */
+.ai-menu-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ai-menu-list-container .menu-list-item {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.ai-menu-list-container .menu-list-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ai-menu-list-container .menu-list-item.ai-recommended {
+  border-left: 4px solid #007AFF;
+}
+
+.ai-score-badge {
+  font-size: 12px;
+  color: #007AFF;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.ai-reasons-badge {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  font-style: italic;
+}
+
 .ai-section {
   margin-bottom: 32px;
 }
@@ -132,4 +187,240 @@
   .ai-recommendations-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ========================================
+   ユーザー評価セクション
+   ======================================== */
+
+.rating-section {
+  background: linear-gradient(135deg, rgba(255, 205, 0, 0.08), rgba(255, 149, 0, 0.08));
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 205, 0, 0.3);
+}
+
+.rating-section h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.rating-container {
+  background: white;
+  padding: 16px;
+  border-radius: calc(var(--border-radius) - 4px);
+}
+
+.star-rating {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.star-button {
+  background: #f0f0f0;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #FFB800;
+  font-weight: 700;
+}
+
+.star-button:hover {
+  background: #fff3cd;
+  border-color: #FFB800;
+  transform: scale(1.05);
+}
+
+.star-button.selected {
+  background: #FFB800;
+  border-color: #FF9500;
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 184, 0, 0.4);
+}
+
+.rating-display {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 4px 8px;
+  background: #fff3cd;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #666;
+  min-width: 60px;
+}
+
+.rating-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.rating-buttons .button {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.rating-message {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: none;
+}
+
+.rating-message.success {
+  display: block;
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.rating-message.error {
+  display: block;
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.rating-stats {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.rating-stats.hidden {
+  display: none;
+}
+
+.stats-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.stats-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.stat-value {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .rating-section {
+    padding: 16px;
+  }
+
+  .rating-buttons {
+    flex-direction: column;
+  }
+
+  .star-rating {
+    flex-wrap: wrap;
+  }
+
+  .stats-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   改善スコア表示セクション
+   ======================================== */
+
+.improvement-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #4CD964, #34C759);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+.score-breakdown {
+  background: linear-gradient(135deg, rgba(76, 217, 100, 0.08), rgba(52, 199, 89, 0.08));
+  border: 1px solid rgba(76, 217, 100, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.improvement-stats {
+  background: linear-gradient(135deg, rgba(76, 217, 100, 0.08), rgba(52, 199, 89, 0.08));
+  border: 1px solid rgba(76, 217, 100, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 16px;
+}
+
+.improvement-stats h5 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.stats-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+.stats-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stats-item .label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stats-item .value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #34C759;
 }

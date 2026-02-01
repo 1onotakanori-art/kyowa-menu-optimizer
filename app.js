@@ -2114,147 +2114,181 @@ class MenuOptimizationApp {
    */
   displayAIRecommendations(aiData) {
     const grid = document.getElementById('ai-menus-grid');
-    if (!grid) return;
+    if (!grid) {
+      console.error('❌ ai-menus-grid が見つかりません');
+      return;
+    }
+    
+    // データの有効性を確認
+    if (!aiData) {
+      console.error('❌ AIデータが null または undefined です');
+      grid.innerHTML = '<p class="no-data-message">AI推奨データがありません</p>';
+      return;
+    }
+    
+    if (!aiData.recommendations || aiData.recommendations.length === 0) {
+      console.warn('⚠️ recommendationsが見つからないか、空です');
+      grid.innerHTML = '<p class="no-data-message">AI推奨メニューがありません</p>';
+      return;
+    }
     
     grid.innerHTML = '';
+    console.log(`✅ AIタブ: ${aiData.recommendations.length}件のメニューを表示します`);
     
-    // タイトルセクション
-    const header = document.createElement('div');
-    header.className = 'ai-header';
-    const improvementNote = aiData.improvement_applied ? 
-      '<p class="improvement-badge">✨ 改善済み推奨</p>' : '';
-    header.innerHTML = `
-      <h3>🤖 AI推奨メニューセット</h3>
-      <p class="date-label">${aiData.date}</p>
-      <p class="model-info">モデル: ${aiData.model}</p>
-      ${improvementNote}
-    `;
-    grid.appendChild(header);
+    // ========== セット全体のサマリー ==========
+    // 栄養合計を計算
+    const totals = {
+      'エネルギー': 0,
+      'たんぱく質': 0,
+      '脂質': 0,
+      '炭水化物': 0,
+      '野菜重量': 0
+    };
     
-    // 推奨メニューカード
-    if (aiData.recommendations && aiData.recommendations.length > 0) {
-      aiData.recommendations.forEach((recommendation) => {
-        const card = document.createElement('div');
-        card.className = 'ai-menu-card';
-        
-        // スコア表示（改善済みの場合は複合スコア、そうでなければモデルスコア）
-        const displayScore = recommendation.composite_score || (recommendation.score * 100);
-        const scorePercent = (displayScore * 100).toFixed(1);
-        
-        // スコア内訳情報
-        const scoreBreakdown = recommendation.composite_score ? `
-          <div class="score-breakdown">
-            <small>複合スコア: ${(recommendation.composite_score * 100).toFixed(1)}%</small><br>
-            <small>モデル: ${(recommendation.model_score * 100).toFixed(1)}% | 多様性: ${(recommendation.diversity_score * 100).toFixed(1)}% | 栄養: ${(recommendation.nutrition_match_score * 100).toFixed(1)}%</small>
-          </div>
-        ` : '';
-        
-        card.innerHTML = `
-          <div class="card-header">
-            <span class="rank">No. ${recommendation.rank}</span>
-            <span class="score">スコア: ${scorePercent}%</span>
-          </div>
-          <h4>${recommendation.name}</h4>
-          ${scoreBreakdown}
-          <div class="nutrition-info">
-            <div class="nutrition-item">
-              <span class="label">エネルギー</span>
-              <span class="value">${recommendation.nutrition.energy} kcal</span>
-            </div>
-            <div class="nutrition-item">
-              <span class="label">タンパク質</span>
-              <span class="value">${recommendation.nutrition.protein}g</span>
-            </div>
-            <div class="nutrition-item">
-              <span class="label">脂質</span>
-              <span class="value">${recommendation.nutrition.fat}g</span>
-            </div>
-            <div class="nutrition-item">
-              <span class="label">炭水化物</span>
-              <span class="value">${recommendation.nutrition.carbs}g</span>
-            </div>
-          </div>
-          ${this.buildAllergenInfo(recommendation.allergens)}
-        `;
-        grid.appendChild(card);
-      });
-    }
+    aiData.recommendations.forEach(rec => {
+      if (rec.nutrition) {
+        totals['エネルギー'] += rec.nutrition.energy || 0;
+        totals['たんぱく質'] += rec.nutrition.protein || 0;
+        totals['脂質'] += rec.nutrition.fat || 0;
+        totals['炭水化物'] += rec.nutrition.carbs || 0;
+        totals['野菜重量'] += rec.nutrition.vegetable_weight || 0;
+      }
+    });
     
-    // 栄養サマリーセクション
-    if (aiData.nutrition_summary) {
-      const summary = document.createElement('div');
-      summary.className = 'nutrition-summary';
-      let summary_html = `
-        <h4>📊 栄養サマリー (セット全体)</h4>
-        <div class="summary-grid">
-          <div class="summary-item">
-            <span class="label">総エネルギー</span>
-            <span class="value">${aiData.nutrition_summary.total_energy} kcal</span>
-          </div>
-          <div class="summary-item">
-            <span class="label">平均エネルギー</span>
-            <span class="value">${aiData.nutrition_summary.avg_energy} kcal</span>
-          </div>
-          <div class="summary-item">
-            <span class="label">総タンパク質</span>
-            <span class="value">${aiData.nutrition_summary.total_protein} g</span>
-          </div>
-          <div class="summary-item">
-            <span class="label">平均タンパク質</span>
-            <span class="value">${aiData.nutrition_summary.avg_protein} g</span>
-          </div>
-        </div>
+    // 結果タブと同じスタイルでサマリーを表示
+    const summaryContainer = document.createElement('div');
+    summaryContainer.className = 'ai-summary-container';
+    
+    const summaryTitle = document.createElement('div');
+    summaryTitle.className = 'ai-summary-title';
+    summaryTitle.innerHTML = `<h3>🤖 AI推奨セット</h3>`;
+    summaryContainer.appendChild(summaryTitle);
+    
+    const summaryContent = document.createElement('div');
+    summaryContent.className = 'result-total-summary';
+    
+    const countDiv = document.createElement('div');
+    countDiv.className = 'result-total-summary-count';
+    countDiv.textContent = `${aiData.recommendations.length}件`;
+    
+    const valuesDiv = document.createElement('div');
+    valuesDiv.className = 'result-total-summary-values';
+    valuesDiv.id = 'ai-summary-values';
+    
+    const colorClassMap = {
+      'エネルギー': 'nutrition-e',
+      'たんぱく質': 'nutrition-p',
+      '脂質': 'nutrition-f',
+      '炭水化物': 'nutrition-c',
+      '野菜重量': 'nutrition-v'
+    };
+    
+    const display = [
+      { key: 'エネルギー', label: 'E' },
+      { key: 'たんぱく質', label: 'P' },
+      { key: '脂質', label: 'F' },
+      { key: '炭水化物', label: 'C' },
+      { key: '野菜重量', label: 'V' }
+    ];
+    
+    display.forEach(({ key, label }) => {
+      const pill = document.createElement('div');
+      pill.className = `fixed-summary-pill ${colorClassMap[key] || ''}`;
+      
+      const totalValue = totals[key] || 0;
+      const formattedTotal = Number.isFinite(totalValue) ? (Math.round(totalValue * 10) / 10) : '-';
+      
+      pill.innerHTML = `
+        <div class="fixed-summary-pill-label">${label}</div>
+        <div class="fixed-summary-pill-value">${formattedTotal}</div>
+        <div class="fixed-summary-pill-diff">—</div>
       `;
+      valuesDiv.appendChild(pill);
+    });
+    
+    summaryContent.appendChild(countDiv);
+    summaryContent.appendChild(valuesDiv);
+    summaryContainer.appendChild(summaryContent);
+    grid.appendChild(summaryContainer);
+    
+    // ========== メニュー一覧 ==========
+    const menuListContainer = document.createElement('div');
+    menuListContainer.className = 'ai-menu-list-container';
+    
+    aiData.recommendations.forEach((recommendation, index) => {
+      const item = document.createElement('div');
+      item.className = 'menu-list-item ai-recommended';
       
-      // 改善統計セクション
-      if (aiData.improvement_stats) {
-        summary_html += `
-          <div class="improvement-stats">
-            <h5>✨ 推奨品質指標</h5>
-            <div class="stats-items">
-              <div class="stats-item">
-                <span class="label">多様性スコア</span>
-                <span class="value">${(aiData.improvement_stats.avg_diversity_score * 100).toFixed(1)}%</span>
-              </div>
-              <div class="stats-item">
-                <span class="label">栄養マッチ</span>
-                <span class="value">${(aiData.improvement_stats.avg_nutrition_match_score * 100).toFixed(1)}%</span>
-              </div>
-              <div class="stats-item">
-                <span class="label">複合スコア</span>
-                <span class="value">${(aiData.improvement_stats.avg_composite_score * 100).toFixed(1)}%</span>
-              </div>
-            </div>
-          </div>
-        `;
+      const details = document.createElement('div');
+      details.className = 'menu-list-item-details';
+      
+      const name = document.createElement('div');
+      name.className = 'menu-list-item-name';
+      name.textContent = recommendation.name || '（名前なし）';
+      details.appendChild(name);
+      
+      // スコア情報を表示
+      const scoreDiv = document.createElement('div');
+      scoreDiv.className = 'ai-score-badge';
+      const scorePercent = (recommendation.score * 100).toFixed(1);
+      scoreDiv.innerHTML = `スコア: ${scorePercent}%`;
+      details.appendChild(scoreDiv);
+      
+      // 選んだ理由があれば表示
+      if (recommendation.reasons && recommendation.reasons.length > 0) {
+        const reasonsDiv = document.createElement('div');
+        reasonsDiv.className = 'ai-reasons-badge';
+        reasonsDiv.innerHTML = `💡 ${recommendation.reasons.join(' / ')}`;
+        details.appendChild(reasonsDiv);
+      } else if (recommendation.reason) {
+        // 単数形の reason フィールドもサポート
+        const reasonDiv = document.createElement('div');
+        reasonDiv.className = 'ai-reasons-badge';
+        reasonDiv.innerHTML = `💡 ${recommendation.reason}`;
+        details.appendChild(reasonDiv);
       }
       
-      // PFC バランスセクション
-      if (aiData.pfc_ratio) {
-        summary_html += `
-          <div class="pfc-ratio">
-            <h5>PFC バランス</h5>
-            <div class="pfc-items">
-              <div class="pfc-item">
-                <span class="label">タンパク質</span>
-                <span class="value">${aiData.pfc_ratio.protein}%</span>
-              </div>
-              <div class="pfc-item">
-                <span class="label">脂質</span>
-                <span class="value">${aiData.pfc_ratio.fat}%</span>
-              </div>
-              <div class="pfc-item">
-                <span class="label">炭水化物</span>
-                <span class="value">${aiData.pfc_ratio.carbs}%</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }
+      // 栄養情報を表示（E, P, F, C, V）
+      const nutrition = document.createElement('div');
+      nutrition.className = 'menu-list-item-nutrition';
       
-      summary.innerHTML = summary_html;
-      grid.appendChild(summary);
-    }
+      const nutritionMap = [
+        { key: 'energy', label: 'E', class: 'nutrition-e' },
+        { key: 'protein', label: 'P', class: 'nutrition-p' },
+        { key: 'fat', label: 'F', class: 'nutrition-f' },
+        { key: 'carbs', label: 'C', class: 'nutrition-c' },
+        { key: 'vegetable_weight', label: 'V', class: 'nutrition-v' }
+      ];
+      
+      nutritionMap.forEach(({ key, label, class: className }) => {
+        const value = recommendation.nutrition?.[key];
+        if (value !== undefined && value !== null) {
+          const nutritionItem = document.createElement('div');
+          nutritionItem.className = `menu-list-item-nutrition-item ${className}`;
+          const displayValue = typeof value === 'number' ? value : value;
+          nutritionItem.innerHTML = `<span>${displayValue}</span>`;
+          nutrition.appendChild(nutritionItem);
+        }
+      });
+      
+      details.appendChild(nutrition);
+      item.appendChild(details);
+      
+      // 状態ラベル（フッター）
+      const footer = document.createElement('div');
+      footer.className = 'menu-list-item-footer';
+      
+      const stateLabel = document.createElement('div');
+      stateLabel.className = 'menu-state-label';
+      stateLabel.textContent = `${index + 1}位`;
+      
+      footer.appendChild(stateLabel);
+      item.appendChild(footer);
+      
+      menuListContainer.appendChild(item);
+    });
+    
+    grid.appendChild(menuListContainer);
   }
 
   /**
@@ -2443,109 +2477,6 @@ class MenuOptimizationApp {
     // AI推奨データを読み込み
     console.log(`📡 AI推奨データを取得中: ${isoDate}`);
     await this.loadAIMenus(isoDate);
-  }
-
-  /**
-   * AI推薦と管理者推薦を表示
-   */
-  displayAIRecommendations(aiData, adminData) {
-    const container = document.getElementById('ai-menus-grid');
-    const dataArea = document.getElementById('ai-data-area');
-    const loadingEl = document.getElementById('ai-loading');
-    const noDataEl = document.getElementById('ai-no-data');
-    
-    if (!container) {
-      console.error('❌ ai-menus-grid が見つかりません');
-      return;
-    }
-
-    // ローディング非表示
-    if (loadingEl) loadingEl.style.display = 'none';
-    
-    // データの有無に応じて表示切替
-    const hasAIData = aiData && aiData.selectedMenus && aiData.selectedMenus.length > 0;
-    const hasAdminData = adminData && adminData.selectedMenus && adminData.selectedMenus.length > 0;
-    
-    if (!hasAIData && !hasAdminData) {
-      // データなし
-      if (noDataEl) noDataEl.style.display = 'block';
-      if (dataArea) dataArea.style.display = 'none';
-      console.log('⚠️ AIタブ: 表示するデータがありません');
-      return;
-    }
-    
-    // データあり - 表示エリアを表示
-    if (noDataEl) noDataEl.style.display = 'none';
-    if (dataArea) dataArea.style.display = 'block';
-
-    container.innerHTML = '';
-
-    // AI推薦セクション
-    const aiSection = document.createElement('div');
-    aiSection.className = 'ai-section';
-    
-    const aiTitle = document.createElement('h3');
-    aiTitle.className = 'ai-section-title';
-    aiTitle.innerHTML = '🤖 AI推薦メニュー';
-    aiSection.appendChild(aiTitle);
-
-    if (aiData && aiData.selectedMenus && aiData.selectedMenus.length > 0) {
-      // 栄養合計サマリーを追加
-      const aiSummary = this.createNutritionSummary(aiData.selectedMenus, 'ai');
-      aiSection.appendChild(aiSummary);
-      
-      const aiGrid = document.createElement('div');
-      aiGrid.className = 'ai-recommendations-grid';
-      
-      aiData.selectedMenus.forEach((menu, index) => {
-        const card = this.createAIRecommendationCard(menu, index + 1);
-        aiGrid.appendChild(card);
-      });
-      
-      aiSection.appendChild(aiGrid);
-    } else {
-      const noData = document.createElement('p');
-      noData.className = 'no-data-message';
-      noData.textContent = 'AI推薦データがありません';
-      aiSection.appendChild(noData);
-    }
-
-    container.appendChild(aiSection);
-
-    // 管理者推薦セクション
-    const adminSection = document.createElement('div');
-    adminSection.className = 'ai-section';
-    
-    const adminTitle = document.createElement('h3');
-    adminTitle.className = 'ai-section-title';
-    adminTitle.innerHTML = '👤 管理者推薦メニュー <span style="font-size: 12px; color: var(--text-secondary); font-weight: 400;">(学習データ)</span>';
-    adminSection.appendChild(adminTitle);
-
-    if (adminData && adminData.selectedMenus && adminData.selectedMenus.length > 0) {
-      // adminData.selectedMenusは既に {name, nutrition} のオブジェクト配列
-      const adminMenuDetails = adminData.selectedMenus;
-      
-      // 栄養合計サマリーを追加
-      const adminSummary = this.createNutritionSummary(adminMenuDetails, 'admin');
-      adminSection.appendChild(adminSummary);
-      
-      const adminGrid = document.createElement('div');
-      adminGrid.className = 'ai-recommendations-grid';
-      
-      adminMenuDetails.forEach(menuDetail => {
-        const card = this.createAdminRecommendationCard(menuDetail);
-        adminGrid.appendChild(card);
-      });
-      
-      adminSection.appendChild(adminGrid);
-    } else {
-      const noData = document.createElement('p');
-      noData.className = 'no-data-message';
-      noData.textContent = '管理者推薦データがありません';
-      adminSection.appendChild(noData);
-    }
-
-    container.appendChild(adminSection);
   }
 
   /**
