@@ -60,8 +60,10 @@ class MenuOptimizationApp {
       // AIタブも同じ日付で更新
       const dateSelect = document.getElementById('date-input');
       const selectedDate = dateSelect.value; // "1/13(月)" 形式
+      console.log('📅 日付変更イベント:', selectedDate);
       if (selectedDate) {
         const isoDate = this.dateLabelToISOString(selectedDate);
+        console.log('📅 ISO形式に変換:', isoDate);
         this.loadAIMenus(isoDate);
       }
     });
@@ -2066,11 +2068,16 @@ class MenuOptimizationApp {
    * 履歴データを読み込んで表示
    */
   async loadAIMenus(date) {
+    console.log('🔄 loadAIMenus() 開始:', date);
+    
     const loadingEl = document.getElementById('ai-loading');
     const noDataEl = document.getElementById('ai-no-data');
     const dataArea = document.getElementById('ai-data-area');
 
-    if (!loadingEl || !noDataEl || !dataArea) return;
+    if (!loadingEl || !noDataEl || !dataArea) {
+      console.error('❌ AI表示要素が見つかりません');
+      return;
+    }
 
     // ローディング表示（直接スタイルを設定）
     loadingEl.style.display = 'flex';
@@ -2086,12 +2093,12 @@ class MenuOptimizationApp {
         this.displayAIRecommendations(aiData);
         dataArea.style.display = 'block';
         noDataEl.style.display = 'none';
-        console.log('✅ AI Menus: データ表示完了');
+        console.log('✅ AI Menus: データ表示完了 -', date);
       } else {
         // データが存在しない
         dataArea.style.display = 'none';
         noDataEl.style.display = 'block';
-        console.log('⚠️ AI Menus: データなし');
+        console.log('⚠️ AI Menus: データなし -', date);
       }
     } catch (error) {
       console.error('AI推奨データの取得に失敗:', error);
@@ -2100,7 +2107,7 @@ class MenuOptimizationApp {
     } finally {
       // ローディング非表示（直接スタイルを設定）
       loadingEl.style.display = 'none';
-      console.log('✅ AI Menus: 処理完了');
+      console.log('✅ AI Menus: 処理完了 -', date);
     }
   }
 
@@ -2109,6 +2116,7 @@ class MenuOptimizationApp {
    */
   async fetchAIRecommendations(date) {
     const aiJsonPath = `docs/ai-selections/ai-selections_${date}.json`;
+    console.log('📡 AI推奨データを取得中:', aiJsonPath);
     
     try {
       const response = await fetch(aiJsonPath, {
@@ -2121,7 +2129,7 @@ class MenuOptimizationApp {
       
       if (response.ok) {
         const data = await response.json();
-        console.log(`✅ AI推奨データ取得成功: ${date}`);
+        console.log(`✅ AI推奨データ取得成功: ${date}`, data);
         return data;
       }
       
@@ -2143,6 +2151,8 @@ class MenuOptimizationApp {
    * AI推奨メニューを表示
    */
   displayAIRecommendations(aiData) {
+    console.log('🎨 displayAIRecommendations() 開始:', aiData);
+    
     const grid = document.getElementById('ai-menus-grid');
     if (!grid) {
       console.error('❌ ai-menus-grid が見つかりません');
@@ -2162,6 +2172,7 @@ class MenuOptimizationApp {
       return;
     }
     
+    // 前回の内容をクリア
     grid.innerHTML = '';
     console.log(`✅ AIタブ: ${aiData.recommendations.length}件のメニューを表示します`);
     
