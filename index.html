@@ -25,7 +25,7 @@
         <button class="tab-button active" data-tab="input-tab">⚙️ 設定</button>
         <button class="tab-button" data-tab="menus-tab">📋 メニュー</button>
         <button class="tab-button" data-tab="result-tab">📊 結果</button>
-        <button class="tab-button" data-tab="ono-menus-tab">🤖 AI</button>
+        <button class="tab-button" data-tab="ai-menus-tab">🤖 AI</button>
       </div>
 
       <!-- 入力タブ -->
@@ -254,25 +254,25 @@
         </div>
       </section>
 
-      <!-- ONO Menusタブ -->
-      <section id="ono-menus-tab" class="tab-content">
+      <!-- AIメニュータブ -->
+      <section id="ai-menus-tab" class="tab-content">
         <div class="form-section">
           <!-- データ取得状態 -->
-          <div id="ono-loading" class="loading-state" style="display: none;">
+          <div id="ai-loading" class="loading-state" style="display: none;">
             <div class="spinner"></div>
             <p>履歴データを読み込み中...</p>
           </div>
 
           <!-- データなし表示 -->
-          <div id="ono-no-data" class="no-data-state" style="display: none;">
+          <div id="ai-no-data" class="no-data-state" style="display: none;">
             <p>📭 この日付の履歴データはありません</p>
             <small>管理者ページで記録を保存すると表示されます</small>
           </div>
 
           <!-- データ表示エリア -->
-          <div id="ono-data-area" style="display: none;">
+          <div id="ai-data-area">
             <!-- メニュー一覧 -->
-            <div id="ono-menus-grid" class="menus-grid"></div>
+            <div id="ai-menus-grid" class="menus-grid"></div>
           </div>
         </div>
       </section>

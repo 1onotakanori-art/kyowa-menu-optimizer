@@ -1412,83 +1412,31 @@ class MenuOptimizationApp {
   }
 
   // ==========================================
-  // ONO Menus タブ機能
+  // AI Menus タブ機能
   // ==========================================
 
   /**
-   * ONO Menusタブの初期化
+   * AI Menusタブの初期化
    */
-  initOnoMenusTab() {
-    const onoDatePicker = document.getElementById('ono-date-picker');
+  initAIMenusTab() {
     const settingsDateInput = document.getElementById('date-input');
-    const onoTab = document.querySelector('[data-tab="ono-menus-tab"]');
+    const aiTab = document.querySelector('[data-tab="ai-menus-tab"]');
     
-    if (!onoDatePicker || !settingsDateInput || !onoTab) {
+    if (!settingsDateInput || !aiTab) {
       console.error('❌ AI タブ: 必要な要素が見つかりません');
       return;
     }
 
     console.log('✅ AI タブ: 初期化開始');
 
-    // 設定タブの日付（"1/13(火)"形式）をAIタブ（YYYY-MM-DD形式）に変換して同期
-    const syncDateToAI = () => {
-      const dateLabel = settingsDateInput.value; // "1/13(火)" 形式
-      console.log('🔍 syncDateToAI: dateLabel =', dateLabel);
-      
-      if (!dateLabel || dateLabel === '' || dateLabel === '読込中...') {
-        console.log('⚠️ AI タブ: 設定タブの日付がまだロードされていません');
-        return false;
-      }
-      
-      const isoDate = this.dateLabelToISOString(dateLabel); // "YYYY-MM-DD" 形式に変換
-      console.log('🔍 syncDateToAI: isoDate =', isoDate);
-      
-      if (isoDate) {
-        onoDatePicker.value = isoDate;
-        console.log('✅ AI タブ: 日付を設定タブと同期', dateLabel, '→', isoDate);
-        
-        // データエリアをリセットして再読み込みを許可
-        const dataArea = document.getElementById('ono-data-area');
-        if (dataArea) {
-          dataArea.style.display = 'none';
-        }
-        return true;
-      }
-      return false;
-    };
-
-    // 初期値を設定タブと同じにする（非同期でロードされる可能性があるため遅延実行も追加）
-    setTimeout(() => {
-      const success = syncDateToAI();
-      console.log('🔍 初期同期結果:', success);
-    }, 100);
-
-    // 設定タブの日付変更を監視（一方通行：設定→AI）
-    settingsDateInput.addEventListener('change', () => {
-      console.log('📅 設定タブ: 日付変更イベント');
-      syncDateToAI();
-    });
-
-    // AIタブの日付変更時に履歴を読み込む
-    onoDatePicker.addEventListener('change', () => {
-      console.log('📅 AI タブ: 日付変更イベント', onoDatePicker.value);
-      this.loadOnoMenus(onoDatePicker.value);
-    });
-
     // タブ切り替え時にAI推薦を読み込む
-    onoTab.addEventListener('click', () => {
+    aiTab.addEventListener('click', () => {
       console.log('🔄 AIタブ: タブクリックイベント');
       
-      // タブクリック時に日付が空なら再同期を試みる
-      if (!onoDatePicker.value) {
-        console.log('🔄 AIタブ: 日付が空のため再同期を試みます');
-        syncDateToAI();
-      }
+      const dateLabel = settingsDateInput.value;
       
-      const date = onoDatePicker.value;
-      
-      if (date) {
-        console.log('✅ AIタブ: データ読み込み開始');
+      if (dateLabel && dateLabel !== '' && dateLabel !== '読込中...') {
+        console.log('✅ AIタブ: データ読み込み開始', dateLabel);
         this.loadAITabContent();
       } else {
         console.log('⚠️ AIタブ: 日付が設定されていません');
@@ -1499,10 +1447,10 @@ class MenuOptimizationApp {
   /**
    * 履歴データを読み込んで表示
    */
-  async loadOnoMenus(date) {
-    const loadingEl = document.getElementById('ono-loading');
-    const noDataEl = document.getElementById('ono-no-data');
-    const dataArea = document.getElementById('ono-data-area');
+  async loadAIMenus(date) {
+    const loadingEl = document.getElementById('ai-loading');
+    const noDataEl = document.getElementById('ai-no-data');
+    const dataArea = document.getElementById('ai-data-area');
 
     if (!loadingEl || !noDataEl || !dataArea) return;
 
@@ -1517,15 +1465,15 @@ class MenuOptimizationApp {
 
       if (historyData) {
         // データが存在する場合、表示
-        this.displayOnoMenus(historyData);
+        this.displayAIMenus(historyData);
         dataArea.style.display = 'block';
         noDataEl.style.display = 'none';
-        console.log('✅ ONO Menus: データ表示完了');
+        console.log('✅ AI Menus: データ表示完了');
       } else {
         // データが存在しない
         dataArea.style.display = 'none';
         noDataEl.style.display = 'block';
-        console.log('⚠️ ONO Menus: データなし');
+        console.log('⚠️ AI Menus: データなし');
       }
     } catch (error) {
       console.error('履歴データの取得に失敗:', error);
@@ -1534,7 +1482,7 @@ class MenuOptimizationApp {
     } finally {
       // ローディング非表示（直接スタイルを設定）
       loadingEl.style.display = 'none';
-      console.log('✅ ONO Menus: 処理完了');
+      console.log('✅ AI Menus: 処理完了');
     }
   }
 
@@ -1615,7 +1563,7 @@ class MenuOptimizationApp {
   /**
    * 履歴データを表示
    */
-  displayOnoMenus(historyData) {
+  displayAIMenus(historyData) {
     // 旧形式と新形式の両方に対応
     const isOldFormat = historyData.eaten && !historyData.selectedMenus;
     
@@ -1630,10 +1578,10 @@ class MenuOptimizationApp {
       this.updateOnoSummary(totals, count);
       
       // 簡易メニューリスト表示
-      this.displayOnoMenusGridSimple(historyData.eaten || []);
+      this.displayAIMenusGridSimple(historyData.eaten || []);
       
       // 栄養テーブルは非表示（目標情報がないため）
-      const nutritionSection = document.getElementById('ono-nutrition-section');
+      const nutritionSection = document.getElementById('ai-nutrition-section');
       if (nutritionSection) nutritionSection.classList.add('hidden');
     } else {
       // 新形式の場合
@@ -1644,7 +1592,7 @@ class MenuOptimizationApp {
         this.updateOnoNutritionTable(historyData.totals, historyData.settings.targets);
       }
       
-      this.displayOnoMenusGrid(historyData.selectedMenus);
+      this.displayAIMenusGrid(historyData.selectedMenus);
     }
   }
 
@@ -1652,7 +1600,7 @@ class MenuOptimizationApp {
    * 記録日時を表示
    */
   displayOnoTimestamp(timestamp) {
-    const timestampEl = document.getElementById('ono-timestamp');
+    const timestampEl = document.getElementById('ai-timestamp');
     if (!timestampEl || !timestamp) return;
 
     const date = new Date(timestamp);
@@ -1668,11 +1616,11 @@ class MenuOptimizationApp {
   }
 
   /**
-   * ONO Menus のサマリー更新
+   * AI Menus のサマリー更新
    */
   updateOnoSummary(totals, count) {
-    const valuesEl = document.getElementById('ono-summary-values');
-    const countEl = document.getElementById('ono-summary-count');
+    const valuesEl = document.getElementById('ai-summary-values');
+    const countEl = document.getElementById('ai-summary-count');
 
     if (!valuesEl || !countEl) return;
 
@@ -1705,11 +1653,11 @@ class MenuOptimizationApp {
   }
 
   /**
-   * ONO Menus の栄養テーブル更新
+   * AI Menus の栄養テーブル更新
    */
   updateOnoNutritionTable(totals, targets) {
-    const tableEl = document.getElementById('ono-nutrition-table');
-    const sectionEl = document.getElementById('ono-nutrition-section');
+    const tableEl = document.getElementById('ai-nutrition-table');
+    const sectionEl = document.getElementById('ai-nutrition-section');
 
     if (!tableEl || !sectionEl) return;
 
@@ -1843,13 +1791,13 @@ class MenuOptimizationApp {
    * AI推薦と管理者推薦を表示
    */
   displayAIRecommendations(aiData, adminData) {
-    const container = document.getElementById('ono-menus-grid');
-    const dataArea = document.getElementById('ono-data-area');
-    const loadingEl = document.getElementById('ono-loading');
-    const noDataEl = document.getElementById('ono-no-data');
+    const container = document.getElementById('ai-menus-grid');
+    const dataArea = document.getElementById('ai-data-area');
+    const loadingEl = document.getElementById('ai-loading');
+    const noDataEl = document.getElementById('ai-no-data');
     
     if (!container) {
-      console.error('❌ ono-menus-grid が見つかりません');
+      console.error('❌ ai-menus-grid が見つかりません');
       return;
     }
 
@@ -2134,10 +2082,10 @@ class MenuOptimizationApp {
   }
 
   /**
-   * ONO Menus のメニュー一覧表示（旧関数、互換性のため残す）
+   * AI Menus のメニュー一覧表示（旧関数、互換性のため残す）
    */
-  displayOnoMenusGrid(menus) {
-    const gridEl = document.getElementById('ono-menus-grid');
+  displayAIMenusGrid(menus) {
+    const gridEl = document.getElementById('ai-menus-grid');
     if (!gridEl) return;
 
     gridEl.innerHTML = '';
@@ -2190,10 +2138,10 @@ class MenuOptimizationApp {
   }
 
   /**
-   * ONO Menus の簡易メニューリスト表示（旧形式用）
+   * AI Menus の簡易メニューリスト表示（旧形式用）
    */
-  displayOnoMenusGridSimple(menuNames) {
-    const gridEl = document.getElementById('ono-menus-grid');
+  displayAIMenusGridSimple(menuNames) {
+    const gridEl = document.getElementById('ai-menus-grid');
     if (!gridEl) return;
 
     gridEl.innerHTML = '';
@@ -2233,6 +2181,6 @@ class MenuOptimizationApp {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('アプリ初期化...');
   const app = new MenuOptimizationApp();
-  app.initOnoMenusTab(); // ONO Menusタブを初期化
+  app.initAIMenusTab(); // AI Menusタブを初期化
   console.log('アプリ準備完了');
 });
