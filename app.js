@@ -1969,26 +1969,30 @@ class MenuOptimizationApp {
     
     // サマリーHTML
     const nutritionItems = [
-      { key: 'エネルギー', label: 'E', value: Math.round(totals['エネルギー']), unit: 'kcal' },
-      { key: 'たんぱく質', label: 'P', value: totals['たんぱく質'].toFixed(1), unit: 'g' },
-      { key: '脂質', label: 'F', value: totals['脂質'].toFixed(1), unit: 'g' },
-      { key: '炭水化物', label: 'C', value: totals['炭水化物'].toFixed(1), unit: 'g' },
-      { key: '野菜重量', label: 'V', value: Math.round(totals['野菜重量']), unit: 'g' }
+      { key: 'エネルギー', label: 'E', value: Math.round(totals['エネルギー']) },
+      { key: 'たんぱく質', label: 'P', value: totals['たんぱく質'].toFixed(1) },
+      { key: '脂質', label: 'F', value: totals['脂質'].toFixed(1) },
+      { key: '炭水化物', label: 'C', value: totals['炭水化物'].toFixed(1) },
+      { key: '野菜重量', label: 'V', value: Math.round(totals['野菜重量']) }
     ];
     
     const valuesDiv = document.createElement('div');
-    valuesDiv.className = 'ai-summary-values';
+    valuesDiv.className = 'fixed-summary-values';
     
-    nutritionItems.forEach(({ label, value, unit }) => {
-      const item = document.createElement('span');
-      item.className = `ai-summary-item nutrition-${label.toLowerCase()}`;
-      item.innerHTML = `<span class="ai-summary-label">${label}</span><span class="ai-summary-value">${value}</span><span class="ai-summary-unit">${unit}</span>`;
-      valuesDiv.appendChild(item);
+    nutritionItems.forEach(({ label, value }) => {
+      const pill = document.createElement('div');
+      pill.className = 'fixed-summary-pill';
+      pill.innerHTML = `
+        <div class="fixed-summary-pill-label">${label}</div>
+        <div class="fixed-summary-pill-value">${value}</div>
+        <div class="fixed-summary-pill-diff">—</div>
+      `;
+      valuesDiv.appendChild(pill);
     });
     
     // 品数
     const countDiv = document.createElement('div');
-    countDiv.className = 'ai-summary-count';
+    countDiv.className = 'fixed-summary-count';
     countDiv.textContent = `${menus.length}品`;
     
     summary.appendChild(valuesDiv);
@@ -2044,10 +2048,10 @@ class MenuOptimizationApp {
       card.appendChild(reasons);
     }
 
-    // 栄養情報（EPFCV）
+    // 栄養情報（EPFCV）- 結果タブと同じスタイル
     if (menu.nutrition) {
       const nutrition = document.createElement('div');
-      nutrition.className = 'ai-nutrition';
+      nutrition.className = 'menu-list-item-nutrition';
       
       const nutritionMap = [
         { key: 'エネルギー', label: 'E', class: 'nutrition-e' },
@@ -2061,7 +2065,7 @@ class MenuOptimizationApp {
         const value = menu.nutrition[key];
         if (value !== undefined && value !== null) {
           const nutritionItem = document.createElement('div');
-          nutritionItem.className = `ai-nutrition-item ${className}`;
+          nutritionItem.className = `menu-list-item-nutrition-item ${className}`;
           const displayValue = typeof value === 'number' ? value : value;
           nutritionItem.innerHTML = `<span>${displayValue}</span>`;
           nutrition.appendChild(nutritionItem);
@@ -2087,10 +2091,10 @@ class MenuOptimizationApp {
     name.textContent = menu.name;
     card.appendChild(name);
 
-    // 栄養情報（EPFCV）
+    // 栄養情報（EPFCV）- 結果タブと同じスタイル
     if (menu.nutrition) {
       const nutrition = document.createElement('div');
-      nutrition.className = 'ai-nutrition';
+      nutrition.className = 'menu-list-item-nutrition';
       
       const nutritionMap = [
         { key: 'エネルギー', label: 'E', class: 'nutrition-e' },
@@ -2104,7 +2108,7 @@ class MenuOptimizationApp {
         const value = menu.nutrition[key];
         if (value !== undefined && value !== null) {
           const nutritionItem = document.createElement('div');
-          nutritionItem.className = `ai-nutrition-item ${className}`;
+          nutritionItem.className = `menu-list-item-nutrition-item ${className}`;
           const displayValue = typeof value === 'number' ? value : value;
           nutritionItem.innerHTML = `<span>${displayValue}</span>`;
           nutrition.appendChild(nutritionItem);

@@ -107,44 +107,15 @@
   font-weight: 700;
 }
 
-.ai-nutrition {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--medium-gray);
-}
-
-.ai-nutrition-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 48px;
-  height: 32px;
-  padding: 0 8px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 700;
-  color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* 栄養項目の色分け（結果タブと同じスタイル） */
-.ai-nutrition-item.nutrition-e { background: linear-gradient(135deg, #FF9500, #FF8C00); }
-.ai-nutrition-item.nutrition-p { background: linear-gradient(135deg, #FF3B30, #DC143C); }
-.ai-nutrition-item.nutrition-f { background: linear-gradient(135deg, #34C759, #28A745); }
-.ai-nutrition-item.nutrition-c { background: linear-gradient(135deg, #007AFF, #0056CC); }
-.ai-nutrition-item.nutrition-v { background: linear-gradient(135deg, #5856D6, #4B49B8); }
-
-/* 栄養合計サマリー */
+/* 栄養合計サマリー - 結果タブと同じfixed-summaryスタイルを使用 */
 .ai-nutrition-summary {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
   align-items: center;
   background: linear-gradient(135deg, rgba(0, 122, 255, 0.08), rgba(90, 200, 250, 0.08));
   border-radius: var(--border-radius);
-  padding: 12px 16px;
+  padding: 12px;
   margin-bottom: 16px;
   border: 1px solid rgba(0, 122, 255, 0.2);
 }
@@ -154,66 +125,10 @@
   border-color: rgba(90, 200, 250, 0.2);
 }
 
-.ai-summary-values {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.ai-summary-item {
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-}
-
-.ai-summary-label {
-  font-size: 12px;
-  font-weight: 700;
-  width: 16px;
-  text-align: center;
-}
-
-.ai-summary-item.nutrition-e .ai-summary-label { color: #FF9500; }
-.ai-summary-item.nutrition-p .ai-summary-label { color: #FF3B30; }
-.ai-summary-item.nutrition-f .ai-summary-label { color: #34C759; }
-.ai-summary-item.nutrition-c .ai-summary-label { color: #007AFF; }
-.ai-summary-item.nutrition-v .ai-summary-label { color: #5856D6; }
-
-.ai-summary-value {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.ai-summary-unit {
-  font-size: 11px;
-  color: var(--text-secondary);
-  margin-left: 1px;
-}
-
-.ai-summary-count {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--primary-color);
-  background: white;
-  padding: 6px 12px;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.ai-nutrition-summary.admin .ai-summary-count {
-  color: var(--secondary-color);
-}
-
+/* レスポンシブ対応 */
 @media (max-width: 600px) {
   .ai-nutrition-summary {
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-  }
-  
-  .ai-summary-count {
-    align-self: flex-end;
+    padding: 8px;
   }
 }
 
