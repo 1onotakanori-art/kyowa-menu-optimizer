@@ -107,12 +107,8 @@
   font-weight: 700;
 }
 
-/* 栄養合計サマリー - 結果タブと同じfixed-summaryスタイルを使用 */
+/* 栄養合計サマリー - 結果タブと同じスタイルを使用 */
 .ai-nutrition-summary {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 4px;
-  align-items: center;
   background: linear-gradient(135deg, rgba(0, 122, 255, 0.08), rgba(90, 200, 250, 0.08));
   border-radius: var(--border-radius);
   padding: 12px;
@@ -123,13 +119,6 @@
 .ai-nutrition-summary.admin {
   background: linear-gradient(135deg, rgba(90, 200, 250, 0.08), rgba(52, 199, 89, 0.08));
   border-color: rgba(90, 200, 250, 0.2);
-}
-
-/* レスポンシブ対応 */
-@media (max-width: 600px) {
-  .ai-nutrition-summary {
-    padding: 8px;
-  }
 }
 
 .no-data-message {

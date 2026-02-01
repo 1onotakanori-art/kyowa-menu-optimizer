@@ -1943,11 +1943,21 @@ class MenuOptimizationApp {
   }
 
   /**
-   * 栄養合計サマリーを作成
+   * 栄養合計サマリーを作成（結果タブと同じ構造）
    */
   createNutritionSummary(menus, type) {
+    // 外側のコンテナ（背景色・枠用）
+    const container = document.createElement('div');
+    container.className = `ai-nutrition-summary ${type}`;
+    
+    // 固定サマリー構造（結果タブと同じ）
     const summary = document.createElement('div');
-    summary.className = `ai-nutrition-summary ${type}`;
+    summary.className = 'fixed-summary';
+    summary.style.margin = '0'; // 余白は外側で制御
+    summary.style.background = 'transparent'; // 背景は外側のcontainerで制御
+    
+    const header = document.createElement('div');
+    header.className = 'fixed-summary-header';
     
     // 栄養合計を計算
     const totals = {
@@ -1995,10 +2005,12 @@ class MenuOptimizationApp {
     countDiv.className = 'fixed-summary-count';
     countDiv.textContent = `${menus.length}品`;
     
-    summary.appendChild(valuesDiv);
-    summary.appendChild(countDiv);
+    header.appendChild(valuesDiv);
+    header.appendChild(countDiv);
+    summary.appendChild(header);
+    container.appendChild(summary);
     
-    return summary;
+    return container;
   }
 
   /**
