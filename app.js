@@ -57,6 +57,13 @@ class MenuOptimizationApp {
     // 日付選択変更
     document.getElementById('date-input').addEventListener('change', () => {
       this.loadMenus();
+      // AIタブも同じ日付で更新
+      const dateSelect = document.getElementById('date-input');
+      const selectedDate = dateSelect.value; // "1/13(月)" 形式
+      if (selectedDate) {
+        const isoDate = this.dateLabelToISOString(selectedDate);
+        this.loadAIMenus(isoDate);
+      }
     });
 
     // 最大メニュー数の変更時に設定を保存
@@ -1481,8 +1488,8 @@ class MenuOptimizationApp {
       }
     });
 
-    // ダッシュボード初期化
-    this.initDashboard();
+    // ダッシュボード初期化（admin.htmlに移動したため削除）
+    // this.initDashboard();
   }
 
   /**

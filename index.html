@@ -26,7 +26,6 @@
         <button class="tab-button" data-tab="menus-tab">📋 メニュー</button>
         <button class="tab-button" data-tab="result-tab">📊 結果</button>
         <button class="tab-button" data-tab="ai-menus-tab">🤖 AI</button>
-        <button class="tab-button" data-tab="dashboard-tab">📈 ダッシュボード</button>
       </div>
 
       <!-- 入力タブ -->
@@ -351,103 +350,7 @@
       </section>
 
       <!-- ダッシュボードタブ -->
-      <section id="dashboard-tab" class="tab-content">
-        <div class="dashboard-container">
-          <!-- ローディング状態 -->
-          <div id="dashboard-loading" class="loading-state" style="display: none;">
-            <div class="spinner"></div>
-            <p>データを分析中...</p>
-          </div>
-
-          <!-- エラー状態 -->
-          <div id="dashboard-error" class="no-data-state" style="display: none;">
-            <p>⚠️ ダッシュボードデータの取得に失敗しました</p>
-          </div>
-
-          <!-- ダッシュボード本体 -->
-          <div id="dashboard-content" style="display: none;">
-            <!-- ヘッダー -->
-            <div class="dashboard-header">
-              <h2>📈 AI推奨メニュー分析ダッシュボード</h2>
-              <p class="dashboard-subtitle">20日間のAI推奨メニューセット統計</p>
-            </div>
-
-            <!-- 統計サマリー -->
-            <div class="stats-summary">
-              <div class="stat-card">
-                <span class="stat-label">推奨メニュー数</span>
-                <span class="stat-value" id="stat-total-menus">80</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-label">平均推奨スコア</span>
-                <span class="stat-value" id="stat-avg-score">75.2%</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-label">平均エネルギー</span>
-                <span class="stat-value" id="stat-avg-energy">425 kcal</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-label">平均タンパク質</span>
-                <span class="stat-value" id="stat-avg-protein">18.5 g</span>
-              </div>
-            </div>
-
-            <!-- グラフエリア -->
-            <div class="charts-grid">
-              <!-- スコア分布 -->
-              <div class="chart-container">
-                <h3>推奨スコア分布</h3>
-                <canvas id="chart-score-distribution"></canvas>
-              </div>
-
-              <!-- 日付別平均スコア -->
-              <div class="chart-container">
-                <h3>日付別平均推奨スコア</h3>
-                <canvas id="chart-daily-average-score"></canvas>
-              </div>
-
-              <!-- 栄養バランス (PFC比) -->
-              <div class="chart-container">
-                <h3>平均栄養バランス (PFC比)</h3>
-                <canvas id="chart-pfc-ratio"></canvas>
-              </div>
-
-              <!-- メニュー推奨頻度 Top 10 -->
-              <div class="chart-container">
-                <h3>推奨メニュー Top 10</h3>
-                <canvas id="chart-top-menus"></canvas>
-              </div>
-
-              <!-- エネルギー分布 -->
-              <div class="chart-container">
-                <h3>推奨メニューのエネルギー分布</h3>
-                <canvas id="chart-energy-distribution"></canvas>
-              </div>
-
-              <!-- タンパク質分布 -->
-              <div class="chart-container">
-                <h3>推奨メニューのタンパク質分布</h3>
-                <canvas id="chart-protein-distribution"></canvas>
-              </div>
-            </div>
-
-            <!-- 詳細テーブル -->
-            <div class="details-section">
-              <h3>📊 推奨メニュー詳細統計</h3>
-              <div class="table-responsive">
-                <table id="stats-table" class="stats-table">
-                  <thead>
-                    <tr>
-                      <th>指標</th>
-                      <th>最小値</th>
-                      <th>平均値</th>
-                      <th>最大値</th>
-                      <th>標準偏差</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>推奨スコア (%)</td>
+      <!-- ダッシュボードタブは削除（admin.htmlに移動） -->
                       <td id="score-min">-</td>
                       <td id="score-avg">-</td>
                       <td id="score-max">-</td>
