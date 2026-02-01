@@ -1,86 +1,102 @@
 {
   "date": "2026-01-27",
-  "generated_at": "2026-02-02T08:45:11.534152",
+  "generated_at": "2026-02-02T08:51:08.320430",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / ライス（S)はバランス良好 / 牛肉とごろごろじゃがいものカレー煮込みは野菜たっぷり / 食物繊維で健康☆和風チキンハンバーグは野菜たっぷり / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / レバニラ炒めは良好なタンパク質 / 野菜たっぷり / 好みに合致 / ヒレカツとクリームソースピラフはタンパク質豊富 / ボリューム満点 / 好みに合致 / 揚げ茄子の辛みそ炒め丼はボリューム満点 / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
-      "score": 1.0,
+      "name": "バランスＢＯＸ",
+      "score": 1.23,
+      "model_score": 1.0,
+      "preference_score": 8.66,
       "reasons": [
-        "低カロリー"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 83,
-        "protein": 10.9,
-        "fat": 3.2,
-        "carbs": 2.7,
-        "vegetable_weight": 40,
+        "energy": 640,
+        "protein": 26.5,
+        "fat": 22.8,
+        "carbs": 78.6,
+        "vegetable_weight": 135,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "レバニラ炒め",
+      "score": 1.211,
+      "model_score": 1.0,
+      "preference_score": 8.39,
       "reasons": [
-        "バランス良好"
+        "良好なタンパク質",
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 229,
+        "protein": 16.2,
+        "fat": 8.4,
+        "carbs": 21.7,
+        "vegetable_weight": 164,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "牛肉とごろごろじゃがいものカレー煮込み",
-      "score": 1.0,
+      "name": "ヒレカツとクリームソースピラフ",
+      "score": 1.072,
+      "model_score": 1.0,
+      "preference_score": 6.5,
       "reasons": [
-        "野菜たっぷり"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 286,
-        "protein": 6.5,
-        "fat": 16,
-        "carbs": 29.2,
-        "vegetable_weight": 105,
+        "energy": 662,
+        "protein": 28.1,
+        "fat": 14.7,
+        "carbs": 99.3,
+        "vegetable_weight": 61,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "食物繊維で健康☆和風チキンハンバーグ",
+      "name": "揚げ茄子の辛みそ炒め丼",
       "score": 1.0,
+      "model_score": 1.0,
+      "preference_score": 5.51,
       "reasons": [
-        "野菜たっぷり"
+        "ボリューム満点",
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 350,
-        "protein": 15.2,
-        "fat": 15.5,
-        "carbs": 38.2,
-        "vegetable_weight": 88,
+        "energy": 630,
+        "protein": 10.9,
+        "fat": 15.9,
+        "carbs": 99.2,
+        "vegetable_weight": 109,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 970,
-    "total_protein": 36.9,
-    "total_fat": 35.3,
-    "total_carbs": 124.4,
-    "average_energy": 242.5,
-    "average_protein": 9.2
+    "total_energy": 2161,
+    "total_protein": 81.7,
+    "total_fat": 61.8,
+    "total_carbs": 298.8,
+    "average_energy": 540.2,
+    "average_protein": 20.4
   },
   "pfc_ratio": {
-    "protein": 15.2,
-    "fat": 32.8,
-    "carbs": 51.3
+    "protein": 15.1,
+    "fat": 25.7,
+    "carbs": 55.3
   },
   "recommendation_count": 4
 }

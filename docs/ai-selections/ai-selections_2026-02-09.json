@@ -1,15 +1,38 @@
 {
   "date": "2026-02-09",
-  "generated_at": "2026-02-02T08:45:11.896402",
+  "generated_at": "2026-02-02T08:51:09.035169",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "豆腐とシーフードの韓国風チゲは野菜たっぷり / ライス（S)はバランス良好 / 豚生姜焼きのサラダは良好なタンパク質 / 野菜たっぷり / 欧風ビーフカレーコロッケはバランス良好 / 全体: 全体で高スコア維持",
+  "set_reason": "チーズとペッパーの焼きチキンカツはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豆腐とシーフードの韓国風チゲは野菜たっぷり / 好みに合致 / 鶏しお野菜炒めは野菜たっぷり / 好みに合致 / 豚生姜焼きのサラダは良好なタンパク質 / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "豆腐とシーフードの韓国風チゲ",
-      "score": 1.0,
+      "name": "チーズとペッパーの焼きチキンカツ",
+      "score": 1.244,
+      "model_score": 1.0,
+      "preference_score": 8.85,
       "reasons": [
-        "野菜たっぷり"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 596,
+        "protein": 28.9,
+        "fat": 11.9,
+        "carbs": 92.1,
+        "vegetable_weight": 130,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 2,
+      "name": "豆腐とシーフードの韓国風チゲ",
+      "score": 1.239,
+      "model_score": 1.0,
+      "preference_score": 8.79,
+      "reasons": [
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 194,
@@ -21,28 +44,34 @@
       }
     },
     {
-      "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "rank": 3,
+      "name": "鶏しお野菜炒め",
+      "score": 1.203,
+      "model_score": 1.0,
+      "preference_score": 8.3,
       "reasons": [
-        "バランス良好"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 139,
+        "protein": 11.3,
+        "fat": 4.7,
+        "carbs": 13.5,
+        "vegetable_weight": 171,
         "fiber": 0
       }
     },
     {
-      "rank": 3,
+      "rank": 4,
       "name": "豚生姜焼きのサラダ",
-      "score": 1.0,
+      "score": 1.048,
+      "model_score": 1.0,
+      "preference_score": 6.16,
       "reasons": [
         "良好なタンパク質",
-        "野菜たっぷり"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 339,
@@ -52,36 +81,20 @@
         "vegetable_weight": 103,
         "fiber": 0
       }
-    },
-    {
-      "rank": 4,
-      "name": "欧風ビーフカレーコロッケ",
-      "score": 1.0,
-      "reasons": [
-        "バランス良好"
-      ],
-      "nutrition": {
-        "energy": 282,
-        "protein": 6.4,
-        "fat": 12.3,
-        "carbs": 36,
-        "vegetable_weight": 55,
-        "fiber": 0
-      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1066,
-    "total_protein": 41.8,
-    "total_fat": 44.2,
-    "total_carbs": 118.9,
-    "average_energy": 266.5,
-    "average_protein": 10.5
+    "total_energy": 1268,
+    "total_protein": 71.3,
+    "total_fat": 47.9,
+    "total_carbs": 134.2,
+    "average_energy": 317.0,
+    "average_protein": 17.8
   },
   "pfc_ratio": {
-    "protein": 15.7,
-    "fat": 37.3,
-    "carbs": 44.6
+    "protein": 22.5,
+    "fat": 34.0,
+    "carbs": 42.3
   },
   "recommendation_count": 4
 }

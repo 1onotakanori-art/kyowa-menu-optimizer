@@ -1,47 +1,38 @@
 {
   "date": "2026-01-28",
-  "generated_at": "2026-02-02T08:45:11.591913",
+  "generated_at": "2026-02-02T08:51:08.427536",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "ライス（S)はバランス良好 / 白身魚の天ぷらピリ辛ソースはバランス良好 / 野菜たっぷり！水餃子入りピリ辛豆乳スープは野菜たっぷり / あじフライは良好なタンパク質 / 全体: 全体で高スコア維持",
+  "set_reason": "白身魚のカツレツ 彩り野菜タルタルはタンパク質豊富 / ボリューム満点 / 好みに合致 / 野菜たっぷり！水餃子入りピリ辛豆乳スープは野菜たっぷり / 好みに合致 / 食物繊維たっぷり！蓮根の和サラダは低カロリー / 野菜たっぷり / 好みに合致 / スガキヤ風和風とんこつラーメンはタンパク質豊富 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "白身魚のカツレツ 彩り野菜タルタル",
+      "score": 1.162,
+      "model_score": 1.0,
+      "preference_score": 7.72,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 529,
+        "protein": 23.7,
+        "fat": 8.7,
+        "carbs": 87.7,
+        "vegetable_weight": 119,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "白身魚の天ぷらピリ辛ソース",
-      "score": 1.0,
-      "reasons": [
-        "バランス良好"
-      ],
-      "nutrition": {
-        "energy": 193,
-        "protein": 12.7,
-        "fat": 5.1,
-        "carbs": 22.1,
-        "vegetable_weight": 2,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
       "name": "野菜たっぷり！水餃子入りピリ辛豆乳スープ",
-      "score": 1.0,
+      "score": 1.009,
+      "model_score": 1.0,
+      "preference_score": 5.62,
       "reasons": [
-        "野菜たっぷり"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 176,
@@ -53,34 +44,58 @@
       }
     },
     {
-      "rank": 4,
-      "name": "あじフライ",
-      "score": 1.0,
+      "rank": 3,
+      "name": "食物繊維たっぷり！蓮根の和サラダ",
+      "score": 0.974,
+      "model_score": 1.0,
+      "preference_score": 5.14,
       "reasons": [
-        "良好なタンパク質"
+        "低カロリー",
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 252,
-        "protein": 16.3,
-        "fat": 7.8,
-        "carbs": 27.9,
-        "vegetable_weight": 35,
+        "energy": 48,
+        "protein": 1,
+        "fat": 1,
+        "carbs": 9.3,
+        "vegetable_weight": 96,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "スガキヤ風和風とんこつラーメン",
+      "score": 0.953,
+      "model_score": 1.0,
+      "preference_score": 4.85,
+      "reasons": [
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 581,
+        "protein": 26.3,
+        "fat": 24.9,
+        "carbs": 60.8,
+        "vegetable_weight": 31,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 872,
-    "total_protein": 40.1,
-    "total_fat": 17.9,
-    "total_carbs": 132.4,
-    "average_energy": 218.0,
-    "average_protein": 10.0
+    "total_energy": 1334,
+    "total_protein": 57.8,
+    "total_fat": 39.0,
+    "total_carbs": 185.9,
+    "average_energy": 333.5,
+    "average_protein": 14.4
   },
   "pfc_ratio": {
-    "protein": 18.4,
-    "fat": 18.5,
-    "carbs": 60.7
+    "protein": 17.3,
+    "fat": 26.3,
+    "carbs": 55.7
   },
   "recommendation_count": 4
 }

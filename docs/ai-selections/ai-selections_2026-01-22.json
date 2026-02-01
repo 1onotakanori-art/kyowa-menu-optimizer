@@ -1,86 +1,101 @@
 {
   "date": "2026-01-22",
-  "generated_at": "2026-02-02T08:45:11.369225",
+  "generated_at": "2026-02-02T08:51:07.954232",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / ライス（S)はバランス良好 / 鮭のマヨネーズ焼きはバランス良好 / 鶏肉のごま七味照り焼きは良好なタンパク質 / 全体: 全体で高スコア維持",
+  "set_reason": "海老とアスパラガスのトマトソーススパゲッティは良好なタンパク質 / ボリューム満点 / 好みに合致 / バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豚ホルモンの味噌炒めは野菜たっぷり / 好みに合致 / とろけるチーズとほうれん草のチキンカレーは良好なタンパク質 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
-      "score": 1.0,
+      "name": "海老とアスパラガスのトマトソーススパゲッティ",
+      "score": 1.257,
+      "model_score": 1.0,
+      "preference_score": 9.03,
       "reasons": [
-        "低カロリー"
+        "良好なタンパク質",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 83,
-        "protein": 10.9,
-        "fat": 3.2,
-        "carbs": 2.7,
-        "vegetable_weight": 40,
+        "energy": 419,
+        "protein": 19.2,
+        "fat": 3.4,
+        "carbs": 78.2,
+        "vegetable_weight": 174,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "バランスＢＯＸ",
+      "score": 1.23,
+      "model_score": 1.0,
+      "preference_score": 8.66,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 640,
+        "protein": 26.5,
+        "fat": 22.8,
+        "carbs": 78.6,
+        "vegetable_weight": 135,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "鮭のマヨネーズ焼き",
-      "score": 1.0,
+      "name": "豚ホルモンの味噌炒め",
+      "score": 1.198,
+      "model_score": 1.0,
+      "preference_score": 8.22,
       "reasons": [
-        "バランス良好"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 299,
+        "energy": 229,
         "protein": 13.9,
-        "fat": 24.8,
-        "carbs": 4.1,
-        "vegetable_weight": 24,
+        "fat": 11.8,
+        "carbs": 16.5,
+        "vegetable_weight": 169,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "鶏肉のごま七味照り焼き",
-      "score": 1.0,
+      "name": "とろけるチーズとほうれん草のチキンカレー",
+      "score": 1.033,
+      "model_score": 1.0,
+      "preference_score": 5.95,
       "reasons": [
-        "良好なタンパク質"
+        "良好なタンパク質",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 261,
-        "protein": 17.9,
-        "fat": 16,
-        "carbs": 8.7,
-        "vegetable_weight": 38,
+        "energy": 657,
+        "protein": 16.3,
+        "fat": 20.6,
+        "carbs": 96.4,
+        "vegetable_weight": 98,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 894,
-    "total_protein": 47.0,
-    "total_fat": 44.6,
-    "total_carbs": 69.8,
-    "average_energy": 223.5,
-    "average_protein": 11.8
+    "total_energy": 1945,
+    "total_protein": 75.9,
+    "total_fat": 58.6,
+    "total_carbs": 269.7,
+    "average_energy": 486.2,
+    "average_protein": 19.0
   },
   "pfc_ratio": {
-    "protein": 21.0,
-    "fat": 44.9,
-    "carbs": 31.2
+    "protein": 15.6,
+    "fat": 27.1,
+    "carbs": 55.5
   },
   "recommendation_count": 4
 }

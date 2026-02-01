@@ -1,47 +1,58 @@
 {
   "date": "2026-02-10",
-  "generated_at": "2026-02-02T08:45:11.932236",
+  "generated_at": "2026-02-02T08:51:09.109856",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / ライス（S)はバランス良好 / いかと根野菜の煮物は野菜たっぷり / にら豚玉は良好なタンパク質 / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 竜田揚げのせタコライスはタンパク質豊富 / ボリューム満点 / 好みに合致 / いかと根野菜の煮物は野菜たっぷり / 好みに合致 / 5品目野菜とトマトのミネストローネは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
-      "score": 1.0,
+      "name": "バランスＢＯＸ",
+      "score": 1.23,
+      "model_score": 1.0,
+      "preference_score": 8.66,
       "reasons": [
-        "低カロリー"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 83,
-        "protein": 10.9,
-        "fat": 3.2,
-        "carbs": 2.7,
-        "vegetable_weight": 40,
+        "energy": 640,
+        "protein": 26.5,
+        "fat": 22.8,
+        "carbs": 78.6,
+        "vegetable_weight": 135,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "竜田揚げのせタコライス",
+      "score": 1.079,
+      "model_score": 1.0,
+      "preference_score": 6.59,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 771,
+        "protein": 27.4,
+        "fat": 26,
+        "carbs": 101.7,
+        "vegetable_weight": 67,
         "fiber": 0
       }
     },
     {
       "rank": 3,
       "name": "いかと根野菜の煮物",
-      "score": 1.0,
+      "score": 1.045,
+      "model_score": 1.0,
+      "preference_score": 6.11,
       "reasons": [
-        "野菜たっぷり"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 130,
@@ -54,33 +65,37 @@
     },
     {
       "rank": 4,
-      "name": "にら豚玉",
-      "score": 1.0,
+      "name": "5品目野菜とトマトのミネストローネ",
+      "score": 1.006,
+      "model_score": 1.0,
+      "preference_score": 5.58,
       "reasons": [
-        "良好なタンパク質"
+        "低カロリー",
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 279,
-        "protein": 19.8,
-        "fat": 20,
-        "carbs": 2.1,
-        "vegetable_weight": 30,
+        "energy": 50,
+        "protein": 1.8,
+        "fat": 0.3,
+        "carbs": 11.1,
+        "vegetable_weight": 105,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 743,
-    "total_protein": 40.9,
-    "total_fat": 25.5,
-    "total_carbs": 82.3,
-    "average_energy": 185.8,
-    "average_protein": 10.2
+    "total_energy": 1591,
+    "total_protein": 61.6,
+    "total_fat": 50.8,
+    "total_carbs": 214.6,
+    "average_energy": 397.8,
+    "average_protein": 15.4
   },
   "pfc_ratio": {
-    "protein": 22.0,
-    "fat": 30.9,
-    "carbs": 44.3
+    "protein": 15.5,
+    "fat": 28.7,
+    "carbs": 54.0
   },
   "recommendation_count": 4
 }

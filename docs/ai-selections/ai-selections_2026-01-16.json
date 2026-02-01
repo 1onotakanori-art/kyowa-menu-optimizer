@@ -1,47 +1,77 @@
 {
   "date": "2026-01-16",
-  "generated_at": "2026-02-02T08:45:11.157167",
+  "generated_at": "2026-02-02T08:51:07.595012",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "ライス（S)はバランス良好 / ホキのコーンマヨグリルはバランス良好 / 豚バラとキャベツの塩もつ鍋風は野菜たっぷり / 鶏の唐揚げは良好なタンパク質 / ボリューム満点 / 全体: 全体で高スコア維持",
+  "set_reason": "白身魚と野菜の味噌バターホイル焼きはタンパク質豊富 / ボリューム満点 / 好みに合致 / ポークシチューはタンパク質豊富 / ボリューム満点 / 好みに合致 / 野菜と豚肉のキムチ炒めは野菜たっぷり / 好みに合致 / 豚バラとキャベツの塩もつ鍋風は野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "白身魚と野菜の味噌バターホイル焼き",
+      "score": 1.321,
+      "model_score": 1.0,
+      "preference_score": 9.91,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 577,
+        "protein": 22.5,
+        "fat": 17,
+        "carbs": 82.3,
+        "vegetable_weight": 192,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ホキのコーンマヨグリル",
-      "score": 1.0,
+      "name": "ポークシチュー",
+      "score": 1.203,
+      "model_score": 1.0,
+      "preference_score": 8.29,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 243,
-        "protein": 14.8,
-        "fat": 16.3,
-        "carbs": 8.8,
-        "vegetable_weight": 38,
+        "energy": 649,
+        "protein": 31,
+        "fat": 37.1,
+        "carbs": 43.5,
+        "vegetable_weight": 103,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "豚バラとキャベツの塩もつ鍋風",
-      "score": 1.0,
+      "name": "野菜と豚肉のキムチ炒め",
+      "score": 1.192,
+      "model_score": 1.0,
+      "preference_score": 8.14,
       "reasons": [
-        "野菜たっぷり"
+        "野菜たっぷり",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 167,
+        "protein": 10.6,
+        "fat": 9.3,
+        "carbs": 11.2,
+        "vegetable_weight": 171,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "豚バラとキャベツの塩もつ鍋風",
+      "score": 1.102,
+      "model_score": 1.0,
+      "preference_score": 6.91,
+      "reasons": [
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 278,
@@ -51,37 +81,20 @@
         "vegetable_weight": 142,
         "fiber": 0
       }
-    },
-    {
-      "rank": 4,
-      "name": "鶏の唐揚げ",
-      "score": 1.0,
-      "reasons": [
-        "良好なタンパク質",
-        "ボリューム満点"
-      ],
-      "nutrition": {
-        "energy": 405,
-        "protein": 19,
-        "fat": 26.3,
-        "carbs": 20.1,
-        "vegetable_weight": 30,
-        "fiber": 0
-      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1177,
-    "total_protein": 50.9,
-    "total_fat": 62.1,
-    "total_carbs": 95.2,
-    "average_energy": 294.2,
-    "average_protein": 12.7
+    "total_energy": 1671,
+    "total_protein": 76.9,
+    "total_fat": 82.3,
+    "total_carbs": 149.0,
+    "average_energy": 417.8,
+    "average_protein": 19.2
   },
   "pfc_ratio": {
-    "protein": 17.3,
-    "fat": 47.5,
-    "carbs": 32.4
+    "protein": 18.4,
+    "fat": 44.3,
+    "carbs": 35.7
   },
   "recommendation_count": 4
 }

@@ -1,64 +1,38 @@
 {
   "date": "2026-01-21",
-  "generated_at": "2026-02-02T08:45:11.305959",
+  "generated_at": "2026-02-02T08:51:07.829472",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "豚肉とキャベツのスパイシー炒めは低カロリー / 野菜たっぷり / ライス（S)はバランス良好 / 白身魚の幽庵焼きはバランス良好 / ピリ辛八宝菜は野菜たっぷり / 全体: 全体で高スコア維持",
+  "set_reason": "揚げずにチキン南蛮はタンパク質豊富 / ボリューム満点 / 好みに合致 / ピリ辛八宝菜は野菜たっぷり / 好みに合致 / 豚バラ肉の生姜焼き丼はタンパク質豊富 / ボリューム満点 / 好みに合致 / 台湾ラーメンはタンパク質豊富 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "豚肉とキャベツのスパイシー炒め",
-      "score": 1.0,
+      "name": "揚げずにチキン南蛮",
+      "score": 1.259,
+      "model_score": 1.0,
+      "preference_score": 9.06,
       "reasons": [
-        "低カロリー",
-        "野菜たっぷり"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 64,
-        "protein": 3.7,
-        "fat": 3.2,
-        "carbs": 6.2,
-        "vegetable_weight": 118,
+        "energy": 669,
+        "protein": 30.1,
+        "fat": 28.2,
+        "carbs": 71.2,
+        "vegetable_weight": 131,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
-      "reasons": [
-        "バランス良好"
-      ],
-      "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
-      "name": "白身魚の幽庵焼き",
-      "score": 1.0,
-      "reasons": [
-        "バランス良好"
-      ],
-      "nutrition": {
-        "energy": 108,
-        "protein": 14.1,
-        "fat": 1.1,
-        "carbs": 8.2,
-        "vegetable_weight": 30,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
       "name": "ピリ辛八宝菜",
-      "score": 1.0,
+      "score": 1.258,
+      "model_score": 1.0,
+      "preference_score": 9.05,
       "reasons": [
-        "野菜たっぷり"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 164,
@@ -68,20 +42,60 @@
         "vegetable_weight": 224,
         "fiber": 0
       }
+    },
+    {
+      "rank": 3,
+      "name": "豚バラ肉の生姜焼き丼",
+      "score": 1.139,
+      "model_score": 1.0,
+      "preference_score": 7.41,
+      "reasons": [
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 909,
+        "protein": 25.5,
+        "fat": 46.8,
+        "carbs": 85.9,
+        "vegetable_weight": 101,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "台湾ラーメン",
+      "score": 1.086,
+      "model_score": 1.0,
+      "preference_score": 6.68,
+      "reasons": [
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 494,
+        "protein": 24.3,
+        "fat": 16,
+        "carbs": 63.3,
+        "vegetable_weight": 84,
+        "fiber": 0
+      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 587,
-    "total_protein": 30.3,
-    "total_fat": 12.3,
-    "total_carbs": 86.0,
-    "average_energy": 146.8,
-    "average_protein": 7.6
+    "total_energy": 2236,
+    "total_protein": 88.1,
+    "total_fat": 98.4,
+    "total_carbs": 237.7,
+    "average_energy": 559.0,
+    "average_protein": 22.0
   },
   "pfc_ratio": {
-    "protein": 20.6,
-    "fat": 18.9,
-    "carbs": 58.6
+    "protein": 15.8,
+    "fat": 39.6,
+    "carbs": 42.5
   },
   "recommendation_count": 4
 }

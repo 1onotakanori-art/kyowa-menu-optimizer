@@ -1,47 +1,57 @@
 {
   "date": "2026-02-02",
-  "generated_at": "2026-02-02T08:45:11.769821",
+  "generated_at": "2026-02-02T08:51:08.759433",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "ライス（S)はバランス良好 / ミニ春巻の7種野菜あんかけは野菜たっぷり / ゆず塩だれのおろしハンバーグは野菜たっぷり / 旨味たっぷりハッシュドビーフ風コロッケはバランス良好 / 全体: 全体で高スコア維持",
+  "set_reason": "ひき肉ともやしのピリ辛炒めは野菜たっぷり / 好みに合致 / 旨味たっぷりトマトチキンソテーはタンパク質豊富 / ボリューム満点 / 好みに合致 / ゆず塩だれのおろしハンバーグは野菜たっぷり / 好みに合致 / 三元豚ロース豚カツ使用　できたてカツ丼はタンパク質豊富 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "ひき肉ともやしのピリ辛炒め",
+      "score": 1.158,
+      "model_score": 1.0,
+      "preference_score": 7.67,
       "reasons": [
-        "バランス良好"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 208,
+        "protein": 12.7,
+        "fat": 11.4,
+        "carbs": 13.1,
+        "vegetable_weight": 154,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ミニ春巻の7種野菜あんかけ",
-      "score": 1.0,
+      "name": "旨味たっぷりトマトチキンソテー",
+      "score": 1.141,
+      "model_score": 1.0,
+      "preference_score": 7.45,
       "reasons": [
-        "野菜たっぷり"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 230,
-        "protein": 5.3,
-        "fat": 10.3,
-        "carbs": 29.3,
-        "vegetable_weight": 113,
+        "energy": 613,
+        "protein": 24,
+        "fat": 20,
+        "carbs": 80.5,
+        "vegetable_weight": 109,
         "fiber": 0
       }
     },
     {
       "rank": 3,
       "name": "ゆず塩だれのおろしハンバーグ",
-      "score": 1.0,
+      "score": 1.057,
+      "model_score": 1.0,
+      "preference_score": 6.28,
       "reasons": [
-        "野菜たっぷり"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 311,
@@ -54,33 +64,37 @@
     },
     {
       "rank": 4,
-      "name": "旨味たっぷりハッシュドビーフ風コロッケ",
-      "score": 1.0,
+      "name": "三元豚ロース豚カツ使用　できたてカツ丼",
+      "score": 1.013,
+      "model_score": 1.0,
+      "preference_score": 5.68,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 210,
-        "protein": 4.4,
-        "fat": 10.5,
-        "carbs": 24.4,
-        "vegetable_weight": 32,
+        "energy": 788,
+        "protein": 31.9,
+        "fat": 25.1,
+        "carbs": 103.7,
+        "vegetable_weight": 21,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1002,
-    "total_protein": 28.8,
-    "total_fat": 37.5,
-    "total_carbs": 134.5,
-    "average_energy": 250.5,
-    "average_protein": 7.2
+    "total_energy": 1920,
+    "total_protein": 83.4,
+    "total_fat": 72.6,
+    "total_carbs": 223.8,
+    "average_energy": 480.0,
+    "average_protein": 20.9
   },
   "pfc_ratio": {
-    "protein": 11.5,
-    "fat": 33.7,
-    "carbs": 53.7
+    "protein": 17.4,
+    "fat": 34.0,
+    "carbs": 46.6
   },
   "recommendation_count": 4
 }

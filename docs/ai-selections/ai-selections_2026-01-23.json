@@ -1,86 +1,101 @@
 {
   "date": "2026-01-23",
-  "generated_at": "2026-02-02T08:45:11.449434",
+  "generated_at": "2026-02-02T08:51:08.127400",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "鶏肉と大根の塩麹煮は低カロリー / ライス（S)はバランス良好 / 白身魚のバジル風味焼はバランス良好 / 関東風おでんは野菜たっぷり / 全体: 全体で高スコア維持",
+  "set_reason": "手作り大豆ハンバーグはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豚バラとニラ野菜炒めは野菜たっぷり / 好みに合致 / とろーりチーズのイタリアンカツ丼はタンパク質豊富 / ボリューム満点 / 好みに合致 / 野菜たっぷりトマト酸辣湯麺(サンラータン麺)は良好なタンパク質 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "鶏肉と大根の塩麹煮",
-      "score": 1.0,
+      "name": "手作り大豆ハンバーグ",
+      "score": 1.442,
+      "model_score": 1.0,
+      "preference_score": 11.57,
       "reasons": [
-        "低カロリー"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 46,
-        "protein": 3.7,
-        "fat": 1,
-        "carbs": 5.5,
-        "vegetable_weight": 69,
+        "energy": 583,
+        "protein": 25.6,
+        "fat": 11.6,
+        "carbs": 95.4,
+        "vegetable_weight": 229,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "豚バラとニラ野菜炒め",
+      "score": 1.147,
+      "model_score": 1.0,
+      "preference_score": 7.52,
       "reasons": [
-        "バランス良好"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 228,
+        "protein": 10.5,
+        "fat": 16.6,
+        "carbs": 9.1,
+        "vegetable_weight": 163,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "白身魚のバジル風味焼",
-      "score": 1.0,
+      "name": "とろーりチーズのイタリアンカツ丼",
+      "score": 1.126,
+      "model_score": 1.0,
+      "preference_score": 7.23,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 164,
-        "protein": 13.5,
-        "fat": 4.4,
-        "carbs": 17.2,
-        "vegetable_weight": 0,
+        "energy": 696,
+        "protein": 22.1,
+        "fat": 19.2,
+        "carbs": 105.8,
+        "vegetable_weight": 111,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "関東風おでん",
-      "score": 1.0,
+      "name": "野菜たっぷりトマト酸辣湯麺(サンラータン麺)",
+      "score": 1.111,
+      "model_score": 1.0,
+      "preference_score": 7.03,
       "reasons": [
-        "野菜たっぷり"
+        "良好なタンパク質",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 158,
-        "protein": 10.1,
-        "fat": 6.5,
-        "carbs": 13.6,
-        "vegetable_weight": 85,
+        "energy": 406,
+        "protein": 16.8,
+        "fat": 7,
+        "carbs": 70.3,
+        "vegetable_weight": 129,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 619,
-    "total_protein": 31.6,
-    "total_fat": 12.5,
-    "total_carbs": 90.6,
-    "average_energy": 154.8,
-    "average_protein": 7.9
+    "total_energy": 1913,
+    "total_protein": 75.0,
+    "total_fat": 54.4,
+    "total_carbs": 280.6,
+    "average_energy": 478.2,
+    "average_protein": 18.8
   },
   "pfc_ratio": {
-    "protein": 20.4,
-    "fat": 18.2,
-    "carbs": 58.5
+    "protein": 15.7,
+    "fat": 25.6,
+    "carbs": 58.7
   },
   "recommendation_count": 4
 }

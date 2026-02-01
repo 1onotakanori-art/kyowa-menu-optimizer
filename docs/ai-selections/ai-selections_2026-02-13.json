@@ -1,64 +1,79 @@
 {
   "date": "2026-02-13",
-  "generated_at": "2026-02-02T08:45:12.127887",
+  "generated_at": "2026-02-02T08:51:09.499317",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "鶏肉と大根の塩麹煮は低カロリー / ライス（S)はバランス良好 / さわらの味噌マヨ焼きはバランス良好 / 焼肉のたれで濃厚あんかけ焼きそばは良好なタンパク質 / ボリューム満点 / 全体: 全体で高スコア維持",
+  "set_reason": "チーズハンバーグオムライス・デミグラスソースはタンパク質豊富 / ボリューム満点 / 好みに合致 / 白身魚としめじの蒸し物　ぽん酢だれはタンパク質豊富 / ボリューム満点 / 好みに合致 / 五目たんめんはタンパク質豊富 / ボリューム満点 / 好みに合致 / 焼肉のたれで濃厚あんかけ焼きそばは良好なタンパク質 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "鶏肉と大根の塩麹煮",
-      "score": 1.0,
+      "name": "チーズハンバーグオムライス・デミグラスソース",
+      "score": 1.247,
+      "model_score": 1.0,
+      "preference_score": 8.89,
       "reasons": [
-        "低カロリー"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 46,
-        "protein": 3.7,
-        "fat": 1,
-        "carbs": 5.5,
-        "vegetable_weight": 69,
+        "energy": 841,
+        "protein": 32.9,
+        "fat": 34.5,
+        "carbs": 94.5,
+        "vegetable_weight": 113,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "白身魚としめじの蒸し物　ぽん酢だれ",
+      "score": 1.107,
+      "model_score": 1.0,
+      "preference_score": 6.97,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 523,
+        "protein": 21.2,
+        "fat": 11.1,
+        "carbs": 83.6,
+        "vegetable_weight": 107,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "さわらの味噌マヨ焼き",
-      "score": 1.0,
+      "name": "五目たんめん",
+      "score": 1.098,
+      "model_score": 1.0,
+      "preference_score": 6.85,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 306,
-        "protein": 12.8,
-        "fat": 25.4,
-        "carbs": 4.8,
-        "vegetable_weight": 11,
+        "energy": 460,
+        "protein": 22.6,
+        "fat": 14.3,
+        "carbs": 60.7,
+        "vegetable_weight": 97,
         "fiber": 0
       }
     },
     {
       "rank": 4,
       "name": "焼肉のたれで濃厚あんかけ焼きそば",
-      "score": 1.0,
+      "score": 1.03,
+      "model_score": 1.0,
+      "preference_score": 5.92,
       "reasons": [
         "良好なタンパク質",
-        "ボリューム満点"
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 519,
@@ -71,17 +86,17 @@
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1122,
-    "total_protein": 37.1,
-    "total_fat": 37.8,
-    "total_carbs": 149.6,
-    "average_energy": 280.5,
-    "average_protein": 9.3
+    "total_energy": 2343,
+    "total_protein": 93.0,
+    "total_fat": 70.7,
+    "total_carbs": 323.8,
+    "average_energy": 585.8,
+    "average_protein": 23.2
   },
   "pfc_ratio": {
-    "protein": 13.2,
-    "fat": 30.3,
-    "carbs": 53.3
+    "protein": 15.9,
+    "fat": 27.2,
+    "carbs": 55.3
   },
   "recommendation_count": 4
 }

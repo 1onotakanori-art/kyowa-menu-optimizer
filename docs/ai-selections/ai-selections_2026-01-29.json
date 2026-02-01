@@ -1,47 +1,78 @@
 {
   "date": "2026-01-29",
-  "generated_at": "2026-02-02T08:45:11.662507",
+  "generated_at": "2026-02-02T08:51:08.539183",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / ライス（S)はバランス良好 / ホキのムニエル　ガーリックバターソースはバランス良好 / 自家製！麻婆豆腐は良好なタンパク質 / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豚肉のアップルジンジャー炒めは良好なタンパク質 / 野菜たっぷり / 好みに合致 / ベーコンと野菜の和風コンソメスープは低カロリー / 野菜たっぷり / 好みに合致 / ホキのムニエル　ガーリックバターソースはバランス良好 / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
-      "score": 1.0,
+      "name": "バランスＢＯＸ",
+      "score": 1.23,
+      "model_score": 1.0,
+      "preference_score": 8.66,
       "reasons": [
-        "低カロリー"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 83,
-        "protein": 10.9,
-        "fat": 3.2,
-        "carbs": 2.7,
-        "vegetable_weight": 40,
+        "energy": 640,
+        "protein": 26.5,
+        "fat": 22.8,
+        "carbs": 78.6,
+        "vegetable_weight": 135,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "豚肉のアップルジンジャー炒め",
+      "score": 1.031,
+      "model_score": 1.0,
+      "preference_score": 5.93,
       "reasons": [
-        "バランス良好"
+        "良好なタンパク質",
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 254,
+        "protein": 16,
+        "fat": 14.7,
+        "carbs": 11.7,
+        "vegetable_weight": 93,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "ホキのムニエル　ガーリックバターソース",
-      "score": 1.0,
+      "name": "ベーコンと野菜の和風コンソメスープ",
+      "score": 1.027,
+      "model_score": 1.0,
+      "preference_score": 5.87,
       "reasons": [
-        "バランス良好"
+        "低カロリー",
+        "野菜たっぷり",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 56,
+        "protein": 2.7,
+        "fat": 1,
+        "carbs": 10.1,
+        "vegetable_weight": 117,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "ホキのムニエル　ガーリックバターソース",
+      "score": 0.995,
+      "model_score": 1.0,
+      "preference_score": 5.42,
+      "reasons": [
+        "バランス良好",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 143,
@@ -51,36 +82,20 @@
         "vegetable_weight": 64,
         "fiber": 0
       }
-    },
-    {
-      "rank": 4,
-      "name": "自家製！麻婆豆腐",
-      "score": 1.0,
-      "reasons": [
-        "良好なタンパク質"
-      ],
-      "nutrition": {
-        "energy": 324,
-        "protein": 19.8,
-        "fat": 18.7,
-        "carbs": 15.6,
-        "vegetable_weight": 15,
-        "fiber": 0
-      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 801,
-    "total_protein": 49.8,
-    "total_fat": 28.0,
-    "total_carbs": 80.8,
-    "average_energy": 200.2,
-    "average_protein": 12.4
+    "total_energy": 1093,
+    "total_protein": 60.0,
+    "total_fat": 44.0,
+    "total_carbs": 108.6,
+    "average_energy": 273.2,
+    "average_protein": 15.0
   },
   "pfc_ratio": {
-    "protein": 24.9,
-    "fat": 31.5,
-    "carbs": 40.3
+    "protein": 22.0,
+    "fat": 36.2,
+    "carbs": 39.7
   },
   "recommendation_count": 4
 }

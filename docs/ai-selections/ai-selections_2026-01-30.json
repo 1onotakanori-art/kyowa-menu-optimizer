@@ -1,47 +1,78 @@
 {
   "date": "2026-01-30",
-  "generated_at": "2026-02-02T08:45:11.713768",
+  "generated_at": "2026-02-02T08:51:08.641034",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "ライス（S)はバランス良好 / さわらのごまみそ焼きはバランス良好 / 地鶏塩ちゃんこ鍋は野菜たっぷり / ピリ辛☆チキン唐揚げは良好なタンパク質 / 全体: 全体で高スコア維持",
+  "set_reason": "汁なし担々やきそばはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豚サラダ丼わさびダレかけは良好なタンパク質 / ボリューム満点 / 好みに合致 / 焼豚玉子飯(やきぶたたまごめし)はタンパク質豊富 / ボリューム満点 / 好みに合致 / 地鶏塩ちゃんこ鍋は野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "汁なし担々やきそば",
+      "score": 1.247,
+      "model_score": 1.0,
+      "preference_score": 8.9,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 510,
+        "protein": 22,
+        "fat": 15.1,
+        "carbs": 69.9,
+        "vegetable_weight": 163,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "さわらのごまみそ焼き",
-      "score": 1.0,
+      "name": "豚サラダ丼わさびダレかけ",
+      "score": 1.148,
+      "model_score": 1.0,
+      "preference_score": 7.54,
       "reasons": [
-        "バランス良好"
+        "良好なタンパク質",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 149,
-        "protein": 13.6,
-        "fat": 7.4,
-        "carbs": 5.2,
-        "vegetable_weight": 0,
+        "energy": 569,
+        "protein": 17.4,
+        "fat": 11.3,
+        "carbs": 94.7,
+        "vegetable_weight": 142,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "地鶏塩ちゃんこ鍋",
-      "score": 1.0,
+      "name": "焼豚玉子飯(やきぶたたまごめし)",
+      "score": 1.058,
+      "model_score": 1.0,
+      "preference_score": 6.3,
       "reasons": [
-        "野菜たっぷり"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 993,
+        "protein": 36.1,
+        "fat": 49.5,
+        "carbs": 89.5,
+        "vegetable_weight": 2,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "地鶏塩ちゃんこ鍋",
+      "score": 1.035,
+      "model_score": 1.0,
+      "preference_score": 5.98,
+      "reasons": [
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 190,
@@ -51,36 +82,20 @@
         "vegetable_weight": 139,
         "fiber": 0
       }
-    },
-    {
-      "rank": 4,
-      "name": "ピリ辛☆チキン唐揚げ",
-      "score": 1.0,
-      "reasons": [
-        "良好なタンパク質"
-      ],
-      "nutrition": {
-        "energy": 347,
-        "protein": 19.5,
-        "fat": 19,
-        "carbs": 21.4,
-        "vegetable_weight": 36,
-        "fiber": 0
-      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 937,
-    "total_protein": 46.7,
-    "total_fat": 32.3,
-    "total_carbs": 107.8,
-    "average_energy": 234.2,
-    "average_protein": 11.7
+    "total_energy": 2262,
+    "total_protein": 84.8,
+    "total_fat": 81.2,
+    "total_carbs": 281.0,
+    "average_energy": 565.5,
+    "average_protein": 21.2
   },
   "pfc_ratio": {
-    "protein": 19.9,
-    "fat": 31.0,
-    "carbs": 46.0
+    "protein": 15.0,
+    "fat": 32.3,
+    "carbs": 49.7
   },
   "recommendation_count": 4
 }

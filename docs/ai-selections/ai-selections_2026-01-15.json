@@ -1,63 +1,78 @@
 {
   "date": "2026-01-15",
-  "generated_at": "2026-02-02T08:45:11.126214",
+  "generated_at": "2026-02-02T08:51:07.548473",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / ライス（S)はバランス良好 / あじの香味焼きは良好なタンパク質 / 蓮根たっぷりプルコギ風炒めは野菜たっぷり / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 宮崎の郷土料理☆チキン南蛮はタンパク質豊富 / ボリューム満点 / 好みに合致 / キムリタンはタンパク質豊富 / ボリューム満点 / 好みに合致 / 蓮根たっぷりプルコギ風炒めは野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
-      "score": 1.0,
+      "name": "バランスＢＯＸ",
+      "score": 1.23,
+      "model_score": 1.0,
+      "preference_score": 8.66,
       "reasons": [
-        "低カロリー"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 83,
-        "protein": 10.9,
-        "fat": 3.2,
-        "carbs": 2.7,
-        "vegetable_weight": 40,
+        "energy": 640,
+        "protein": 26.5,
+        "fat": 22.8,
+        "carbs": 78.6,
+        "vegetable_weight": 135,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "宮崎の郷土料理☆チキン南蛮",
+      "score": 1.143,
+      "model_score": 1.0,
+      "preference_score": 7.47,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 591,
+        "protein": 30.5,
+        "fat": 36,
+        "carbs": 34.1,
+        "vegetable_weight": 80,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "あじの香味焼き",
-      "score": 1.0,
+      "name": "キムリタン",
+      "score": 1.125,
+      "model_score": 1.0,
+      "preference_score": 7.22,
       "reasons": [
-        "良好なタンパク質"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 124,
-        "protein": 16.4,
-        "fat": 4.6,
-        "carbs": 3.2,
-        "vegetable_weight": 12,
+        "energy": 553,
+        "protein": 22.5,
+        "fat": 16.8,
+        "carbs": 77.1,
+        "vegetable_weight": 109,
         "fiber": 0
       }
     },
     {
       "rank": 4,
       "name": "蓮根たっぷりプルコギ風炒め",
-      "score": 1.0,
+      "score": 0.994,
+      "model_score": 1.0,
+      "preference_score": 5.42,
       "reasons": [
-        "野菜たっぷり"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 264,
@@ -70,17 +85,17 @@
     }
   ],
   "nutrition_summary": {
-    "total_energy": 722,
-    "total_protein": 39.2,
-    "total_fat": 23.1,
-    "total_carbs": 85.1,
-    "average_energy": 180.5,
-    "average_protein": 9.8
+    "total_energy": 2048,
+    "total_protein": 87.1,
+    "total_fat": 90.3,
+    "total_carbs": 214.7,
+    "average_energy": 512.0,
+    "average_protein": 21.8
   },
   "pfc_ratio": {
-    "protein": 21.7,
-    "fat": 28.8,
-    "carbs": 47.1
+    "protein": 17.0,
+    "fat": 39.7,
+    "carbs": 41.9
   },
   "recommendation_count": 4
 }

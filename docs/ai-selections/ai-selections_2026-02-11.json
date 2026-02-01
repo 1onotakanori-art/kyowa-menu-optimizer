@@ -1,87 +1,101 @@
 {
   "date": "2026-02-11",
-  "generated_at": "2026-02-02T08:45:11.975336",
+  "generated_at": "2026-02-02T08:51:09.220251",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "ライス（S)はバランス良好 / 白身魚のタルタルソース焼はバランス良好 / 四川風黒麻婆豆腐はタンパク質豊富 / ボリューム満点 / 鶏ムネ肉のガーリック風味フライはタンパク質豊富 / 全体: 全体で高スコア維持",
+  "set_reason": "れんこんの和風ハンバーグはタンパク質豊富 / ボリューム満点 / 好みに合致 / 赤ウインナーとキャベツのトマト炒めは野菜たっぷり / 好みに合致 / 冬キャベツと豚肉のラグーは良好なタンパク質 / 野菜たっぷり / 好みに合致 / 味噌ラーメン＆ミニチャーハンセットはタンパク質豊富 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "れんこんの和風ハンバーグ",
+      "score": 1.289,
+      "model_score": 1.0,
+      "preference_score": 9.48,
       "reasons": [
-        "バランス良好"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 568,
+        "protein": 22.4,
+        "fat": 13.4,
+        "carbs": 88.6,
+        "vegetable_weight": 179,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "白身魚のタルタルソース焼",
-      "score": 1.0,
+      "name": "赤ウインナーとキャベツのトマト炒め",
+      "score": 1.176,
+      "model_score": 1.0,
+      "preference_score": 7.92,
       "reasons": [
-        "バランス良好"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 277,
-        "protein": 11.4,
-        "fat": 23.7,
-        "carbs": 3.9,
-        "vegetable_weight": 24,
+        "energy": 176,
+        "protein": 6.7,
+        "fat": 7.7,
+        "carbs": 20.9,
+        "vegetable_weight": 191,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "四川風黒麻婆豆腐",
-      "score": 1.0,
+      "name": "冬キャベツと豚肉のラグー",
+      "score": 1.151,
+      "model_score": 1.0,
+      "preference_score": 7.58,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点"
+        "良好なタンパク質",
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 390,
-        "protein": 22.2,
-        "fat": 23.4,
-        "carbs": 22.1,
-        "vegetable_weight": 42,
+        "energy": 268,
+        "protein": 16.3,
+        "fat": 17.2,
+        "carbs": 10.2,
+        "vegetable_weight": 145,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "鶏ムネ肉のガーリック風味フライ",
-      "score": 1.0,
+      "name": "味噌ラーメン＆ミニチャーハンセット",
+      "score": 1.031,
+      "model_score": 1.0,
+      "preference_score": 5.93,
       "reasons": [
-        "タンパク質豊富"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 337,
-        "protein": 23.7,
-        "fat": 11.7,
-        "carbs": 32.3,
-        "vegetable_weight": 59,
+        "energy": 689,
+        "protein": 23.6,
+        "fat": 18,
+        "carbs": 106.1,
+        "vegetable_weight": 64,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1255,
-    "total_protein": 61.6,
-    "total_fat": 59.4,
-    "total_carbs": 112.6,
-    "average_energy": 313.8,
-    "average_protein": 15.4
+    "total_energy": 1701,
+    "total_protein": 69.0,
+    "total_fat": 56.3,
+    "total_carbs": 225.8,
+    "average_energy": 425.2,
+    "average_protein": 17.2
   },
   "pfc_ratio": {
-    "protein": 19.6,
-    "fat": 42.6,
-    "carbs": 35.9
+    "protein": 16.2,
+    "fat": 29.8,
+    "carbs": 53.1
   },
   "recommendation_count": 4
 }

@@ -25,6 +25,177 @@ def get_menu_nutrition(menu_name, menus_dir):
                     return menu.get('nutrition', {})
     return {}
 
+def analyze_user_preferences():
+    """
+    ユーザーの選択履歴を分析して好みのプロファイルを作成
+    """
+    history_dir = Path.home() / 'Apps' / 'kyowa-menu-history' / 'data' / 'history'
+    menus_dir = Path(__file__).parent.parent / 'menus'
+    
+    if not history_dir.exists():
+        print(f"⚠️ 履歴ディレクトリが見つかりません: {history_dir}")
+        return None
+    
+    # 履歴データを収集
+    selected_menus_nutrition = []
+    history_files = sorted(history_dir.glob('*.json'))
+    
+    for history_file in history_files:
+        with open(history_file, 'r', encoding='utf-8') as f:
+            history_data = json.load(f)
+            selected_menus = history_data.get('selectedMenus', [])
+            
+            for menu_item in selected_menus:
+                # 履歴ファイル内に栄養情報が含まれている場合はそれを使用
+                if isinstance(menu_item, dict) and 'nutrition' in menu_item:
+                    nutrition = menu_item.get('nutrition', {})
+                    menu_name = menu_item.get('name', '')
+                else:
+                    # 文字列の場合はメニューファイルから検索
+                    menu_name = menu_item if isinstance(menu_item, str) else menu_item.get('name', '')
+                    nutrition = get_menu_nutrition(menu_name, menus_dir)
+                
+                if nutrition:
+                    selected_menus_nutrition.append({
+                        'name': menu_name,
+                        'energy': float(nutrition.get('エネルギー', 0)),
+                        'protein': float(nutrition.get('たんぱく質', 0)),
+                        'fat': float(nutrition.get('脂質', 0)),
+                        'carbs': float(nutrition.get('炭水化物', 0)),
+                        'vegetables': float(nutrition.get('野菜重量', 0)),
+                        'fiber': float(nutrition.get('食物繊維', 0))
+                    })
+    
+    if not selected_menus_nutrition:
+        print("⚠️ 選択履歴が見つかりません")
+        return None
+    
+    # 統計を計算
+    energies = [m['energy'] for m in selected_menus_nutrition]
+    proteins = [m['protein'] for m in selected_menus_nutrition]
+    fats = [m['fat'] for m in selected_menus_nutrition]
+    carbs = [m['carbs'] for m in selected_menus_nutrition]
+    vegetables = [m['vegetables'] for m in selected_menus_nutrition]
+    fibers = [m['fiber'] for m in selected_menus_nutrition]
+    
+    preferences = {
+        'total_selections': len(selected_menus_nutrition),
+        'energy': {
+            'mean': np.mean(energies),
+            'median': np.median(energies),
+            'std': np.std(energies),
+            'min': np.min(energies),
+            'max': np.max(energies)
+        },
+        'protein': {
+            'mean': np.mean(proteins),
+            'median': np.median(proteins),
+            'std': np.std(proteins),
+            'min': np.min(proteins),
+            'max': np.max(proteins)
+        },
+        'fat': {
+            'mean': np.mean(fats),
+            'median': np.median(fats),
+            'std': np.std(fats),
+            'min': np.min(fats),
+            'max': np.max(fats)
+        },
+        'carbs': {
+            'mean': np.mean(carbs),
+            'median': np.median(carbs),
+            'std': np.std(carbs),
+            'min': np.min(carbs),
+            'max': np.max(carbs)
+        },
+        'vegetables': {
+            'mean': np.mean(vegetables),
+            'median': np.median(vegetables),
+            'std': np.std(vegetables),
+            'min': np.min(vegetables),
+            'max': np.max(vegetables)
+        },
+        'fiber': {
+            'mean': np.mean(fibers),
+            'median': np.median(fibers),
+            'std': np.std(fibers),
+            'min': np.min(fibers),
+            'max': np.max(fibers)
+        }
+    }
+    
+    print("\n" + "="*70)
+    print("👤 ユーザー選択傾向の分析結果")
+    print("="*70)
+    print(f"📊 総選択回数: {preferences['total_selections']}回")
+    print(f"\n【エネルギー】")
+    print(f"  平均: {preferences['energy']['mean']:.1f} kcal (中央値: {preferences['energy']['median']:.1f})")
+    print(f"  範囲: {preferences['energy']['min']:.0f} ~ {preferences['energy']['max']:.0f} kcal")
+    print(f"\n【タンパク質】")
+    print(f"  平均: {preferences['protein']['mean']:.1f} g (中央値: {preferences['protein']['median']:.1f})")
+    print(f"  範囲: {preferences['protein']['min']:.1f} ~ {preferences['protein']['max']:.1f} g")
+    print(f"\n【脂質】")
+    print(f"  平均: {preferences['fat']['mean']:.1f} g (中央値: {preferences['fat']['median']:.1f})")
+    print(f"  範囲: {preferences['fat']['min']:.1f} ~ {preferences['fat']['max']:.1f} g")
+    print(f"\n【野菜重量】")
+    print(f"  平均: {preferences['vegetables']['mean']:.1f} g (中央値: {preferences['vegetables']['median']:.1f})")
+    print(f"  範囲: {preferences['vegetables']['min']:.0f} ~ {preferences['vegetables']['max']:.0f} g")
+    print("="*70 + "\n")
+    
+    return preferences
+
+def calculate_preference_score(nutrition, user_preferences):
+    """
+    メニューの栄養値とユーザーの好みプロファイルから好みスコアを計算
+    """
+    if not user_preferences:
+        return 0.0
+    
+    score = 0.0
+    weights = {
+        'protein': 1.5,      # タンパク質重視
+        'vegetables': 2.0,   # 野菜重視
+        'fat': 1.2,          # 脂質は控えめを好む
+        'energy': 0.8        # エネルギーは中程度
+    }
+    
+    try:
+        # タンパク質: 平均より多いほど高スコア
+        protein = float(nutrition.get('たんぱく質', 0))
+        protein_mean = user_preferences['protein']['mean']
+        if protein >= protein_mean:
+            score += weights['protein'] * (protein / protein_mean)
+        else:
+            score += weights['protein'] * 0.5
+        
+        # 野菜: 平均より多いほど高スコア
+        vegetables = float(nutrition.get('野菜重量', 0))
+        veg_mean = user_preferences['vegetables']['mean']
+        if vegetables >= veg_mean:
+            score += weights['vegetables'] * (vegetables / (veg_mean + 1))
+        else:
+            score += weights['vegetables'] * 0.3
+        
+        # 脂質: 平均より少ないほど高スコア（逆転）
+        fat = float(nutrition.get('脂質', 0))
+        fat_mean = user_preferences['fat']['mean']
+        if fat <= fat_mean:
+            score += weights['fat'] * (1.0 - fat / (fat_mean + 1))
+        else:
+            score += weights['fat'] * 0.3
+        
+        # エネルギー: 中央値に近いほど高スコア
+        energy = float(nutrition.get('エネルギー', 0))
+        energy_median = user_preferences['energy']['median']
+        energy_diff = abs(energy - energy_median) / (energy_median + 1)
+        score += weights['energy'] * (1.0 - min(energy_diff, 1.0))
+        
+    except Exception as e:
+        print(f"⚠️ スコア計算エラー: {e}")
+        return 0.0
+    
+    return score
+
 def load_data():
     """訓練時と同じロジックでメニューデータを読み込み"""
     menus_dir = Path(__file__).parent.parent / 'menus'
@@ -91,6 +262,9 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
     print("🔄 データをロード中...\n")
     all_menus, menu_to_idx, idx_to_menu, sequences, all_menu_dicts = load_data()
     num_menus = len(all_menus)
+    
+    # ユーザーの好みプロファイルを分析
+    user_preferences = analyze_user_preferences()
     
     print("📚 メニューエンコーダーを準備中...\n")
     encoder = MenuEncoder()
@@ -181,10 +355,19 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
             # その日に利用可能なメニューのスコアのみを抽出
             daily_scores = []
             for i, menu_idx in enumerate(daily_menu_indices):
-                score = output_probs[0, menu_idx].item()
-                daily_scores.append((menu_idx, daily_menu_names[i], score))
+                model_score = output_probs[0, menu_idx].item()
+                menu_name = daily_menu_names[i]
+                
+                # ユーザーの好みスコアを計算
+                menu_nutrition = daily_menus[i].get('nutrition', {})
+                preference_score = calculate_preference_score(menu_nutrition, user_preferences) if user_preferences else 0.0
+                
+                # 最終スコア = モデルスコア(60%) + 好みスコア(40%)
+                combined_score = 0.6 * model_score + 0.4 * (preference_score / 5.5)  # 正規化
+                
+                daily_scores.append((menu_idx, menu_name, combined_score, model_score, preference_score))
             
-            # スコアでソートしてTop-Kを選択
+            # 最終スコアでソートしてTop-Kを選択
             daily_scores.sort(key=lambda x: x[2], reverse=True)
             top_recommendations = daily_scores[:top_k]
             
@@ -241,14 +424,20 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
             
             # 推奨メニューの詳細を構築
             recommended_menus = []
-            for rank, (menu_idx, menu_name, score) in enumerate(top_recommendations, start=1):
+            for rank, (menu_idx, menu_name, combined_score, model_score, pref_score) in enumerate(top_recommendations, start=1):
                 nutrition = get_menu_nutrition(menu_name, menus_dir)
-                reasons = generate_recommendation_reason(menu_name, score, rank)
+                reasons = generate_recommendation_reason(menu_name, combined_score, rank)
+                
+                # ユーザー好みスコアに基づく理由を追加
+                if user_preferences and pref_score > 4.0:
+                    reasons.append("好みに合致")
                 
                 recommended_menus.append({
                     'rank': rank,
                     'name': menu_name,
-                    'score': round(float(score), 3),
+                    'score': round(float(combined_score), 3),
+                    'model_score': round(float(model_score), 3),
+                    'preference_score': round(float(pref_score), 2),
                     'reasons': reasons,
                     'nutrition': {
                         'energy': nutrition.get('エネルギー', 0),

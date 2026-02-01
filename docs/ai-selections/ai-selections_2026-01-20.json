@@ -1,86 +1,101 @@
 {
   "date": "2026-01-20",
-  "generated_at": "2026-02-02T08:45:11.265174",
+  "generated_at": "2026-02-02T08:51:07.749663",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / ライス（S)はバランス良好 / フカカレーフリッターは良好なタンパク質 / オイスター風味・鶏モモのグリルは良好なタンパク質 / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 鶏とポテトのガリバタ炒めは野菜たっぷり / 好みに合致 / 筑前煮は低カロリー / 野菜たっぷり / 好みに合致 / 竹輪とピーマンのチンジャオロース丼はボリューム満点 / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
-      "score": 1.0,
+      "name": "バランスＢＯＸ",
+      "score": 1.23,
+      "model_score": 1.0,
+      "preference_score": 8.66,
       "reasons": [
-        "低カロリー"
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 83,
-        "protein": 10.9,
-        "fat": 3.2,
-        "carbs": 2.7,
-        "vegetable_weight": 40,
+        "energy": 640,
+        "protein": 26.5,
+        "fat": 22.8,
+        "carbs": 78.6,
+        "vegetable_weight": 135,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "ライス（S)",
-      "score": 1.0,
+      "name": "鶏とポテトのガリバタ炒め",
+      "score": 0.965,
+      "model_score": 1.0,
+      "preference_score": 5.01,
       "reasons": [
-        "バランス良好"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
+        "energy": 220,
+        "protein": 9.5,
+        "fat": 10.1,
+        "carbs": 21.9,
+        "vegetable_weight": 109,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "フカカレーフリッター",
-      "score": 1.0,
+      "name": "筑前煮",
+      "score": 0.957,
+      "model_score": 1.0,
+      "preference_score": 4.91,
       "reasons": [
-        "良好なタンパク質"
+        "低カロリー",
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 255,
-        "protein": 17.7,
-        "fat": 6,
-        "carbs": 32.4,
-        "vegetable_weight": 45,
+        "energy": 48,
+        "protein": 2.6,
+        "fat": 0.5,
+        "carbs": 9.8,
+        "vegetable_weight": 86,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "オイスター風味・鶏モモのグリル",
-      "score": 1.0,
+      "name": "竹輪とピーマンのチンジャオロース丼",
+      "score": 0.925,
+      "model_score": 1.0,
+      "preference_score": 4.47,
       "reasons": [
-        "良好なタンパク質"
+        "ボリューム満点",
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
-        "energy": 270,
-        "protein": 18.1,
-        "fat": 15.4,
-        "carbs": 11,
-        "vegetable_weight": 24,
+        "energy": 493,
+        "protein": 11.1,
+        "fat": 7.1,
+        "carbs": 91.4,
+        "vegetable_weight": 76,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 859,
-    "total_protein": 51.0,
-    "total_fat": 25.2,
-    "total_carbs": 100.4,
-    "average_energy": 214.8,
-    "average_protein": 12.8
+    "total_energy": 1401,
+    "total_protein": 49.7,
+    "total_fat": 40.5,
+    "total_carbs": 201.7,
+    "average_energy": 350.2,
+    "average_protein": 12.4
   },
   "pfc_ratio": {
-    "protein": 23.7,
-    "fat": 26.4,
-    "carbs": 46.8
+    "protein": 14.2,
+    "fat": 26.0,
+    "carbs": 57.6
   },
   "recommendation_count": 4
 }

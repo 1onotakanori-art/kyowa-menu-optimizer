@@ -1,16 +1,78 @@
 {
   "date": "2026-02-12",
-  "generated_at": "2026-02-02T08:45:12.033084",
+  "generated_at": "2026-02-02T08:51:09.341035",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "豚肉とキャベツのスパイシー炒めは低カロリー / 野菜たっぷり / たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / ライス（S)はバランス良好 / 鯖と大根のピリ辛味噌煮は野菜たっぷり / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / ココナッツ香るラクサ風パスタはタンパク質豊富 / ボリューム満点 / 好みに合致 / 塩分控えめ☆レモン風味の豚肉炒めは野菜たっぷり / 好みに合致 / 豚肉とキャベツのスパイシー炒めは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
+      "name": "バランスＢＯＸ",
+      "score": 1.23,
+      "model_score": 1.0,
+      "preference_score": 8.66,
+      "reasons": [
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 640,
+        "protein": 26.5,
+        "fat": 22.8,
+        "carbs": 78.6,
+        "vegetable_weight": 135,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 2,
+      "name": "ココナッツ香るラクサ風パスタ",
+      "score": 1.148,
+      "model_score": 1.0,
+      "preference_score": 7.53,
+      "reasons": [
+        "タンパク質豊富",
+        "ボリューム満点",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 687,
+        "protein": 32.9,
+        "fat": 28.2,
+        "carbs": 77.8,
+        "vegetable_weight": 71,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 3,
+      "name": "塩分控えめ☆レモン風味の豚肉炒め",
+      "score": 1.056,
+      "model_score": 1.0,
+      "preference_score": 6.28,
+      "reasons": [
+        "野菜たっぷり",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 217,
+        "protein": 13.7,
+        "fat": 14.5,
+        "carbs": 6.7,
+        "vegetable_weight": 108,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
       "name": "豚肉とキャベツのスパイシー炒め",
-      "score": 1.0,
+      "score": 1.002,
+      "model_score": 1.0,
+      "preference_score": 5.53,
       "reasons": [
         "低カロリー",
-        "野菜たっぷり"
+        "野菜たっぷり",
+        "好みに合致"
       ],
       "nutrition": {
         "energy": 64,
@@ -20,68 +82,20 @@
         "vegetable_weight": 118,
         "fiber": 0
       }
-    },
-    {
-      "rank": 2,
-      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
-      "score": 1.0,
-      "reasons": [
-        "低カロリー"
-      ],
-      "nutrition": {
-        "energy": 83,
-        "protein": 10.9,
-        "fat": 3.2,
-        "carbs": 2.7,
-        "vegetable_weight": 40,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
-      "name": "ライス（S)",
-      "score": 1.0,
-      "reasons": [
-        "バランス良好"
-      ],
-      "nutrition": {
-        "energy": 251,
-        "protein": 4.3,
-        "fat": 0.6,
-        "carbs": 54.3,
-        "vegetable_weight": 0,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
-      "name": "鯖と大根のピリ辛味噌煮",
-      "score": 1.0,
-      "reasons": [
-        "野菜たっぷり"
-      ],
-      "nutrition": {
-        "energy": 247,
-        "protein": 13.1,
-        "fat": 17.2,
-        "carbs": 12.3,
-        "vegetable_weight": 80,
-        "fiber": 0
-      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 645,
-    "total_protein": 32.0,
-    "total_fat": 24.2,
-    "total_carbs": 75.5,
-    "average_energy": 161.2,
-    "average_protein": 8.0
+    "total_energy": 1608,
+    "total_protein": 76.8,
+    "total_fat": 68.7,
+    "total_carbs": 169.3,
+    "average_energy": 402.0,
+    "average_protein": 19.2
   },
   "pfc_ratio": {
-    "protein": 19.8,
-    "fat": 33.8,
-    "carbs": 46.8
+    "protein": 19.1,
+    "fat": 38.5,
+    "carbs": 42.1
   },
   "recommendation_count": 4
 }
