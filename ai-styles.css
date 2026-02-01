@@ -15,6 +15,20 @@
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.set-total-energy {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6366F1;
+  background: rgba(99, 102, 241, 0.1);
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
 /* セット選定理由 */

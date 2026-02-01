@@ -1,8 +1,8 @@
 {
   "date": "2026-02-13",
-  "generated_at": "2026-02-02T08:51:09.499317",
+  "generated_at": "2026-02-02T08:59:18.843164",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "チーズハンバーグオムライス・デミグラスソースはタンパク質豊富 / ボリューム満点 / 好みに合致 / 白身魚としめじの蒸し物　ぽん酢だれはタンパク質豊富 / ボリューム満点 / 好みに合致 / 五目たんめんはタンパク質豊富 / ボリューム満点 / 好みに合致 / 焼肉のたれで濃厚あんかけ焼きそばは良好なタンパク質 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "チーズハンバーグオムライス・デミグラスソースはタンパク質豊富 / ボリューム満点 / 好みに合致 / 鶏肉と大根の塩麹煮は低カロリー / 好みに合致 / 韓国スープは低カロリー / 野菜たっぷり / 好みに合致 / 10品目サラダ（チーズ）は低カロリー / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,77 +26,74 @@
     },
     {
       "rank": 2,
-      "name": "白身魚としめじの蒸し物　ぽん酢だれ",
-      "score": 1.107,
+      "name": "鶏肉と大根の塩麹煮",
+      "score": 0.952,
       "model_score": 1.0,
-      "preference_score": 6.97,
+      "preference_score": 4.84,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
+        "低カロリー",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 523,
-        "protein": 21.2,
-        "fat": 11.1,
-        "carbs": 83.6,
-        "vegetable_weight": 107,
+        "energy": 46,
+        "protein": 3.7,
+        "fat": 1,
+        "carbs": 5.5,
+        "vegetable_weight": 69,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "五目たんめん",
-      "score": 1.098,
+      "name": "韓国スープ",
+      "score": 0.911,
       "model_score": 1.0,
-      "preference_score": 6.85,
+      "preference_score": 4.28,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
+        "低カロリー",
+        "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 460,
-        "protein": 22.6,
-        "fat": 14.3,
-        "carbs": 60.7,
-        "vegetable_weight": 97,
+        "energy": 83,
+        "protein": 3.4,
+        "fat": 5.2,
+        "carbs": 6.5,
+        "vegetable_weight": 88,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "焼肉のたれで濃厚あんかけ焼きそば",
-      "score": 1.03,
+      "name": "10品目サラダ（チーズ）",
+      "score": 0.879,
       "model_score": 1.0,
-      "preference_score": 5.92,
+      "preference_score": 3.84,
       "reasons": [
-        "良好なタンパク質",
-        "ボリューム満点",
-        "好みに合致"
+        "低カロリー"
       ],
       "nutrition": {
-        "energy": 519,
-        "protein": 16.3,
-        "fat": 10.8,
-        "carbs": 85,
-        "vegetable_weight": 97,
+        "energy": 53,
+        "protein": 3.3,
+        "fat": 2.7,
+        "carbs": 4.4,
+        "vegetable_weight": 65,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 2343,
-    "total_protein": 93.0,
-    "total_fat": 70.7,
-    "total_carbs": 323.8,
-    "average_energy": 585.8,
-    "average_protein": 23.2
+    "total_energy": 1023,
+    "total_protein": 43.3,
+    "total_fat": 43.4,
+    "total_carbs": 110.9,
+    "average_energy": 255.8,
+    "average_protein": 10.8
   },
   "pfc_ratio": {
-    "protein": 15.9,
-    "fat": 27.2,
-    "carbs": 55.3
+    "protein": 16.9,
+    "fat": 38.2,
+    "carbs": 43.4
   },
   "recommendation_count": 4
 }

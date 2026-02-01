@@ -1,8 +1,8 @@
 {
   "date": "2026-02-02",
-  "generated_at": "2026-02-02T08:51:08.759433",
+  "generated_at": "2026-02-02T08:59:18.496476",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "ひき肉ともやしのピリ辛炒めは野菜たっぷり / 好みに合致 / 旨味たっぷりトマトチキンソテーはタンパク質豊富 / ボリューム満点 / 好みに合致 / ゆず塩だれのおろしハンバーグは野菜たっぷり / 好みに合致 / 三元豚ロース豚カツ使用　できたてカツ丼はタンパク質豊富 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "ひき肉ともやしのピリ辛炒めは野菜たっぷり / 好みに合致 / 総エネルギー適正 / 塩ラーメンはバランス良好 / 総エネルギー適正 / アスパラと野菜のソテーは低カロリー / 野菜たっぷり / 好みに合致 / 総エネルギー適正 / 豚汁はバランス良好 / 総エネルギー適正 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -12,7 +12,8 @@
       "preference_score": 7.67,
       "reasons": [
         "野菜たっぷり",
-        "好みに合致"
+        "好みに合致",
+        "総エネルギー適正"
       ],
       "nutrition": {
         "energy": 208,
@@ -25,76 +26,76 @@
     },
     {
       "rank": 2,
-      "name": "旨味たっぷりトマトチキンソテー",
-      "score": 1.141,
+      "name": "塩ラーメン",
+      "score": 0.803,
       "model_score": 1.0,
-      "preference_score": 7.45,
+      "preference_score": 2.8,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
+        "バランス良好",
+        "総エネルギー適正"
       ],
       "nutrition": {
-        "energy": 613,
-        "protein": 24,
-        "fat": 20,
-        "carbs": 80.5,
-        "vegetable_weight": 109,
+        "energy": 322,
+        "protein": 11.1,
+        "fat": 3.4,
+        "carbs": 62.8,
+        "vegetable_weight": 37,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "ゆず塩だれのおろしハンバーグ",
-      "score": 1.057,
+      "name": "アスパラと野菜のソテー",
+      "score": 0.974,
       "model_score": 1.0,
-      "preference_score": 6.28,
+      "preference_score": 5.14,
       "reasons": [
+        "低カロリー",
         "野菜たっぷり",
-        "好みに合致"
+        "好みに合致",
+        "総エネルギー適正"
       ],
       "nutrition": {
-        "energy": 311,
-        "protein": 14.8,
-        "fat": 16.1,
-        "carbs": 26.5,
-        "vegetable_weight": 115,
+        "energy": 40,
+        "protein": 2.1,
+        "fat": 0.8,
+        "carbs": 7.1,
+        "vegetable_weight": 96,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "三元豚ロース豚カツ使用　できたてカツ丼",
-      "score": 1.013,
+      "name": "豚汁",
+      "score": 0.881,
       "model_score": 1.0,
-      "preference_score": 5.68,
+      "preference_score": 3.86,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
+        "バランス良好",
+        "総エネルギー適正"
       ],
       "nutrition": {
-        "energy": 788,
-        "protein": 31.9,
-        "fat": 25.1,
-        "carbs": 103.7,
-        "vegetable_weight": 21,
+        "energy": 102,
+        "protein": 6.6,
+        "fat": 4.7,
+        "carbs": 8.8,
+        "vegetable_weight": 69,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1920,
-    "total_protein": 83.4,
-    "total_fat": 72.6,
-    "total_carbs": 223.8,
-    "average_energy": 480.0,
-    "average_protein": 20.9
+    "total_energy": 672,
+    "total_protein": 32.5,
+    "total_fat": 20.3,
+    "total_carbs": 91.8,
+    "average_energy": 168.0,
+    "average_protein": 8.1
   },
   "pfc_ratio": {
-    "protein": 17.4,
-    "fat": 34.0,
-    "carbs": 46.6
+    "protein": 19.3,
+    "fat": 27.2,
+    "carbs": 54.6
   },
   "recommendation_count": 4
 }

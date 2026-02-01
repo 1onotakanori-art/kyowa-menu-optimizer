@@ -1,8 +1,8 @@
 {
   "date": "2026-01-22",
-  "generated_at": "2026-02-02T08:51:07.954232",
+  "generated_at": "2026-02-02T08:59:18.036375",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "海老とアスパラガスのトマトソーススパゲッティは良好なタンパク質 / ボリューム満点 / 好みに合致 / バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豚ホルモンの味噌炒めは野菜たっぷり / 好みに合致 / とろけるチーズとほうれん草のチキンカレーは良好なタンパク質 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "海老とアスパラガスのトマトソーススパゲッティは良好なタンパク質 / ボリューム満点 / 好みに合致 / 豚ホルモンの味噌炒めは野菜たっぷり / 好みに合致 / 花野菜サラダは低カロリー / 野菜たっぷり / 好みに合致 / たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,26 +26,6 @@
     },
     {
       "rank": 2,
-      "name": "バランスＢＯＸ",
-      "score": 1.23,
-      "model_score": 1.0,
-      "preference_score": 8.66,
-      "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 640,
-        "protein": 26.5,
-        "fat": 22.8,
-        "carbs": 78.6,
-        "vegetable_weight": 135,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
       "name": "豚ホルモンの味噌炒め",
       "score": 1.198,
       "model_score": 1.0,
@@ -64,38 +44,56 @@
       }
     },
     {
-      "rank": 4,
-      "name": "とろけるチーズとほうれん草のチキンカレー",
-      "score": 1.033,
+      "rank": 3,
+      "name": "花野菜サラダ",
+      "score": 0.98,
       "model_score": 1.0,
-      "preference_score": 5.95,
+      "preference_score": 5.22,
       "reasons": [
-        "良好なタンパク質",
-        "ボリューム満点",
+        "低カロリー",
+        "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 657,
-        "protein": 16.3,
-        "fat": 20.6,
-        "carbs": 96.4,
-        "vegetable_weight": 98,
+        "energy": 52,
+        "protein": 2.1,
+        "fat": 0.7,
+        "carbs": 10.5,
+        "vegetable_weight": 96,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
+      "score": 0.838,
+      "model_score": 1.0,
+      "preference_score": 3.27,
+      "reasons": [
+        "低カロリー"
+      ],
+      "nutrition": {
+        "energy": 83,
+        "protein": 10.9,
+        "fat": 3.2,
+        "carbs": 2.7,
+        "vegetable_weight": 40,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1945,
-    "total_protein": 75.9,
-    "total_fat": 58.6,
-    "total_carbs": 269.7,
-    "average_energy": 486.2,
-    "average_protein": 19.0
+    "total_energy": 783,
+    "total_protein": 46.1,
+    "total_fat": 19.1,
+    "total_carbs": 107.9,
+    "average_energy": 195.8,
+    "average_protein": 11.5
   },
   "pfc_ratio": {
-    "protein": 15.6,
-    "fat": 27.1,
-    "carbs": 55.5
+    "protein": 23.6,
+    "fat": 22.0,
+    "carbs": 55.1
   },
   "recommendation_count": 4
 }

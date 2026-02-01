@@ -1,8 +1,8 @@
 {
   "date": "2026-01-26",
-  "generated_at": "2026-02-02T08:51:08.217753",
+  "generated_at": "2026-02-02T08:59:18.182788",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "焼肉サラダﾞおろしポン酢かけはタンパク質豊富 / ボリューム満点 / 好みに合致 / 野菜とベーコンのあっさり和風醤油炒めは野菜たっぷり / 好みに合致 / 豚にらチリ丼は良好なタンパク質 / ボリューム満点 / 好みに合致 / 極み関西出汁の稲庭風うどん＆ミニうなぎ丼はタンパク質豊富 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "焼肉サラダﾞおろしポン酢かけはタンパク質豊富 / ボリューム満点 / 好みに合致 / ほうれん草のお浸しは低カロリー / 好みに合致 / 野菜とベーコンのあっさり和風醤油炒めは野菜たっぷり / 好みに合致 / 野菜たっぷり鍋風煮込みは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,6 +26,25 @@
     },
     {
       "rank": 2,
+      "name": "ほうれん草のお浸し",
+      "score": 0.895,
+      "model_score": 1.0,
+      "preference_score": 4.05,
+      "reasons": [
+        "低カロリー",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 17,
+        "protein": 1.5,
+        "fat": 0.2,
+        "carbs": 2.4,
+        "vegetable_weight": 63,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 3,
       "name": "野菜とベーコンのあっさり和風醤油炒め",
       "score": 1.107,
       "model_score": 1.0,
@@ -44,58 +63,38 @@
       }
     },
     {
-      "rank": 3,
-      "name": "豚にらチリ丼",
-      "score": 1.015,
-      "model_score": 1.0,
-      "preference_score": 5.71,
-      "reasons": [
-        "良好なタンパク質",
-        "ボリューム満点",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 560,
-        "protein": 17.1,
-        "fat": 12,
-        "carbs": 90.5,
-        "vegetable_weight": 87,
-        "fiber": 0
-      }
-    },
-    {
       "rank": 4,
-      "name": "極み関西出汁の稲庭風うどん＆ミニうなぎ丼",
-      "score": 0.981,
+      "name": "野菜たっぷり鍋風煮込み",
+      "score": 0.915,
       "model_score": 1.0,
-      "preference_score": 5.24,
+      "preference_score": 4.33,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
+        "低カロリー",
+        "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 803,
-        "protein": 28.9,
-        "fat": 16.7,
-        "carbs": 132.4,
-        "vegetable_weight": 1,
+        "energy": 62,
+        "protein": 4.5,
+        "fat": 2.6,
+        "carbs": 5.4,
+        "vegetable_weight": 78,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 2120,
-    "total_protein": 77.7,
-    "total_fat": 54.3,
-    "total_carbs": 325.0,
-    "average_energy": 530.0,
-    "average_protein": 19.4
+    "total_energy": 836,
+    "total_protein": 37.7,
+    "total_fat": 28.4,
+    "total_carbs": 109.9,
+    "average_energy": 209.0,
+    "average_protein": 9.4
   },
   "pfc_ratio": {
-    "protein": 14.7,
-    "fat": 23.1,
-    "carbs": 61.3
+    "protein": 18.0,
+    "fat": 30.6,
+    "carbs": 52.6
   },
   "recommendation_count": 4
 }

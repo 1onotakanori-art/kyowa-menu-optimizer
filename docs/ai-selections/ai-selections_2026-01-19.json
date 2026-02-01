@@ -1,8 +1,8 @@
 {
   "date": "2026-01-19",
-  "generated_at": "2026-02-02T08:51:07.692653",
+  "generated_at": "2026-02-02T08:59:17.854574",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "白身魚のレモン風味ソースはタンパク質豊富 / ボリューム満点 / 好みに合致 / ハンバーグ和風ステーキソースは野菜たっぷり / 好みに合致 / 白菜とツナのさっと煮は低カロリー / 野菜たっぷり / 好みに合致 / 揚げ南瓜とピーナッツの甘辛煮は野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "白身魚のレモン風味ソースはタンパク質豊富 / ボリューム満点 / 好みに合致 / 揚げ南瓜とピーナッツの甘辛煮は野菜たっぷり / 好みに合致 / 韓国スープは低カロリー / 野菜たっぷり / 好みに合致 / 白菜とツナのさっと煮は低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,25 +26,45 @@
     },
     {
       "rank": 2,
-      "name": "ハンバーグ和風ステーキソース",
-      "score": 0.965,
+      "name": "揚げ南瓜とピーナッツの甘辛煮",
+      "score": 0.942,
       "model_score": 1.0,
-      "preference_score": 5.01,
+      "preference_score": 4.71,
       "reasons": [
         "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 280,
-        "protein": 14.1,
-        "fat": 15.3,
-        "carbs": 21.6,
-        "vegetable_weight": 78,
+        "energy": 132,
+        "protein": 3,
+        "fat": 3.7,
+        "carbs": 22.6,
+        "vegetable_weight": 84,
         "fiber": 0
       }
     },
     {
       "rank": 3,
+      "name": "韓国スープ",
+      "score": 0.911,
+      "model_score": 1.0,
+      "preference_score": 4.28,
+      "reasons": [
+        "低カロリー",
+        "野菜たっぷり",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 83,
+        "protein": 3.4,
+        "fat": 5.2,
+        "carbs": 6.5,
+        "vegetable_weight": 88,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
       "name": "白菜とツナのさっと煮",
       "score": 0.957,
       "model_score": 1.0,
@@ -62,39 +82,20 @@
         "vegetable_weight": 90,
         "fiber": 0
       }
-    },
-    {
-      "rank": 4,
-      "name": "揚げ南瓜とピーナッツの甘辛煮",
-      "score": 0.942,
-      "model_score": 1.0,
-      "preference_score": 4.71,
-      "reasons": [
-        "野菜たっぷり",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 132,
-        "protein": 3,
-        "fat": 3.7,
-        "carbs": 22.6,
-        "vegetable_weight": 84,
-        "fiber": 0
-      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1004,
-    "total_protein": 45.0,
-    "total_fat": 34.4,
-    "total_carbs": 129.4,
-    "average_energy": 251.0,
-    "average_protein": 11.2
+    "total_energy": 807,
+    "total_protein": 34.3,
+    "total_fat": 24.3,
+    "total_carbs": 114.3,
+    "average_energy": 201.8,
+    "average_protein": 8.6
   },
   "pfc_ratio": {
-    "protein": 17.9,
-    "fat": 30.8,
-    "carbs": 51.6
+    "protein": 17.0,
+    "fat": 27.1,
+    "carbs": 56.7
   },
   "recommendation_count": 4
 }

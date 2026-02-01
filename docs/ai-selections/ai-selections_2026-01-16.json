@@ -1,8 +1,8 @@
 {
   "date": "2026-01-16",
-  "generated_at": "2026-02-02T08:51:07.595012",
+  "generated_at": "2026-02-02T08:59:17.776177",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "白身魚と野菜の味噌バターホイル焼きはタンパク質豊富 / ボリューム満点 / 好みに合致 / ポークシチューはタンパク質豊富 / ボリューム満点 / 好みに合致 / 野菜と豚肉のキムチ炒めは野菜たっぷり / 好みに合致 / 豚バラとキャベツの塩もつ鍋風は野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "白身魚と野菜の味噌バターホイル焼きはタンパク質豊富 / ボリューム満点 / 好みに合致 / 根菜とがんもの煮付けは低カロリー / 野菜たっぷり / 好みに合致 / 5品目野菜とトマトのミネストローネは低カロリー / 野菜たっぷり / 好みに合致 / 野菜と豚肉のキムチ炒めは野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,26 +26,46 @@
     },
     {
       "rank": 2,
-      "name": "ポークシチュー",
-      "score": 1.203,
+      "name": "根菜とがんもの煮付け",
+      "score": 0.921,
       "model_score": 1.0,
-      "preference_score": 8.29,
+      "preference_score": 4.41,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
+        "低カロリー",
+        "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 649,
-        "protein": 31,
-        "fat": 37.1,
-        "carbs": 43.5,
-        "vegetable_weight": 103,
+        "energy": 73,
+        "protein": 2.7,
+        "fat": 2,
+        "carbs": 11.9,
+        "vegetable_weight": 75,
         "fiber": 0
       }
     },
     {
       "rank": 3,
+      "name": "5品目野菜とトマトのミネストローネ",
+      "score": 1.006,
+      "model_score": 1.0,
+      "preference_score": 5.58,
+      "reasons": [
+        "低カロリー",
+        "野菜たっぷり",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 50,
+        "protein": 1.8,
+        "fat": 0.3,
+        "carbs": 11.1,
+        "vegetable_weight": 105,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
       "name": "野菜と豚肉のキムチ炒め",
       "score": 1.192,
       "model_score": 1.0,
@@ -62,39 +82,20 @@
         "vegetable_weight": 171,
         "fiber": 0
       }
-    },
-    {
-      "rank": 4,
-      "name": "豚バラとキャベツの塩もつ鍋風",
-      "score": 1.102,
-      "model_score": 1.0,
-      "preference_score": 6.91,
-      "reasons": [
-        "野菜たっぷり",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 278,
-        "protein": 12.8,
-        "fat": 18.9,
-        "carbs": 12,
-        "vegetable_weight": 142,
-        "fiber": 0
-      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1671,
-    "total_protein": 76.9,
-    "total_fat": 82.3,
-    "total_carbs": 149.0,
-    "average_energy": 417.8,
-    "average_protein": 19.2
+    "total_energy": 867,
+    "total_protein": 37.6,
+    "total_fat": 28.6,
+    "total_carbs": 116.5,
+    "average_energy": 216.8,
+    "average_protein": 9.4
   },
   "pfc_ratio": {
-    "protein": 18.4,
-    "fat": 44.3,
-    "carbs": 35.7
+    "protein": 17.3,
+    "fat": 29.7,
+    "carbs": 53.7
   },
   "recommendation_count": 4
 }

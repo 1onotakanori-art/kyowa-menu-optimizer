@@ -1,8 +1,8 @@
 {
   "date": "2026-02-03",
-  "generated_at": "2026-02-02T08:51:08.872663",
+  "generated_at": "2026-02-02T08:59:18.525853",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豚肉とキャベツの旨辛醤油炒めは野菜たっぷり / 好みに合致 / 日本唐揚協会監修　チーズソース唐揚げはタンパク質豊富 / ボリューム満点 / 好みに合致 / ボロネーゼは良好なタンパク質 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 漬物盛り合わせは低カロリー / たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / 根菜とがんもの煮付けは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,76 +26,73 @@
     },
     {
       "rank": 2,
-      "name": "豚肉とキャベツの旨辛醤油炒め",
-      "score": 1.072,
+      "name": "漬物盛り合わせ",
+      "score": 0.792,
       "model_score": 1.0,
-      "preference_score": 6.49,
+      "preference_score": 2.64,
       "reasons": [
-        "野菜たっぷり",
-        "好みに合致"
+        "低カロリー"
       ],
       "nutrition": {
-        "energy": 264,
-        "protein": 14.9,
-        "fat": 15.4,
-        "carbs": 15.5,
-        "vegetable_weight": 117,
+        "energy": 16,
+        "protein": 0.5,
+        "fat": 0,
+        "carbs": 3.5,
+        "vegetable_weight": 40,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "日本唐揚協会監修　チーズソース唐揚げ",
-      "score": 1.044,
+      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
+      "score": 0.838,
       "model_score": 1.0,
-      "preference_score": 6.11,
+      "preference_score": 3.27,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
+        "低カロリー"
       ],
       "nutrition": {
-        "energy": 549,
-        "protein": 34.8,
-        "fat": 36.2,
-        "carbs": 16.1,
-        "vegetable_weight": 18,
+        "energy": 83,
+        "protein": 10.9,
+        "fat": 3.2,
+        "carbs": 2.7,
+        "vegetable_weight": 40,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "ボロネーゼ",
-      "score": 1.017,
+      "name": "根菜とがんもの煮付け",
+      "score": 0.921,
       "model_score": 1.0,
-      "preference_score": 5.73,
+      "preference_score": 4.41,
       "reasons": [
-        "良好なタンパク質",
-        "ボリューム満点",
+        "低カロリー",
+        "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 503,
-        "protein": 19.2,
-        "fat": 12,
-        "carbs": 79.3,
-        "vegetable_weight": 78,
+        "energy": 73,
+        "protein": 2.7,
+        "fat": 2,
+        "carbs": 11.9,
+        "vegetable_weight": 75,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1956,
-    "total_protein": 95.4,
-    "total_fat": 86.4,
-    "total_carbs": 189.5,
-    "average_energy": 489.0,
-    "average_protein": 23.8
+    "total_energy": 812,
+    "total_protein": 40.6,
+    "total_fat": 28.0,
+    "total_carbs": 96.7,
+    "average_energy": 203.0,
+    "average_protein": 10.2
   },
   "pfc_ratio": {
-    "protein": 19.5,
-    "fat": 39.8,
-    "carbs": 38.8
+    "protein": 20.0,
+    "fat": 31.0,
+    "carbs": 47.6
   },
   "recommendation_count": 4
 }

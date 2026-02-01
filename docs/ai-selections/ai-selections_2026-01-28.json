@@ -1,8 +1,8 @@
 {
   "date": "2026-01-28",
-  "generated_at": "2026-02-02T08:51:08.427536",
+  "generated_at": "2026-02-02T08:59:18.308290",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "白身魚のカツレツ 彩り野菜タルタルはタンパク質豊富 / ボリューム満点 / 好みに合致 / 野菜たっぷり！水餃子入りピリ辛豆乳スープは野菜たっぷり / 好みに合致 / 食物繊維たっぷり！蓮根の和サラダは低カロリー / 野菜たっぷり / 好みに合致 / スガキヤ風和風とんこつラーメンはタンパク質豊富 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "白身魚のカツレツ 彩り野菜タルタルはタンパク質豊富 / ボリューム満点 / 好みに合致 / 野菜たっぷり！水餃子入りピリ辛豆乳スープは野菜たっぷり / 好みに合致 / 白菜と鶏肉の生姜スープは低カロリー / 好みに合致 / 食物繊維たっぷり！蓮根の和サラダは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -45,6 +45,25 @@
     },
     {
       "rank": 3,
+      "name": "白菜と鶏肉の生姜スープ",
+      "score": 0.894,
+      "model_score": 1.0,
+      "preference_score": 4.04,
+      "reasons": [
+        "低カロリー",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 55,
+        "protein": 4.6,
+        "fat": 1.9,
+        "carbs": 5.1,
+        "vegetable_weight": 66,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
       "name": "食物繊維たっぷり！蓮根の和サラダ",
       "score": 0.974,
       "model_score": 1.0,
@@ -62,40 +81,20 @@
         "vegetable_weight": 96,
         "fiber": 0
       }
-    },
-    {
-      "rank": 4,
-      "name": "スガキヤ風和風とんこつラーメン",
-      "score": 0.953,
-      "model_score": 1.0,
-      "preference_score": 4.85,
-      "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 581,
-        "protein": 26.3,
-        "fat": 24.9,
-        "carbs": 60.8,
-        "vegetable_weight": 31,
-        "fiber": 0
-      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1334,
-    "total_protein": 57.8,
-    "total_fat": 39.0,
-    "total_carbs": 185.9,
-    "average_energy": 333.5,
-    "average_protein": 14.4
+    "total_energy": 808,
+    "total_protein": 36.1,
+    "total_fat": 16.0,
+    "total_carbs": 130.2,
+    "average_energy": 202.0,
+    "average_protein": 9.0
   },
   "pfc_ratio": {
-    "protein": 17.3,
-    "fat": 26.3,
-    "carbs": 55.7
+    "protein": 17.9,
+    "fat": 17.8,
+    "carbs": 64.5
   },
   "recommendation_count": 4
 }

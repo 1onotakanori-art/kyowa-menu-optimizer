@@ -1,8 +1,8 @@
 {
   "date": "2026-01-30",
-  "generated_at": "2026-02-02T08:51:08.641034",
+  "generated_at": "2026-02-02T08:59:18.432147",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "汁なし担々やきそばはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豚サラダ丼わさびダレかけは良好なタンパク質 / ボリューム満点 / 好みに合致 / 焼豚玉子飯(やきぶたたまごめし)はタンパク質豊富 / ボリューム満点 / 好みに合致 / 地鶏塩ちゃんこ鍋は野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "汁なし担々やきそばはタンパク質豊富 / ボリューム満点 / 好みに合致 / さわらのごまみそ焼きはバランス良好 / 地鶏塩ちゃんこ鍋は野菜たっぷり / 好みに合致 / あさりとキャベツのガーリックバターは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,46 +26,24 @@
     },
     {
       "rank": 2,
-      "name": "豚サラダ丼わさびダレかけ",
-      "score": 1.148,
+      "name": "さわらのごまみそ焼き",
+      "score": 0.872,
       "model_score": 1.0,
-      "preference_score": 7.54,
+      "preference_score": 3.74,
       "reasons": [
-        "良好なタンパク質",
-        "ボリューム満点",
-        "好みに合致"
+        "バランス良好"
       ],
       "nutrition": {
-        "energy": 569,
-        "protein": 17.4,
-        "fat": 11.3,
-        "carbs": 94.7,
-        "vegetable_weight": 142,
+        "energy": 149,
+        "protein": 13.6,
+        "fat": 7.4,
+        "carbs": 5.2,
+        "vegetable_weight": 0,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "焼豚玉子飯(やきぶたたまごめし)",
-      "score": 1.058,
-      "model_score": 1.0,
-      "preference_score": 6.3,
-      "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 993,
-        "protein": 36.1,
-        "fat": 49.5,
-        "carbs": 89.5,
-        "vegetable_weight": 2,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
       "name": "地鶏塩ちゃんこ鍋",
       "score": 1.035,
       "model_score": 1.0,
@@ -82,20 +60,40 @@
         "vegetable_weight": 139,
         "fiber": 0
       }
+    },
+    {
+      "rank": 4,
+      "name": "あさりとキャベツのガーリックバター",
+      "score": 0.922,
+      "model_score": 1.0,
+      "preference_score": 4.43,
+      "reasons": [
+        "低カロリー",
+        "野菜たっぷり",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 58,
+        "protein": 3.6,
+        "fat": 3,
+        "carbs": 5.3,
+        "vegetable_weight": 84,
+        "fiber": 0
+      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 2262,
-    "total_protein": 84.8,
-    "total_fat": 81.2,
-    "total_carbs": 281.0,
-    "average_energy": 565.5,
-    "average_protein": 21.2
+    "total_energy": 907,
+    "total_protein": 48.5,
+    "total_fat": 30.8,
+    "total_carbs": 107.3,
+    "average_energy": 226.8,
+    "average_protein": 12.1
   },
   "pfc_ratio": {
-    "protein": 15.0,
-    "fat": 32.3,
-    "carbs": 49.7
+    "protein": 21.4,
+    "fat": 30.6,
+    "carbs": 47.3
   },
   "recommendation_count": 4
 }

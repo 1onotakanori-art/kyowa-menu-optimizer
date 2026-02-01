@@ -1,8 +1,8 @@
 {
   "date": "2026-02-12",
-  "generated_at": "2026-02-02T08:51:09.341035",
+  "generated_at": "2026-02-02T08:59:18.765434",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / ココナッツ香るラクサ風パスタはタンパク質豊富 / ボリューム満点 / 好みに合致 / 塩分控えめ☆レモン風味の豚肉炒めは野菜たっぷり / 好みに合致 / 豚肉とキャベツのスパイシー炒めは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 山芋とろろは低カロリー / 塩分控えめ☆レモン風味の豚肉炒めは野菜たっぷり / 好みに合致 / 豚肉とキャベツのスパイシー炒めは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,21 +26,19 @@
     },
     {
       "rank": 2,
-      "name": "ココナッツ香るラクサ風パスタ",
-      "score": 1.148,
+      "name": "山芋とろろ",
+      "score": 0.796,
       "model_score": 1.0,
-      "preference_score": 7.53,
+      "preference_score": 2.7,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
+        "低カロリー"
       ],
       "nutrition": {
-        "energy": 687,
-        "protein": 32.9,
-        "fat": 28.2,
-        "carbs": 77.8,
-        "vegetable_weight": 71,
+        "energy": 33,
+        "protein": 1.1,
+        "fat": 0.2,
+        "carbs": 7,
+        "vegetable_weight": 0,
         "fiber": 0
       }
     },
@@ -85,17 +83,17 @@
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1608,
-    "total_protein": 76.8,
-    "total_fat": 68.7,
-    "total_carbs": 169.3,
-    "average_energy": 402.0,
-    "average_protein": 19.2
+    "total_energy": 954,
+    "total_protein": 45.0,
+    "total_fat": 40.7,
+    "total_carbs": 98.5,
+    "average_energy": 238.5,
+    "average_protein": 11.2
   },
   "pfc_ratio": {
-    "protein": 19.1,
-    "fat": 38.5,
-    "carbs": 42.1
+    "protein": 18.9,
+    "fat": 38.4,
+    "carbs": 41.3
   },
   "recommendation_count": 4
 }

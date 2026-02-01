@@ -1,8 +1,8 @@
 {
   "date": "2026-01-13",
-  "generated_at": "2026-02-02T08:51:07.417867",
+  "generated_at": "2026-02-02T08:59:17.672383",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豚レバー回鍋肉は良好なタンパク質 / 野菜たっぷり / 好みに合致 / アマトリチャーナはボリューム満点 / 野菜たっぷり / 好みに合致 / 台湾丼は良好なタンパク質 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 大根と沢庵の和え物は低カロリー / 好みに合致 / 豚レバー回鍋肉は良好なタンパク質 / 野菜たっぷり / 好みに合致 / いかともやしのバター炒めは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,6 +26,25 @@
     },
     {
       "rank": 2,
+      "name": "大根と沢庵の和え物",
+      "score": 0.907,
+      "model_score": 1.0,
+      "preference_score": 4.22,
+      "reasons": [
+        "低カロリー",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 31,
+        "protein": 0.4,
+        "fat": 0.1,
+        "carbs": 7.4,
+        "vegetable_weight": 65,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 3,
       "name": "豚レバー回鍋肉",
       "score": 1.169,
       "model_score": 1.0,
@@ -45,58 +64,38 @@
       }
     },
     {
-      "rank": 3,
-      "name": "アマトリチャーナ",
-      "score": 1.147,
+      "rank": 4,
+      "name": "いかともやしのバター炒め",
+      "score": 0.944,
       "model_score": 1.0,
-      "preference_score": 7.52,
+      "preference_score": 4.73,
       "reasons": [
-        "ボリューム満点",
+        "低カロリー",
         "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 503,
-        "protein": 15.5,
-        "fat": 13.8,
-        "carbs": 79.3,
-        "vegetable_weight": 150,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
-      "name": "台湾丼",
-      "score": 1.048,
-      "model_score": 1.0,
-      "preference_score": 6.16,
-      "reasons": [
-        "良好なタンパク質",
-        "ボリューム満点",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 552,
-        "protein": 16.2,
-        "fat": 11.7,
-        "carbs": 91.2,
-        "vegetable_weight": 105,
+        "energy": 52,
+        "protein": 4.3,
+        "fat": 1.4,
+        "carbs": 5.2,
+        "vegetable_weight": 85,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1925,
-    "total_protein": 78.5,
-    "total_fat": 57.2,
-    "total_carbs": 265.5,
-    "average_energy": 481.2,
-    "average_protein": 19.6
+    "total_energy": 953,
+    "total_protein": 51.5,
+    "total_fat": 33.2,
+    "total_carbs": 107.6,
+    "average_energy": 238.2,
+    "average_protein": 12.9
   },
   "pfc_ratio": {
-    "protein": 16.3,
-    "fat": 26.7,
-    "carbs": 55.2
+    "protein": 21.6,
+    "fat": 31.4,
+    "carbs": 45.2
   },
   "recommendation_count": 4
 }

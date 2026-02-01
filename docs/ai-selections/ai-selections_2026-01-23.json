@@ -1,8 +1,8 @@
 {
   "date": "2026-01-23",
-  "generated_at": "2026-02-02T08:51:08.127400",
+  "generated_at": "2026-02-02T08:59:18.126575",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "手作り大豆ハンバーグはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豚バラとニラ野菜炒めは野菜たっぷり / 好みに合致 / とろーりチーズのイタリアンカツ丼はタンパク質豊富 / ボリューム満点 / 好みに合致 / 野菜たっぷりトマト酸辣湯麺(サンラータン麺)は良好なタンパク質 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "手作り大豆ハンバーグはタンパク質豊富 / ボリューム満点 / 好みに合致 / さつま汁は低カロリー / 好みに合致 / 白身魚のバジル風味焼はバランス良好 / 鶏肉と大根の塩麹煮は低カロリー / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,76 +26,73 @@
     },
     {
       "rank": 2,
-      "name": "豚バラとニラ野菜炒め",
-      "score": 1.147,
+      "name": "さつま汁",
+      "score": 0.912,
       "model_score": 1.0,
-      "preference_score": 7.52,
+      "preference_score": 4.29,
       "reasons": [
-        "野菜たっぷり",
+        "低カロリー",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 228,
-        "protein": 10.5,
-        "fat": 16.6,
-        "carbs": 9.1,
-        "vegetable_weight": 163,
+        "energy": 93,
+        "protein": 4.5,
+        "fat": 1.7,
+        "carbs": 15.8,
+        "vegetable_weight": 66,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "とろーりチーズのイタリアンカツ丼",
-      "score": 1.126,
+      "name": "白身魚のバジル風味焼",
+      "score": 0.865,
       "model_score": 1.0,
-      "preference_score": 7.23,
+      "preference_score": 3.64,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
+        "バランス良好"
       ],
       "nutrition": {
-        "energy": 696,
-        "protein": 22.1,
-        "fat": 19.2,
-        "carbs": 105.8,
-        "vegetable_weight": 111,
+        "energy": 164,
+        "protein": 13.5,
+        "fat": 4.4,
+        "carbs": 17.2,
+        "vegetable_weight": 0,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "野菜たっぷりトマト酸辣湯麺(サンラータン麺)",
-      "score": 1.111,
+      "name": "鶏肉と大根の塩麹煮",
+      "score": 0.91,
       "model_score": 1.0,
-      "preference_score": 7.03,
+      "preference_score": 4.26,
       "reasons": [
-        "良好なタンパク質",
-        "ボリューム満点",
+        "低カロリー",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 406,
-        "protein": 16.8,
-        "fat": 7,
-        "carbs": 70.3,
-        "vegetable_weight": 129,
+        "energy": 46,
+        "protein": 3.7,
+        "fat": 1,
+        "carbs": 5.5,
+        "vegetable_weight": 69,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1913,
-    "total_protein": 75.0,
-    "total_fat": 54.4,
-    "total_carbs": 280.6,
-    "average_energy": 478.2,
-    "average_protein": 18.8
+    "total_energy": 886,
+    "total_protein": 47.3,
+    "total_fat": 18.7,
+    "total_carbs": 133.9,
+    "average_energy": 221.5,
+    "average_protein": 11.8
   },
   "pfc_ratio": {
-    "protein": 15.7,
-    "fat": 25.6,
-    "carbs": 58.7
+    "protein": 21.4,
+    "fat": 19.0,
+    "carbs": 60.5
   },
   "recommendation_count": 4
 }

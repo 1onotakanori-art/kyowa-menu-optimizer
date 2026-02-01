@@ -2202,7 +2202,12 @@ class MenuOptimizationApp {
     
     const summaryTitle = document.createElement('div');
     summaryTitle.className = 'ai-summary-title';
-    summaryTitle.innerHTML = `<h3>🤖 AI推奨セット</h3>`;
+    
+    // セット総エネルギーを強調表示
+    const totalEnergyText = totals['エネルギー'] 
+      ? `<span class="set-total-energy">(総${Math.round(totals['エネルギー'])}kcal)</span>` 
+      : '';
+    summaryTitle.innerHTML = `<h3>🤖 AI推奨セット ${totalEnergyText}</h3>`;
     summaryContainer.appendChild(summaryTitle);
     
     const summaryContent = document.createElement('div');

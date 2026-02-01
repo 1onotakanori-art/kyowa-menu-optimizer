@@ -1,8 +1,8 @@
 {
   "date": "2026-02-09",
-  "generated_at": "2026-02-02T08:51:09.035169",
+  "generated_at": "2026-02-02T08:59:18.618804",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "チーズとペッパーの焼きチキンカツはタンパク質豊富 / ボリューム満点 / 好みに合致 / 豆腐とシーフードの韓国風チゲは野菜たっぷり / 好みに合致 / 鶏しお野菜炒めは野菜たっぷり / 好みに合致 / 豚生姜焼きのサラダは良好なタンパク質 / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "チーズとペッパーの焼きチキンカツはタンパク質豊富 / ボリューム満点 / 好みに合致 / じゃこと梅のビーフンは低カロリー / 鶏しお野菜炒めは野菜たっぷり / 好みに合致 / 豆腐とシーフードの韓国風チゲは野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,20 +26,19 @@
     },
     {
       "rank": 2,
-      "name": "豆腐とシーフードの韓国風チゲ",
-      "score": 1.239,
+      "name": "じゃこと梅のビーフン",
+      "score": 0.806,
       "model_score": 1.0,
-      "preference_score": 8.79,
+      "preference_score": 2.83,
       "reasons": [
-        "野菜たっぷり",
-        "好みに合致"
+        "低カロリー"
       ],
       "nutrition": {
-        "energy": 194,
-        "protein": 14.5,
-        "fat": 7.3,
-        "carbs": 16.6,
-        "vegetable_weight": 178,
+        "energy": 73,
+        "protein": 1.9,
+        "fat": 0.7,
+        "carbs": 14.7,
+        "vegetable_weight": 17,
         "fiber": 0
       }
     },
@@ -64,37 +63,36 @@
     },
     {
       "rank": 4,
-      "name": "豚生姜焼きのサラダ",
-      "score": 1.048,
+      "name": "豆腐とシーフードの韓国風チゲ",
+      "score": 1.239,
       "model_score": 1.0,
-      "preference_score": 6.16,
+      "preference_score": 8.79,
       "reasons": [
-        "良好なタンパク質",
         "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 339,
-        "protein": 16.6,
-        "fat": 24,
-        "carbs": 12,
-        "vegetable_weight": 103,
+        "energy": 194,
+        "protein": 14.5,
+        "fat": 7.3,
+        "carbs": 16.6,
+        "vegetable_weight": 178,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1268,
-    "total_protein": 71.3,
-    "total_fat": 47.9,
-    "total_carbs": 134.2,
-    "average_energy": 317.0,
-    "average_protein": 17.8
+    "total_energy": 1002,
+    "total_protein": 56.6,
+    "total_fat": 24.6,
+    "total_carbs": 136.9,
+    "average_energy": 250.5,
+    "average_protein": 14.1
   },
   "pfc_ratio": {
-    "protein": 22.5,
-    "fat": 34.0,
-    "carbs": 42.3
+    "protein": 22.6,
+    "fat": 22.1,
+    "carbs": 54.7
   },
   "recommendation_count": 4
 }

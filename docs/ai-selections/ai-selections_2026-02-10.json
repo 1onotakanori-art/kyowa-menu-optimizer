@@ -1,8 +1,8 @@
 {
   "date": "2026-02-10",
-  "generated_at": "2026-02-02T08:51:09.109856",
+  "generated_at": "2026-02-02T08:59:18.656004",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 竜田揚げのせタコライスはタンパク質豊富 / ボリューム満点 / 好みに合致 / いかと根野菜の煮物は野菜たっぷり / 好みに合致 / 5品目野菜とトマトのミネストローネは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / 5品目野菜とトマトのミネストローネは低カロリー / 野菜たっぷり / 好みに合致 / たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは低カロリー / いかと根野菜の煮物は野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,45 +26,6 @@
     },
     {
       "rank": 2,
-      "name": "竜田揚げのせタコライス",
-      "score": 1.079,
-      "model_score": 1.0,
-      "preference_score": 6.59,
-      "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 771,
-        "protein": 27.4,
-        "fat": 26,
-        "carbs": 101.7,
-        "vegetable_weight": 67,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
-      "name": "いかと根野菜の煮物",
-      "score": 1.045,
-      "model_score": 1.0,
-      "preference_score": 6.11,
-      "reasons": [
-        "野菜たっぷり",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 130,
-        "protein": 5.9,
-        "fat": 1.7,
-        "carbs": 23.2,
-        "vegetable_weight": 116,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
       "name": "5品目野菜とトマトのミネストローネ",
       "score": 1.006,
       "model_score": 1.0,
@@ -82,20 +43,57 @@
         "vegetable_weight": 105,
         "fiber": 0
       }
+    },
+    {
+      "rank": 3,
+      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
+      "score": 0.838,
+      "model_score": 1.0,
+      "preference_score": 3.27,
+      "reasons": [
+        "低カロリー"
+      ],
+      "nutrition": {
+        "energy": 83,
+        "protein": 10.9,
+        "fat": 3.2,
+        "carbs": 2.7,
+        "vegetable_weight": 40,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "いかと根野菜の煮物",
+      "score": 1.045,
+      "model_score": 1.0,
+      "preference_score": 6.11,
+      "reasons": [
+        "野菜たっぷり",
+        "好みに合致"
+      ],
+      "nutrition": {
+        "energy": 130,
+        "protein": 5.9,
+        "fat": 1.7,
+        "carbs": 23.2,
+        "vegetable_weight": 116,
+        "fiber": 0
+      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 1591,
-    "total_protein": 61.6,
-    "total_fat": 50.8,
-    "total_carbs": 214.6,
-    "average_energy": 397.8,
-    "average_protein": 15.4
+    "total_energy": 903,
+    "total_protein": 45.1,
+    "total_fat": 28.0,
+    "total_carbs": 115.6,
+    "average_energy": 225.8,
+    "average_protein": 11.3
   },
   "pfc_ratio": {
-    "protein": 15.5,
-    "fat": 28.7,
-    "carbs": 54.0
+    "protein": 20.0,
+    "fat": 27.9,
+    "carbs": 51.2
   },
   "recommendation_count": 4
 }

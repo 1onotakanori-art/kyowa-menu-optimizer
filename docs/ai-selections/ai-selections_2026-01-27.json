@@ -1,8 +1,8 @@
 {
   "date": "2026-01-27",
-  "generated_at": "2026-02-02T08:51:08.320430",
+  "generated_at": "2026-02-02T08:59:18.237622",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / レバニラ炒めは良好なタンパク質 / 野菜たっぷり / 好みに合致 / ヒレカツとクリームソースピラフはタンパク質豊富 / ボリューム満点 / 好みに合致 / 揚げ茄子の辛みそ炒め丼はボリューム満点 / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "バランスＢＯＸはタンパク質豊富 / ボリューム満点 / 好みに合致 / メンマとにらもやしの炒め物は低カロリー / 野菜たっぷり / 好みに合致 / 漬物盛り合わせは低カロリー / 大根のトマトそぼろ煮は低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -26,77 +26,75 @@
     },
     {
       "rank": 2,
-      "name": "レバニラ炒め",
-      "score": 1.211,
+      "name": "メンマとにらもやしの炒め物",
+      "score": 0.998,
       "model_score": 1.0,
-      "preference_score": 8.39,
+      "preference_score": 5.48,
       "reasons": [
-        "良好なタンパク質",
+        "低カロリー",
         "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 229,
-        "protein": 16.2,
-        "fat": 8.4,
-        "carbs": 21.7,
-        "vegetable_weight": 164,
+        "energy": 40,
+        "protein": 2.3,
+        "fat": 1.4,
+        "carbs": 5.5,
+        "vegetable_weight": 110,
         "fiber": 0
       }
     },
     {
       "rank": 3,
-      "name": "ヒレカツとクリームソースピラフ",
-      "score": 1.072,
+      "name": "漬物盛り合わせ",
+      "score": 0.792,
       "model_score": 1.0,
-      "preference_score": 6.5,
+      "preference_score": 2.64,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
+        "低カロリー"
       ],
       "nutrition": {
-        "energy": 662,
-        "protein": 28.1,
-        "fat": 14.7,
-        "carbs": 99.3,
-        "vegetable_weight": 61,
+        "energy": 16,
+        "protein": 0.5,
+        "fat": 0,
+        "carbs": 3.5,
+        "vegetable_weight": 40,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "揚げ茄子の辛みそ炒め丼",
-      "score": 1.0,
+      "name": "大根のトマトそぼろ煮",
+      "score": 0.979,
       "model_score": 1.0,
-      "preference_score": 5.51,
+      "preference_score": 5.21,
       "reasons": [
-        "ボリューム満点",
+        "低カロリー",
         "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 630,
-        "protein": 10.9,
-        "fat": 15.9,
-        "carbs": 99.2,
-        "vegetable_weight": 109,
+        "energy": 55,
+        "protein": 2.2,
+        "fat": 2.2,
+        "carbs": 6.5,
+        "vegetable_weight": 104,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 2161,
-    "total_protein": 81.7,
-    "total_fat": 61.8,
-    "total_carbs": 298.8,
-    "average_energy": 540.2,
-    "average_protein": 20.4
+    "total_energy": 751,
+    "total_protein": 31.5,
+    "total_fat": 26.4,
+    "total_carbs": 94.1,
+    "average_energy": 187.8,
+    "average_protein": 7.9
   },
   "pfc_ratio": {
-    "protein": 15.1,
-    "fat": 25.7,
-    "carbs": 55.3
+    "protein": 16.8,
+    "fat": 31.6,
+    "carbs": 50.1
   },
   "recommendation_count": 4
 }

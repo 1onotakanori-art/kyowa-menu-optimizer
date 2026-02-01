@@ -1,8 +1,8 @@
 {
   "date": "2026-01-21",
-  "generated_at": "2026-02-02T08:51:07.829472",
+  "generated_at": "2026-02-02T08:59:17.951505",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "揚げずにチキン南蛮はタンパク質豊富 / ボリューム満点 / 好みに合致 / ピリ辛八宝菜は野菜たっぷり / 好みに合致 / 豚バラ肉の生姜焼き丼はタンパク質豊富 / ボリューム満点 / 好みに合致 / 台湾ラーメンはタンパク質豊富 / ボリューム満点 / 好みに合致 / 全体: 全体で高スコア維持",
+  "set_reason": "揚げずにチキン南蛮はタンパク質豊富 / ボリューム満点 / 好みに合致 / ピリ辛八宝菜は野菜たっぷり / 好みに合致 / 豚肉とキャベツのスパイシー炒めは低カロリー / 野菜たっぷり / 好みに合致 / 白身魚の幽庵焼きはバランス良好 / 好みに合致 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
@@ -45,57 +45,56 @@
     },
     {
       "rank": 3,
-      "name": "豚バラ肉の生姜焼き丼",
-      "score": 1.139,
+      "name": "豚肉とキャベツのスパイシー炒め",
+      "score": 1.002,
       "model_score": 1.0,
-      "preference_score": 7.41,
+      "preference_score": 5.53,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
+        "低カロリー",
+        "野菜たっぷり",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 909,
-        "protein": 25.5,
-        "fat": 46.8,
-        "carbs": 85.9,
-        "vegetable_weight": 101,
+        "energy": 64,
+        "protein": 3.7,
+        "fat": 3.2,
+        "carbs": 6.2,
+        "vegetable_weight": 118,
         "fiber": 0
       }
     },
     {
       "rank": 4,
-      "name": "台湾ラーメン",
-      "score": 1.086,
+      "name": "白身魚の幽庵焼き",
+      "score": 0.912,
       "model_score": 1.0,
-      "preference_score": 6.68,
+      "preference_score": 4.28,
       "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
+        "バランス良好",
         "好みに合致"
       ],
       "nutrition": {
-        "energy": 494,
-        "protein": 24.3,
-        "fat": 16,
-        "carbs": 63.3,
-        "vegetable_weight": 84,
+        "energy": 108,
+        "protein": 14.1,
+        "fat": 1.1,
+        "carbs": 8.2,
+        "vegetable_weight": 30,
         "fiber": 0
       }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 2236,
-    "total_protein": 88.1,
-    "total_fat": 98.4,
-    "total_carbs": 237.7,
-    "average_energy": 559.0,
-    "average_protein": 22.0
+    "total_energy": 1005,
+    "total_protein": 56.1,
+    "total_fat": 39.9,
+    "total_carbs": 102.9,
+    "average_energy": 251.2,
+    "average_protein": 14.0
   },
   "pfc_ratio": {
-    "protein": 15.8,
-    "fat": 39.6,
-    "carbs": 42.5
+    "protein": 22.3,
+    "fat": 35.7,
+    "carbs": 41.0
   },
   "recommendation_count": 4
 }

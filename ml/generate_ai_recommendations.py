@@ -28,6 +28,7 @@ def get_menu_nutrition(menu_name, menus_dir):
 def analyze_user_preferences():
     """
     ユーザーの選択履歴を分析して好みのプロファイルを作成
+    1食あたりの総エネルギーも分析
     """
     history_dir = Path.home() / 'Apps' / 'kyowa-menu-history' / 'data' / 'history'
     menus_dir = Path(__file__).parent.parent / 'menus'
@@ -38,12 +39,15 @@ def analyze_user_preferences():
     
     # 履歴データを収集
     selected_menus_nutrition = []
+    meal_total_energies = []  # 1食あたりの総エネルギー
     history_files = sorted(history_dir.glob('*.json'))
     
     for history_file in history_files:
         with open(history_file, 'r', encoding='utf-8') as f:
             history_data = json.load(f)
             selected_menus = history_data.get('selectedMenus', [])
+            
+            meal_energy = 0  # この日の総エネルギー
             
             for menu_item in selected_menus:
                 # 履歴ファイル内に栄養情報が含まれている場合はそれを使用
@@ -56,15 +60,21 @@ def analyze_user_preferences():
                     nutrition = get_menu_nutrition(menu_name, menus_dir)
                 
                 if nutrition:
+                    energy = float(nutrition.get('エネルギー', 0))
+                    meal_energy += energy
+                    
                     selected_menus_nutrition.append({
                         'name': menu_name,
-                        'energy': float(nutrition.get('エネルギー', 0)),
+                        'energy': energy,
                         'protein': float(nutrition.get('たんぱく質', 0)),
                         'fat': float(nutrition.get('脂質', 0)),
                         'carbs': float(nutrition.get('炭水化物', 0)),
                         'vegetables': float(nutrition.get('野菜重量', 0)),
                         'fiber': float(nutrition.get('食物繊維', 0))
                     })
+            
+            if meal_energy > 0:
+                meal_total_energies.append(meal_energy)
     
     if not selected_menus_nutrition:
         print("⚠️ 選択履歴が見つかりません")
@@ -80,6 +90,13 @@ def analyze_user_preferences():
     
     preferences = {
         'total_selections': len(selected_menus_nutrition),
+        'meal_total_energy': {
+            'mean': np.mean(meal_total_energies) if meal_total_energies else 0,
+            'median': np.median(meal_total_energies) if meal_total_energies else 0,
+            'std': np.std(meal_total_energies) if meal_total_energies else 0,
+            'min': np.min(meal_total_energies) if meal_total_energies else 0,
+            'max': np.max(meal_total_energies) if meal_total_energies else 0
+        },
         'energy': {
             'mean': np.mean(energies),
             'median': np.median(energies),
@@ -127,8 +144,12 @@ def analyze_user_preferences():
     print("\n" + "="*70)
     print("👤 ユーザー選択傾向の分析結果")
     print("="*70)
-    print(f"📊 総選択回数: {preferences['total_selections']}回")
-    print(f"\n【エネルギー】")
+    print(f"📊 総選択回数: {preferences['total_selections']}回 ({len(meal_total_energies)}食分)")
+    print(f"\n【1食あたりの総エネルギー】 ⭐ 重要指標")
+    print(f"  平均: {preferences['meal_total_energy']['mean']:.1f} kcal (中央値: {preferences['meal_total_energy']['median']:.1f})")
+    print(f"  範囲: {preferences['meal_total_energy']['min']:.0f} ~ {preferences['meal_total_energy']['max']:.0f} kcal")
+    print(f"  標準偏差: {preferences['meal_total_energy']['std']:.1f} kcal")
+    print(f"\n【メニュー単位のエネルギー】")
     print(f"  平均: {preferences['energy']['mean']:.1f} kcal (中央値: {preferences['energy']['median']:.1f})")
     print(f"  範囲: {preferences['energy']['min']:.0f} ~ {preferences['energy']['max']:.0f} kcal")
     print(f"\n【タンパク質】")
@@ -193,6 +214,62 @@ def calculate_preference_score(nutrition, user_preferences):
     except Exception as e:
         print(f"⚠️ スコア計算エラー: {e}")
         return 0.0
+    
+    return score
+
+def calculate_meal_set_score(menu_set, user_preferences):
+    """
+    メニューセット全体のバランススコアを計算
+    1食あたりの総エネルギーを重視
+    """
+    if not user_preferences:
+        return 0.0
+    
+    # セット全体の栄養値を計算
+    total_energy = sum(m.get('nutrition', {}).get('エネルギー', 0) for m in menu_set)
+    total_protein = sum(m.get('nutrition', {}).get('たんぱく質', 0) for m in menu_set)
+    total_vegetables = sum(m.get('nutrition', {}).get('野菜重量', 0) for m in menu_set)
+    total_fat = sum(m.get('nutrition', {}).get('脂質', 0) for m in menu_set)
+    
+    score = 0.0
+    
+    # 1食あたりの総エネルギーが理想的な範囲に収まるかを重視（最重要）
+    ideal_meal_energy = user_preferences['meal_total_energy']['median']
+    energy_std = user_preferences['meal_total_energy']['std']
+    
+    if ideal_meal_energy > 0:
+        # 中央値に近いほど高スコア（標準偏差を考慮）
+        energy_diff = abs(total_energy - ideal_meal_energy)
+        
+        if energy_diff <= energy_std:
+            # 標準偏差内なら高スコア
+            score += 4.0 * (1.0 - energy_diff / (energy_std + 1))
+        elif total_energy > ideal_meal_energy:
+            # エネルギーが理想より高い場合は厳しくペナルティ
+            excess_ratio = (total_energy - ideal_meal_energy) / ideal_meal_energy
+            score += max(0, 2.0 * (1.0 - excess_ratio))  # オーバー分に応じて大幅減点
+        else:
+            # エネルギーが理想より低い場合は緩やかに評価
+            shortage_ratio = energy_diff / ideal_meal_energy
+            score += 2.5 * (1.0 - shortage_ratio)
+    
+    # タンパク質の合計も評価（重み中）
+    ideal_protein = user_preferences['protein']['mean'] * len(menu_set)
+    if ideal_protein > 0:
+        protein_ratio = total_protein / ideal_protein
+        score += 1.5 * min(protein_ratio, 1.5)  # 1.5倍まで評価
+    
+    # 野菜の合計も評価（重み中）
+    ideal_vegetables = user_preferences['vegetables']['mean'] * len(menu_set)
+    if ideal_vegetables > 0:
+        veg_ratio = total_vegetables / (ideal_vegetables + 1)
+        score += 1.5 * min(veg_ratio, 1.5)
+    
+    # 脂質は少ないほど良い（重み小）
+    ideal_fat = user_preferences['fat']['mean'] * len(menu_set)
+    if ideal_fat > 0:
+        fat_ratio = total_fat / (ideal_fat + 1)
+        score += 1.0 * max(0, 2.0 - fat_ratio)  # 脂質が少ないほど高スコア
     
     return score
 
@@ -367,11 +444,70 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                 
                 daily_scores.append((menu_idx, menu_name, combined_score, model_score, preference_score))
             
-            # 最終スコアでソートしてTop-Kを選択
+            # 組み合わせ最適化：セット全体のバランスを考慮
+            # まず個別スコアでソート
             daily_scores.sort(key=lambda x: x[2], reverse=True)
-            top_recommendations = daily_scores[:top_k]
             
-            print(f"📅 {date_str}: {len(daily_menus)}個のメニューから{len(top_recommendations)}個を選択")
+            # 候補プール：上位15個から選択（計算量削減のため）
+            candidate_pool_size = min(15, len(daily_scores))
+            candidate_pool = daily_scores[:candidate_pool_size]
+            
+            # 最適な組み合わせを探索（貪欲法）
+            # 1. 最もスコアが高い1つを選択
+            # 2. 残りから、セット全体のバランスが最も良くなるものを追加
+            best_set = [candidate_pool[0]]  # 最高スコアのメニューからスタート
+            
+            for _ in range(top_k - 1):
+                best_addition = None
+                best_set_score = -1
+                
+                for candidate in candidate_pool:
+                    if candidate in best_set:
+                        continue
+                    
+                    # 試験的にセットに追加
+                    test_set = best_set + [candidate]
+                    
+                    # セット全体のメニューオブジェクトを構築
+                    test_menu_objects = []
+                    for _, name, _, _, _ in test_set:
+                        menu_obj = next((m for m in daily_menus if m.get('name') == name), None)
+                        if menu_obj:
+                            test_menu_objects.append(menu_obj)
+                    
+                    # セット全体のバランススコアを計算
+                    if user_preferences and len(test_menu_objects) == len(test_set):
+                        set_balance_score = calculate_meal_set_score(test_menu_objects, user_preferences)
+                        
+                        # 個別スコアの平均とセットバランスを組み合わせ
+                        # セットバランス（特にエネルギー）をより重視
+                        avg_individual_score = sum(x[2] for x in test_set) / len(test_set)
+                        total_score = 0.35 * avg_individual_score + 0.65 * (set_balance_score / 7.0)  # セットバランスを重視
+                        
+                        if total_score > best_set_score:
+                            best_set_score = total_score
+                            best_addition = candidate
+                    else:
+                        # 好みデータがない場合は個別スコアのみで判断
+                        if candidate[2] > best_set_score:
+                            best_set_score = candidate[2]
+                            best_addition = candidate
+                
+                if best_addition:
+                    best_set.append(best_addition)
+            
+            top_recommendations = best_set
+            
+            # 最終選択されたセットの総エネルギーを計算
+            selected_menu_objects = []
+            for _, name, _, _, _ in top_recommendations:
+                menu_obj = next((m for m in daily_menus if m.get('name') == name), None)
+                if menu_obj:
+                    selected_menu_objects.append(menu_obj)
+            
+            total_set_energy = sum(m.get('nutrition', {}).get('エネルギー', 0) for m in selected_menu_objects)
+            
+            print(f"📅 {date_str}: {len(daily_menus)}個のメニューから{len(top_recommendations)}個を選択 (総エネルギー: {total_set_energy:.0f}kcal)")
 
             
             # 推奨理由を生成する関数
@@ -431,6 +567,16 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                 # ユーザー好みスコアに基づく理由を追加
                 if user_preferences and pref_score > 4.0:
                     reasons.append("好みに合致")
+                
+                # セット全体のエネルギーが適切範囲内かチェック
+                if user_preferences and len(selected_menu_objects) == len(top_recommendations):
+                    ideal_energy = user_preferences['meal_total_energy']['median']
+                    energy_std = user_preferences['meal_total_energy']['std']
+                    energy_diff = abs(total_set_energy - ideal_energy)
+                    
+                    if energy_diff <= energy_std:
+                        if "総エネルギー適正" not in reasons:
+                            reasons.append("総エネルギー適正")
                 
                 recommended_menus.append({
                     'rank': rank,
