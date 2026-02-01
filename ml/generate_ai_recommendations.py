@@ -101,6 +101,34 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
     model.to(device)
     model.eval()
     
+    # 栄養値の統計を計算（閾値を動的に決定するため）
+    print("📊 栄養統計を分析中...\n")
+    all_proteins = []
+    all_energies = []
+    all_vegetables = []
+    
+    for menu_dict in all_menu_dicts:
+        nutrition = menu_dict.get('nutrition', {})
+        try:
+            all_proteins.append(float(nutrition.get('たんぱく質', 0)))
+            all_energies.append(float(nutrition.get('エネルギー', 0)))
+            all_vegetables.append(float(nutrition.get('野菜重量', 0)))
+        except:
+            pass
+    
+    # パーセンタイルで動的閾値を計算
+    import numpy as np
+    protein_75p = np.percentile(all_proteins, 75) if all_proteins else 10
+    protein_90p = np.percentile(all_proteins, 90) if all_proteins else 15
+    energy_25p = np.percentile(all_energies, 25) if all_energies else 100
+    energy_75p = np.percentile(all_energies, 75) if all_energies else 300
+    veg_75p = np.percentile(all_vegetables, 75) if all_vegetables else 80
+    
+    print(f"📈 栄養値の分布:")
+    print(f"   タンパク質: 75%値={protein_75p:.1f}g, 90%値={protein_90p:.1f}g")
+    print(f"   エネルギー: 25%値={energy_25p:.0f}kcal, 75%値={energy_75p:.0f}kcal")
+    print(f"   野菜: 75%値={veg_75p:.0f}g\n")
+    
     # 推奨を生成
     recommendations_by_date = {}
     
@@ -134,39 +162,49 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
             
             # 推奨理由を生成する関数
             def generate_recommendation_reason(menu_name, score, rank):
-                """推奨理由を生成"""
+                """推奨理由を生成（動的閾値を使用）"""
                 nutrition = get_menu_nutrition(menu_name, menus_dir)
                 reasons = []
                 
                 # スコアに基づく理由
                 if score > 0.9:
                     reasons.append("高評価メニュー")
-                elif score > 0.7:
+                elif score > 0.75:
                     reasons.append("推奨度高")
                 
-                # 栄養に基づく理由
+                # 栄養に基づく理由（動的閾値）
                 try:
                     protein = float(nutrition.get('たんぱく質', 0))
-                    if protein > 35:
+                    if protein > protein_90p:
                         reasons.append("タンパク質豊富")
-                    elif protein > 25:
+                    elif protein > protein_75p:
                         reasons.append("良好なタンパク質")
                 except:
                     pass
                 
                 try:
                     energy = float(nutrition.get('エネルギー', 0))
-                    if energy < 300:
+                    if energy < energy_25p:
                         reasons.append("低カロリー")
-                    elif energy > 500:
+                    elif energy > energy_75p:
                         reasons.append("ボリューム満点")
                 except:
                     pass
                 
                 try:
                     vegetables = float(nutrition.get('野菜重量', 0))
-                    if vegetables > 100:
+                    if vegetables > veg_75p:
                         reasons.append("野菜たっぷり")
+                except:
+                    pass
+                
+                # 脂質情報も追加
+                try:
+                    fat = float(nutrition.get('脂質', 0))
+                    all_fats = [m.get('nutrition', {}).get('脂質', 0) for m in all_menu_dicts]
+                    fat_75p = np.percentile([float(f) if f else 0 for f in all_fats], 75)
+                    if fat > fat_75p * 1.2:
+                        reasons.append("しっかり脂質")
                 except:
                     pass
                 
