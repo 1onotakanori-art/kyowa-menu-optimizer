@@ -249,13 +249,36 @@ class MenuOptimizationApp {
         dateSelect.appendChild(option);
       });
 
-      // デフォルトは本日（存在する場合）、なければ最初の利用可能日付
-      const todayOption = filteredDates.find(d => d.startsWith(todayMonthDay));
-      if (todayOption) {
-        console.log('✅ 本日のメニューが利用可能:', todayOption);
-        dateSelect.value = todayOption;
+      // デフォルトは本日（存在する場合）、なければ本日以降の最初の平日
+      const getNearestWeekday = (startDate) => {
+        // 指定日付から開始して、最初の平日を見つける
+        let current = new Date(startDate);
+        while (true) {
+          const dayOfWeek = current.getDay();
+          // 平日判定（月=1 ～ 金=5、土=6日曜=0は除外）
+          if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+            return current;
+          }
+          // 次の日へ
+          current.setDate(current.getDate() + 1);
+          
+          // 無限ループ防止（30日以内）
+          if (current > new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000)) {
+            return startDate;
+          }
+        }
+      };
+      
+      // 本日が平日か、そうでなければ次の平日を見つける
+      const todayOrNextWeekday = getNearestWeekday(today);
+      const targetMonthDay = `${todayOrNextWeekday.getMonth() + 1}/${todayOrNextWeekday.getDate()}`;
+      
+      const targetOption = filteredDates.find(d => d.startsWith(targetMonthDay));
+      if (targetOption) {
+        console.log('✅ デフォルト選択日付:', targetOption);
+        dateSelect.value = targetOption;
       } else {
-        console.log('ℹ️ 本日のメニューなし。最初の利用可能日付を選択:', filteredDates[0]);
+        console.log('ℹ️ デフォルト選択日付なし。最初の利用可能日付を選択:', filteredDates[0]);
         dateSelect.value = filteredDates[0];
       }
 
