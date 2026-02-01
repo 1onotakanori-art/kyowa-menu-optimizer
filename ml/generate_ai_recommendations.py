@@ -197,11 +197,11 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                 nutrition = get_menu_nutrition(menu_name, menus_dir)
                 reasons = []
                 
-                # スコアに基づく理由
-                if score > 0.9:
-                    reasons.append("高評価メニュー")
-                elif score > 0.75:
-                    reasons.append("推奨度高")
+                # スコアに基づく理由は一旦無視
+                # if score > 0.9:
+                #     reasons.append("高評価メニュー")
+                # elif score > 0.75:
+                #     reasons.append("推奨度高")
                 
                 # 栄養に基づく理由（動的閾値）
                 try:
@@ -229,9 +229,9 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                 except:
                     pass
                 
-                # ランクに基づく理由
-                if rank == 1:
-                    reasons.append("最優先推奨")
+                # ランクに基づく理由も一旦無視
+                # if rank == 1:
+                #     reasons.append("最優先推奨")
                 
                 # 理由がない場合はデフォルト
                 if not reasons:
