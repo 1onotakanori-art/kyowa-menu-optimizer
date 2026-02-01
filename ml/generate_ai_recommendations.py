@@ -206,6 +206,42 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                     }
                 })
             
+            # セット全体の理由を生成
+            def generate_set_reason(menus_with_reasons):
+                """メニューセット全体の選定理由を生成"""
+                if not menus_with_reasons:
+                    return "バランスの取れたセットです"
+                
+                reason_parts = []
+                
+                # 各メニューの主な理由を構築
+                for menu in menus_with_reasons:
+                    menu_name = menu['name']
+                    reasons = menu['reasons']
+                    
+                    if reasons:
+                        # 理由をアイコン化（簡潔版）
+                        reason_str = f"{menu_name}は{' / '.join(reasons)}"
+                    else:
+                        reason_str = f"{menu_name}は栄養バランス良好"
+                    
+                    reason_parts.append(reason_str)
+                
+                # セット全体の栄養バランスをチェック
+                avg_score = sum(m['score'] for m in menus_with_reasons) / len(menus_with_reasons)
+                if avg_score > 0.9:
+                    balance = "全体で高スコア維持"
+                elif avg_score > 0.7:
+                    balance = "全体で安定したスコア"
+                else:
+                    balance = "全体で多様性を重視"
+                
+                # セット理由を組み立て
+                set_reason = " / ".join(reason_parts) + f" / 全体: {balance}"
+                return set_reason
+            
+            set_reason = generate_set_reason(recommended_menus)
+            
             # セット全体の栄養情報を計算
             total_energy = sum(m['nutrition']['energy'] for m in recommended_menus)
             total_protein = sum(m['nutrition']['protein'] for m in recommended_menus)
@@ -227,6 +263,7 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                 'date': date_str,
                 'generated_at': datetime.now().isoformat(),
                 'model': 'Seq2Set Transformer v1',
+                'set_reason': set_reason,
                 'recommendations': recommended_menus,
                 'nutrition_summary': {
                     'total_energy': round(total_energy, 1),

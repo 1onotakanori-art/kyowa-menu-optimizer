@@ -2211,6 +2211,24 @@ class MenuOptimizationApp {
     summaryContainer.appendChild(summaryContent);
     grid.appendChild(summaryContainer);
     
+    // ========== セット選定理由 ==========
+    if (aiData.set_reason) {
+      const reasonContainer = document.createElement('div');
+      reasonContainer.className = 'ai-set-reason-container';
+      
+      const reasonTitle = document.createElement('div');
+      reasonTitle.className = 'ai-set-reason-title';
+      reasonTitle.innerHTML = '📋 セット選定理由';
+      
+      const reasonText = document.createElement('div');
+      reasonText.className = 'ai-set-reason-text';
+      reasonText.innerHTML = aiData.set_reason;
+      
+      reasonContainer.appendChild(reasonTitle);
+      reasonContainer.appendChild(reasonText);
+      grid.appendChild(reasonContainer);
+    }
+    
     // ========== メニュー一覧 ==========
     const menuListContainer = document.createElement('div');
     menuListContainer.className = 'ai-menu-list-container';

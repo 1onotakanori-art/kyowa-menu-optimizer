@@ -17,6 +17,30 @@
   margin: 0;
 }
 
+/* セット選定理由 */
+.ai-set-reason-container {
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.08), rgba(34, 197, 94, 0.08));
+  border-left: 4px solid #22C55E;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(52, 199, 89, 0.2);
+}
+
+.ai-set-reason-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.ai-set-reason-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
 /* 結果タブと同じサマリースタイル */
 .ai-menu-list-container {
   display: flex;
@@ -48,6 +72,7 @@
   color: #007AFF;
   font-weight: 600;
   margin-top: 4px;
+
 }
 
 .ai-reasons-badge {
