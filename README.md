@@ -101,7 +101,82 @@ kyowa-menu-optimizer/
 └── package.json
 ```
 
-## 🔧 スクレイピング詳細
+## 🔧 スクレイピング & データ同期
+
+### データ管理スクリプト
+
+プロジェクトには2つの独立したデータ管理スクリプトがあります：
+
+1. **学習用データ同期** (`sync-training-data.js`)
+2. **メニュースクレイプ & アップロード** (`scrape-and-upload.js`)
+
+### 事前準備: SSH キーの設定
+
+```bash
+# GitHub との接続テスト
+ssh -T git@github.com
+```
+
+**SSH キーがない場合:**
+1. `ssh-keygen -t ed25519 -C "your_email@example.com"` で生成
+2. `pbcopy < ~/.ssh/id_ed25519.pub` で公開鍵をコピー
+3. GitHub → Settings → SSH and GPG keys に登録
+
+### 1. 学習用データ同期
+
+管理者ページで記録した食事データを GitHub から取得し、ローカルに同期します。
+
+```bash
+# 実行
+npm run sync
+```
+
+**動作:**
+- `kyowa-menu-history` リポジトリを clone/pull
+- 食事履歴を `docs/ai-selections/` に保存
+- 更新されたデータのみコピー
+
+### 2. メニュースクレイプ & アップロード
+
+Kyowa のメニューサイトからメニューをスクレイピングし、GitHub にアップロードします。
+
+```bash
+# デフォルト（5日分）
+npm run scrape
+
+# 10日分
+npm run scrape:10
+
+# 20日分
+npm run scrape:20
+```
+
+**動作:**
+1. `kyowa-menu-history` リポジトリを clone/pull
+2. メニューをスクレイピング（平日のみ）
+3. ローカルの `menus/` に保存
+4. リポジトリと比較して更新があれば commit & push
+
+### 定期実行の推奨
+
+**crontab での自動実行:**
+
+```bash
+# 学習データ同期（毎日午前9時）
+0 9 * * * cd /path/to/kyowa-menu-optimizer && node sync-training-data.js >> logs/sync.log 2>&1
+
+# メニュースクレイプ（毎週月曜 午前8時に10日分）
+0 8 * * 1 cd /path/to/kyowa-menu-optimizer && node scrape-and-upload.js 10 >> logs/scrape.log 2>&1
+```
+
+### 詳細ドキュメント
+
+詳しい使用方法は [docs/DATA_SYNC_GUIDE.md](docs/DATA_SYNC_GUIDE.md) を参照してください。
+
+## 🔧 スクレイピング詳細（旧）
+
+> **注意:** 以下は旧スクリプト `prescrap.js` の情報です。  
+> 新しい `scrape-and-upload.js` の使用を推奨します。
 
 ### 実行タイミング
 

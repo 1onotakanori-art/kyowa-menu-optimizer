@@ -27,6 +27,7 @@ class AdminApp {
     this.currentDate = null;
     this.availableMenus = [];
     this.selectedMenus = new Set();
+    this.menuRatings = {}; // メニュー名 -> 評価(1-5) のマッピング
     
     this.initializeEventListeners();
     this.showMainScreen();
@@ -147,6 +148,7 @@ class AdminApp {
     
     this.currentDate = date;
     this.selectedMenus.clear(); // 前回の選択をクリア
+    this.menuRatings = {}; // 前回の評価をクリア
     this.showLoadStatus('メニュー読込中...', 'info');
     
     try {
@@ -208,12 +210,21 @@ class AdminApp {
       
       // アイテム全体をクリック可能に
       item.addEventListener('click', (e) => {
+        // 星をクリックした場合は無視
+        if (e.target.classList.contains('star-rating') || e.target.classList.contains('star')) {
+          return;
+        }
         e.preventDefault();
         checkbox.checked = !checkbox.checked;
         if (checkbox.checked) {
           this.selectedMenus.add(menu.name);
+          // デフォルト評価を設定
+          if (!this.menuRatings[menu.name]) {
+            this.menuRatings[menu.name] = 3;
+          }
         } else {
           this.selectedMenus.delete(menu.name);
+          delete this.menuRatings[menu.name];
         }
         this.updateSelectionCount();
         this.updateNutritionSummary();
@@ -221,6 +232,29 @@ class AdminApp {
       
       item.appendChild(checkbox);
       item.appendChild(label);
+      
+      // 星評価ウィジェットを追加（選択されている場合のみ）
+      if (this.selectedMenus.has(menu.name)) {
+        const ratingDiv = document.createElement('div');
+        ratingDiv.className = 'star-rating';
+        const currentRating = this.menuRatings[menu.name] || 3;
+        
+        for (let i = 1; i <= 5; i++) {
+          const star = document.createElement('span');
+          star.className = 'star';
+          star.textContent = i <= currentRating ? '★' : '☆';
+          star.style.cursor = 'pointer';
+          star.style.fontSize = '18px';
+          star.style.color = i <= currentRating ? '#ffc107' : '#ddd';
+          star.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.menuRatings[menu.name] = i;
+            this.renderMenuSelection();
+          });
+          ratingDiv.appendChild(star);
+        }
+        item.appendChild(ratingDiv);
+      }
       
       // 栄養情報を色付きバッジで表示
       if (menu.nutrition) {
@@ -311,8 +345,14 @@ class AdminApp {
         // 新形式・旧形式の両方に対応
         let menuNames = [];
         if (githubData.selectedMenus) {
-          // 新形式
+          // 新形式（評価スコア対応）
           menuNames = githubData.selectedMenus.map(m => m.name);
+          // 評価データも復元
+          githubData.selectedMenus.forEach(m => {
+            if (m.rating) {
+              this.menuRatings[m.name] = m.rating;
+            }
+          });
         } else if (githubData.eaten) {
           // 旧形式
           menuNames = githubData.eaten;
@@ -337,6 +377,12 @@ class AdminApp {
         let menuNames = [];
         if (data.selectedMenus) {
           menuNames = data.selectedMenus.map(m => m.name);
+          // 評価データも復元
+          data.selectedMenus.forEach(m => {
+            if (m.rating) {
+              this.menuRatings[m.name] = m.rating;
+            }
+          });
         } else if (data.eaten) {
           menuNames = data.eaten;
         }
@@ -417,10 +463,11 @@ class AdminApp {
       
       this.availableMenus.forEach(menu => {
         if (this.selectedMenus.has(menu.name)) {
-          // メニュー詳細を追加
+          // メニュー詳細を追加（評価スコア付き）
           selectedMenusData.push({
             name: menu.name,
-            nutrition: menu.nutrition || {}
+            nutrition: menu.nutrition || {},
+            rating: this.menuRatings[menu.name] || 3  // デフォルト値: 3
           });
           
           // 栄養合計を計算

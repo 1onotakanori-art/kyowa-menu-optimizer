@@ -26,6 +26,7 @@
         <button class="tab-button" data-tab="menus-tab">📋 メニュー</button>
         <button class="tab-button" data-tab="result-tab">📊 結果</button>
         <button class="tab-button" data-tab="ai-menus-tab">🤖 AI</button>
+        <button class="tab-button" data-tab="dashboard-tab">📈 ダッシュボード</button>
       </div>
 
       <!-- 入力タブ -->
@@ -235,6 +236,78 @@
               <div id="additional-menus-result" class="menus-grid"></div>
             </div>
 
+            <!-- ユーザー評価セクション -->
+            <div class="rating-section">
+              <h3>⭐ このメニューセットはいかがでしたか？</h3>
+              <p class="rating-subtitle">フィードバックをお聞かせください。個人化推奨の精度向上に役立ちます。</p>
+              
+              <div class="rating-container">
+                <!-- メニュー選択ドロップダウン -->
+                <div class="form-group">
+                  <label for="rating-menu-select">📋 評価するメニューを選択</label>
+                  <select id="rating-menu-select" class="form-input">
+                    <option value="">メニューを選択してください</option>
+                  </select>
+                </div>
+
+                <!-- スター評価 -->
+                <div class="form-group">
+                  <label>⭐ 評価</label>
+                  <div class="star-rating">
+                    <button class="star-button" data-rating="1" title="1つ星">★</button>
+                    <button class="star-button" data-rating="2" title="2つ星">★★</button>
+                    <button class="star-button" data-rating="3" title="3つ星">★★★</button>
+                    <button class="star-button" data-rating="4" title="4つ星">★★★★</button>
+                    <button class="star-button" data-rating="5" title="5つ星">★★★★★</button>
+                  </div>
+                  <span id="rating-display" class="rating-display">未選択</span>
+                </div>
+
+                <!-- コメント入力 -->
+                <div class="form-group">
+                  <label for="rating-feedback">💬 感想（オプション）</label>
+                  <textarea 
+                    id="rating-feedback" 
+                    class="form-input" 
+                    placeholder="例：味が良かった。塩辛い。野菜が少ない。など"
+                    rows="3"
+                  ></textarea>
+                </div>
+
+                <!-- 送信ボタン -->
+                <div class="rating-buttons">
+                  <button id="submit-rating-button" class="button button-primary">
+                    💾 評価を送信
+                  </button>
+                  <button id="clear-rating-button" class="button button-secondary">
+                    ✖ クリア
+                  </button>
+                </div>
+
+                <!-- 評価状態メッセージ -->
+                <div id="rating-message" class="rating-message"></div>
+              </div>
+
+              <!-- 評価統計 -->
+              <div id="rating-stats" class="rating-stats hidden">
+                <div class="stats-title">📊 あなたの評価統計</div>
+                <div class="stats-content">
+                  <div class="stat-item">
+                    <span class="stat-label">総評価数:</span>
+                    <span id="stat-total-ratings" class="stat-value">0</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">平均評価:</span>
+                    <span id="stat-avg-rating" class="stat-value">0.0</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">評価対象メニュー:</span>
+                    <span id="stat-unique-menus" class="stat-value">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- 栄養情報 -->
             <div class="nutrition-section">
               <h3>📈 栄養情報</h3>
@@ -273,6 +346,145 @@
           <div id="ai-data-area">
             <!-- メニュー一覧 -->
             <div id="ai-menus-grid" class="menus-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ダッシュボードタブ -->
+      <section id="dashboard-tab" class="tab-content">
+        <div class="dashboard-container">
+          <!-- ローディング状態 -->
+          <div id="dashboard-loading" class="loading-state" style="display: none;">
+            <div class="spinner"></div>
+            <p>データを分析中...</p>
+          </div>
+
+          <!-- エラー状態 -->
+          <div id="dashboard-error" class="no-data-state" style="display: none;">
+            <p>⚠️ ダッシュボードデータの取得に失敗しました</p>
+          </div>
+
+          <!-- ダッシュボード本体 -->
+          <div id="dashboard-content" style="display: none;">
+            <!-- ヘッダー -->
+            <div class="dashboard-header">
+              <h2>📈 AI推奨メニュー分析ダッシュボード</h2>
+              <p class="dashboard-subtitle">20日間のAI推奨メニューセット統計</p>
+            </div>
+
+            <!-- 統計サマリー -->
+            <div class="stats-summary">
+              <div class="stat-card">
+                <span class="stat-label">推奨メニュー数</span>
+                <span class="stat-value" id="stat-total-menus">80</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">平均推奨スコア</span>
+                <span class="stat-value" id="stat-avg-score">75.2%</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">平均エネルギー</span>
+                <span class="stat-value" id="stat-avg-energy">425 kcal</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">平均タンパク質</span>
+                <span class="stat-value" id="stat-avg-protein">18.5 g</span>
+              </div>
+            </div>
+
+            <!-- グラフエリア -->
+            <div class="charts-grid">
+              <!-- スコア分布 -->
+              <div class="chart-container">
+                <h3>推奨スコア分布</h3>
+                <canvas id="chart-score-distribution"></canvas>
+              </div>
+
+              <!-- 日付別平均スコア -->
+              <div class="chart-container">
+                <h3>日付別平均推奨スコア</h3>
+                <canvas id="chart-daily-average-score"></canvas>
+              </div>
+
+              <!-- 栄養バランス (PFC比) -->
+              <div class="chart-container">
+                <h3>平均栄養バランス (PFC比)</h3>
+                <canvas id="chart-pfc-ratio"></canvas>
+              </div>
+
+              <!-- メニュー推奨頻度 Top 10 -->
+              <div class="chart-container">
+                <h3>推奨メニュー Top 10</h3>
+                <canvas id="chart-top-menus"></canvas>
+              </div>
+
+              <!-- エネルギー分布 -->
+              <div class="chart-container">
+                <h3>推奨メニューのエネルギー分布</h3>
+                <canvas id="chart-energy-distribution"></canvas>
+              </div>
+
+              <!-- タンパク質分布 -->
+              <div class="chart-container">
+                <h3>推奨メニューのタンパク質分布</h3>
+                <canvas id="chart-protein-distribution"></canvas>
+              </div>
+            </div>
+
+            <!-- 詳細テーブル -->
+            <div class="details-section">
+              <h3>📊 推奨メニュー詳細統計</h3>
+              <div class="table-responsive">
+                <table id="stats-table" class="stats-table">
+                  <thead>
+                    <tr>
+                      <th>指標</th>
+                      <th>最小値</th>
+                      <th>平均値</th>
+                      <th>最大値</th>
+                      <th>標準偏差</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>推奨スコア (%)</td>
+                      <td id="score-min">-</td>
+                      <td id="score-avg">-</td>
+                      <td id="score-max">-</td>
+                      <td id="score-std">-</td>
+                    </tr>
+                    <tr>
+                      <td>エネルギー (kcal)</td>
+                      <td id="energy-min">-</td>
+                      <td id="energy-avg">-</td>
+                      <td id="energy-max">-</td>
+                      <td id="energy-std">-</td>
+                    </tr>
+                    <tr>
+                      <td>タンパク質 (g)</td>
+                      <td id="protein-min">-</td>
+                      <td id="protein-avg">-</td>
+                      <td id="protein-max">-</td>
+                      <td id="protein-std">-</td>
+                    </tr>
+                    <tr>
+                      <td>脂質 (g)</td>
+                      <td id="fat-min">-</td>
+                      <td id="fat-avg">-</td>
+                      <td id="fat-max">-</td>
+                      <td id="fat-std">-</td>
+                    </tr>
+                    <tr>
+                      <td>炭水化物 (g)</td>
+                      <td id="carbs-min">-</td>
+                      <td id="carbs-avg">-</td>
+                      <td id="carbs-max">-</td>
+                      <td id="carbs-std">-</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -4,7 +4,11 @@
   "description": "",
   "main": "scrape.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sync": "node sync-training-data.js",
+    "scrape": "node scrape-and-upload.js",
+    "scrape:10": "node scrape-and-upload.js 10",
+    "scrape:20": "node scrape-and-upload.js 20"
   },
   "keywords": [],
   "author": "",

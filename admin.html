@@ -286,6 +286,26 @@
       color: var(--primary-color);
       margin-top: 4px;
     }
+
+    /* 星評価スタイル */
+    .star-rating {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      margin-left: auto;
+      padding: 0 4px;
+    }
+
+    .star {
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+
+    .star:active {
+      transform: scale(1.3);
+    }
   </style>
 </head>
 <body>

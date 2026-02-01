@@ -1,0 +1,75 @@
+{
+  "timestamp": "2026-02-01T17:58:46.976008",
+  "time_series_split": {
+    "train_size": 16,
+    "test_size": 4,
+    "metrics": {
+      "menu_accuracy": 0.4666666666666667,
+      "set_jaccard": 0.3,
+      "nutrition_rmse": 246.26465741909982,
+      "num_predictions": 4
+    }
+  },
+  "leave_future_out": [
+    {
+      "fold": 1,
+      "train_size": 3,
+      "test_size": 3,
+      "date_range": "2026-01-19 ~ 2026-01-21",
+      "metrics": {
+        "menu_accuracy": 0.45454545454545453,
+        "set_jaccard": 0.3111111111111111,
+        "nutrition_rmse": 234.97971254628746,
+        "num_predictions": 3
+      }
+    },
+    {
+      "fold": 2,
+      "train_size": 6,
+      "test_size": 3,
+      "date_range": "2026-01-22 ~ 2026-01-26",
+      "metrics": {
+        "menu_accuracy": 0.14285714285714285,
+        "set_jaccard": 0.06666666666666667,
+        "nutrition_rmse": 182.08444743856705,
+        "num_predictions": 3
+      }
+    },
+    {
+      "fold": 3,
+      "train_size": 9,
+      "test_size": 3,
+      "date_range": "2026-01-27 ~ 2026-01-29",
+      "metrics": {
+        "menu_accuracy": 0.4444444444444444,
+        "set_jaccard": 0.26666666666666666,
+        "nutrition_rmse": 112.81441724444555,
+        "num_predictions": 3
+      }
+    },
+    {
+      "fold": 4,
+      "train_size": 12,
+      "test_size": 3,
+      "date_range": "2026-01-30 ~ 2026-02-03",
+      "metrics": {
+        "menu_accuracy": 0.6363636363636364,
+        "set_jaccard": 0.45555555555555555,
+        "nutrition_rmse": 134.09571772161053,
+        "num_predictions": 3
+      }
+    },
+    {
+      "fold": 5,
+      "train_size": 15,
+      "test_size": 3,
+      "date_range": "2026-02-09 ~ 2026-02-11",
+      "metrics": {
+        "menu_accuracy": 0.3333333333333333,
+        "set_jaccard": 0.17777777777777778,
+        "nutrition_rmse": 285.77701709071636,
+        "num_predictions": 3
+      }
+    }
+  ]
+}
