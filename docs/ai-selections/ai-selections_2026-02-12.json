@@ -1,45 +1,11 @@
 {
   "date": "2026-02-12",
-  "generated_at": "2026-02-01T22:24:16.272098",
+  "generated_at": "2026-02-02T08:42:03.860220",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "鶏肉と大根の塩麹煮は高評価メニュー / 低カロリー / 豆腐とシーフードの韓国風チゲは高評価メニュー / 野菜たっぷり / 豚肉とキャベツのスパイシー炒めは高評価メニュー / 低カロリー / ライス（S)は高評価メニュー / 全体: 全体で高スコア維持",
+  "set_reason": "豚肉とキャベツのスパイシー炒めは高評価メニュー / 低カロリー / たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは高評価メニュー / 低カロリー / ライス（S)は高評価メニュー / 鯖と大根のピリ辛味噌煮は高評価メニュー / 野菜たっぷり / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "鶏肉と大根の塩麹煮",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "低カロリー"
-      ],
-      "nutrition": {
-        "energy": 46,
-        "protein": 3.7,
-        "fat": 1,
-        "carbs": 5.5,
-        "vegetable_weight": 69,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 2,
-      "name": "豆腐とシーフードの韓国風チゲ",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "野菜たっぷり"
-      ],
-      "nutrition": {
-        "energy": 194,
-        "protein": 14.5,
-        "fat": 7.3,
-        "carbs": 16.6,
-        "vegetable_weight": 178,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
       "name": "豚肉とキャベツのスパイシー炒め",
       "score": 1.0,
       "reasons": [
@@ -56,7 +22,24 @@
       }
     },
     {
-      "rank": 4,
+      "rank": 2,
+      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー",
+        "低カロリー"
+      ],
+      "nutrition": {
+        "energy": 83,
+        "protein": 10.9,
+        "fat": 3.2,
+        "carbs": 2.7,
+        "vegetable_weight": 40,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 3,
       "name": "ライス（S)",
       "score": 1.0,
       "reasons": [
@@ -70,20 +53,37 @@
         "vegetable_weight": 0,
         "fiber": 0
       }
+    },
+    {
+      "rank": 4,
+      "name": "鯖と大根のピリ辛味噌煮",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー",
+        "野菜たっぷり"
+      ],
+      "nutrition": {
+        "energy": 247,
+        "protein": 13.1,
+        "fat": 17.2,
+        "carbs": 12.3,
+        "vegetable_weight": 80,
+        "fiber": 0
+      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 555,
-    "total_protein": 26.2,
-    "total_fat": 12.1,
-    "total_carbs": 82.6,
-    "average_energy": 138.8,
-    "average_protein": 6.5
+    "total_energy": 645,
+    "total_protein": 32.0,
+    "total_fat": 24.2,
+    "total_carbs": 75.5,
+    "average_energy": 161.2,
+    "average_protein": 8.0
   },
   "pfc_ratio": {
-    "protein": 18.9,
-    "fat": 19.6,
-    "carbs": 59.5
+    "protein": 19.8,
+    "fat": 33.8,
+    "carbs": 46.8
   },
   "recommendation_count": 4
 }

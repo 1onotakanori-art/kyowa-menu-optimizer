@@ -1,62 +1,28 @@
 {
   "date": "2026-01-29",
-  "generated_at": "2026-02-01T22:24:15.832713",
+  "generated_at": "2026-02-02T08:42:03.379583",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "鶏肉と大根の塩麹煮は高評価メニュー / 低カロリー / 豆腐とシーフードの韓国風チゲは高評価メニュー / 野菜たっぷり / 豚肉とキャベツのスパイシー炒めは高評価メニュー / 低カロリー / ライス（S)は高評価メニュー / 全体: 全体で高スコア維持",
+  "set_reason": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリーは高評価メニュー / 低カロリー / ライス（S)は高評価メニュー / ホキのムニエル　ガーリックバターソースは高評価メニュー / 自家製！麻婆豆腐は高評価メニュー / 良好なタンパク質 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "鶏肉と大根の塩麹煮",
+      "name": "たんぱく質の摂れる小鉢 蒸し鶏＆ブロッコリー",
       "score": 1.0,
       "reasons": [
         "高評価メニュー",
         "低カロリー"
       ],
       "nutrition": {
-        "energy": 46,
-        "protein": 3.7,
-        "fat": 1,
-        "carbs": 5.5,
-        "vegetable_weight": 69,
+        "energy": 83,
+        "protein": 10.9,
+        "fat": 3.2,
+        "carbs": 2.7,
+        "vegetable_weight": 40,
         "fiber": 0
       }
     },
     {
       "rank": 2,
-      "name": "豆腐とシーフードの韓国風チゲ",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "野菜たっぷり"
-      ],
-      "nutrition": {
-        "energy": 194,
-        "protein": 14.5,
-        "fat": 7.3,
-        "carbs": 16.6,
-        "vegetable_weight": 178,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
-      "name": "豚肉とキャベツのスパイシー炒め",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "低カロリー"
-      ],
-      "nutrition": {
-        "energy": 64,
-        "protein": 3.7,
-        "fat": 3.2,
-        "carbs": 6.2,
-        "vegetable_weight": 118,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
       "name": "ライス（S)",
       "score": 1.0,
       "reasons": [
@@ -70,20 +36,53 @@
         "vegetable_weight": 0,
         "fiber": 0
       }
+    },
+    {
+      "rank": 3,
+      "name": "ホキのムニエル　ガーリックバターソース",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー"
+      ],
+      "nutrition": {
+        "energy": 143,
+        "protein": 14.8,
+        "fat": 5.5,
+        "carbs": 8.2,
+        "vegetable_weight": 64,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "自家製！麻婆豆腐",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー",
+        "良好なタンパク質"
+      ],
+      "nutrition": {
+        "energy": 324,
+        "protein": 19.8,
+        "fat": 18.7,
+        "carbs": 15.6,
+        "vegetable_weight": 15,
+        "fiber": 0
+      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 555,
-    "total_protein": 26.2,
-    "total_fat": 12.1,
-    "total_carbs": 82.6,
-    "average_energy": 138.8,
-    "average_protein": 6.5
+    "total_energy": 801,
+    "total_protein": 49.8,
+    "total_fat": 28.0,
+    "total_carbs": 80.8,
+    "average_energy": 200.2,
+    "average_protein": 12.4
   },
   "pfc_ratio": {
-    "protein": 18.9,
-    "fat": 19.6,
-    "carbs": 59.5
+    "protein": 24.9,
+    "fat": 31.5,
+    "carbs": 40.3
   },
   "recommendation_count": 4
 }

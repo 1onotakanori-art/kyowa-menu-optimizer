@@ -1,66 +1,16 @@
 {
   "date": "2026-01-26",
-  "generated_at": "2026-02-01T22:24:15.639690",
+  "generated_at": "2026-02-02T08:42:03.174477",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "鶏肉と大根の塩麹煮は高評価メニュー / 低カロリー / 豆腐とシーフードの韓国風チゲは高評価メニュー / 野菜たっぷり / 豚肉とキャベツのスパイシー炒めは高評価メニュー / 低カロリー / ライス（S)は高評価メニュー / 全体: 全体で高スコア維持",
+  "set_reason": "ライス（S)は高評価メニュー / 最優先推奨 / ホキの明太マヨ焼きは高評価メニュー / かぼちゃと鶏団子のそぼろあんかけは高評価メニュー / 野菜たっぷり / チキンカツ　バーベキューソースは高評価メニュー / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "鶏肉と大根の塩麹煮",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "低カロリー"
-      ],
-      "nutrition": {
-        "energy": 46,
-        "protein": 3.7,
-        "fat": 1,
-        "carbs": 5.5,
-        "vegetable_weight": 69,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 2,
-      "name": "豆腐とシーフードの韓国風チゲ",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "野菜たっぷり"
-      ],
-      "nutrition": {
-        "energy": 194,
-        "protein": 14.5,
-        "fat": 7.3,
-        "carbs": 16.6,
-        "vegetable_weight": 178,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
-      "name": "豚肉とキャベツのスパイシー炒め",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "低カロリー"
-      ],
-      "nutrition": {
-        "energy": 64,
-        "protein": 3.7,
-        "fat": 3.2,
-        "carbs": 6.2,
-        "vegetable_weight": 118,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
       "name": "ライス（S)",
       "score": 1.0,
       "reasons": [
-        "高評価メニュー"
+        "高評価メニュー",
+        "最優先推奨"
       ],
       "nutrition": {
         "energy": 251,
@@ -70,20 +20,69 @@
         "vegetable_weight": 0,
         "fiber": 0
       }
+    },
+    {
+      "rank": 2,
+      "name": "ホキの明太マヨ焼き",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー"
+      ],
+      "nutrition": {
+        "energy": 257,
+        "protein": 14.6,
+        "fat": 19.7,
+        "carbs": 4.4,
+        "vegetable_weight": 5,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 3,
+      "name": "かぼちゃと鶏団子のそぼろあんかけ",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー",
+        "野菜たっぷり"
+      ],
+      "nutrition": {
+        "energy": 292,
+        "protein": 12.4,
+        "fat": 14.1,
+        "carbs": 28.4,
+        "vegetable_weight": 85,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "チキンカツ　バーベキューソース",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー"
+      ],
+      "nutrition": {
+        "energy": 305,
+        "protein": 15.5,
+        "fat": 11.6,
+        "carbs": 33.7,
+        "vegetable_weight": 57,
+        "fiber": 0
+      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 555,
-    "total_protein": 26.2,
-    "total_fat": 12.1,
-    "total_carbs": 82.6,
-    "average_energy": 138.8,
-    "average_protein": 6.5
+    "total_energy": 1105,
+    "total_protein": 46.8,
+    "total_fat": 46.0,
+    "total_carbs": 120.8,
+    "average_energy": 276.2,
+    "average_protein": 11.7
   },
   "pfc_ratio": {
-    "protein": 18.9,
-    "fat": 19.6,
-    "carbs": 59.5
+    "protein": 16.9,
+    "fat": 37.5,
+    "carbs": 43.7
   },
   "recommendation_count": 4
 }

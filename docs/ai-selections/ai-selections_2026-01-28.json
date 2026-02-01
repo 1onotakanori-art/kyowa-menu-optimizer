@@ -1,66 +1,16 @@
 {
   "date": "2026-01-28",
-  "generated_at": "2026-02-01T22:24:15.769217",
+  "generated_at": "2026-02-02T08:42:03.307202",
   "model": "Seq2Set Transformer v1",
-  "set_reason": "鶏肉と大根の塩麹煮は高評価メニュー / 低カロリー / 豆腐とシーフードの韓国風チゲは高評価メニュー / 野菜たっぷり / 豚肉とキャベツのスパイシー炒めは高評価メニュー / 低カロリー / ライス（S)は高評価メニュー / 全体: 全体で高スコア維持",
+  "set_reason": "ライス（S)は高評価メニュー / 最優先推奨 / 白身魚の天ぷらピリ辛ソースは高評価メニュー / 野菜たっぷり！水餃子入りピリ辛豆乳スープは高評価メニュー / 野菜たっぷり / あじフライは高評価メニュー / 良好なタンパク質 / 全体: 全体で高スコア維持",
   "recommendations": [
     {
       "rank": 1,
-      "name": "鶏肉と大根の塩麹煮",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "低カロリー"
-      ],
-      "nutrition": {
-        "energy": 46,
-        "protein": 3.7,
-        "fat": 1,
-        "carbs": 5.5,
-        "vegetable_weight": 69,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 2,
-      "name": "豆腐とシーフードの韓国風チゲ",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "野菜たっぷり"
-      ],
-      "nutrition": {
-        "energy": 194,
-        "protein": 14.5,
-        "fat": 7.3,
-        "carbs": 16.6,
-        "vegetable_weight": 178,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
-      "name": "豚肉とキャベツのスパイシー炒め",
-      "score": 1.0,
-      "reasons": [
-        "高評価メニュー",
-        "低カロリー"
-      ],
-      "nutrition": {
-        "energy": 64,
-        "protein": 3.7,
-        "fat": 3.2,
-        "carbs": 6.2,
-        "vegetable_weight": 118,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
       "name": "ライス（S)",
       "score": 1.0,
       "reasons": [
-        "高評価メニュー"
+        "高評価メニュー",
+        "最優先推奨"
       ],
       "nutrition": {
         "energy": 251,
@@ -70,20 +20,70 @@
         "vegetable_weight": 0,
         "fiber": 0
       }
+    },
+    {
+      "rank": 2,
+      "name": "白身魚の天ぷらピリ辛ソース",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー"
+      ],
+      "nutrition": {
+        "energy": 193,
+        "protein": 12.7,
+        "fat": 5.1,
+        "carbs": 22.1,
+        "vegetable_weight": 2,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 3,
+      "name": "野菜たっぷり！水餃子入りピリ辛豆乳スープ",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー",
+        "野菜たっぷり"
+      ],
+      "nutrition": {
+        "energy": 176,
+        "protein": 6.8,
+        "fat": 4.4,
+        "carbs": 28.1,
+        "vegetable_weight": 120,
+        "fiber": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "あじフライ",
+      "score": 1.0,
+      "reasons": [
+        "高評価メニュー",
+        "良好なタンパク質"
+      ],
+      "nutrition": {
+        "energy": 252,
+        "protein": 16.3,
+        "fat": 7.8,
+        "carbs": 27.9,
+        "vegetable_weight": 35,
+        "fiber": 0
+      }
     }
   ],
   "nutrition_summary": {
-    "total_energy": 555,
-    "total_protein": 26.2,
-    "total_fat": 12.1,
-    "total_carbs": 82.6,
-    "average_energy": 138.8,
-    "average_protein": 6.5
+    "total_energy": 872,
+    "total_protein": 40.1,
+    "total_fat": 17.9,
+    "total_carbs": 132.4,
+    "average_energy": 218.0,
+    "average_protein": 10.0
   },
   "pfc_ratio": {
-    "protein": 18.9,
-    "fat": 19.6,
-    "carbs": 59.5
+    "protein": 18.4,
+    "fat": 18.5,
+    "carbs": 60.7
   },
   "recommendation_count": 4
 }

@@ -78,6 +78,7 @@ def load_data():
 def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', top_k=4):
     """
     Seq2Set Transformer を使用して推奨メニューセットを生成
+    各日付のメニューファイルから、その日に利用可能なメニューの中から最適なセットを選ぶ
     
     Args:
         date: 推奨対象日 (YYYY-MM-DD形式)
@@ -132,24 +133,44 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
     # 推奨を生成
     recommendations_by_date = {}
     
-    for date_str, menu_names, menu_indices in sequences:
+    # 各日付のメニューファイルを処理
+    for date_str, _, _ in sequences:
         try:
-            # メニュー埋め込みを取得
-            menu_embeddings = []
-            for idx in menu_indices:
-                menu_name = idx_to_menu[idx]
-                nutrition = all_menus.get(menu_name, {})
-                
-                # encode_menu の入力形式に合わせる
-                menu_dict = {
-                    'name': menu_name,
-                    'nutrition': nutrition
-                }
-                embedding = encoder.encode_menu(menu_dict)
-                menu_embeddings.append(embedding)
+            # その日のメニューファイルを読み込む
+            menu_file = menus_dir / f'menus_{date_str}.json'
+            with open(menu_file, 'r', encoding='utf-8') as f:
+                daily_data = json.load(f)
+                daily_menus = daily_data.get('menus', [])
             
-            # テンソルに変換
-            X = torch.FloatTensor(menu_embeddings).unsqueeze(0).to(device)  # (1, seq_len, 68)
+            if not daily_menus:
+                print(f"⚠️ {date_str}: メニューが見つかりません")
+                continue
+            
+            # その日のメニュー名とインデックスを取得
+            daily_menu_names = []
+            daily_menu_indices = []
+            daily_menu_embeddings = []
+            
+            for menu in daily_menus:
+                menu_name = menu.get('name')
+                if menu_name and menu_name in menu_to_idx:
+                    daily_menu_names.append(menu_name)
+                    daily_menu_indices.append(menu_to_idx[menu_name])
+                    
+                    # メニューをエンコード
+                    menu_dict = {
+                        'name': menu_name,
+                        'nutrition': menu.get('nutrition', {})
+                    }
+                    embedding = encoder.encode_menu(menu_dict)
+                    daily_menu_embeddings.append(embedding)
+            
+            if not daily_menu_embeddings:
+                print(f"⚠️ {date_str}: エンコード可能なメニューがありません")
+                continue
+            
+            # テンソルに変換してモデルに入力
+            X = torch.FloatTensor(daily_menu_embeddings).unsqueeze(0).to(device)  # (1, seq_len, 68)
             
             # モデルで推奨を生成
             with torch.no_grad():
@@ -157,8 +178,18 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                 output_logits, _ = model(X)  # (1, num_menus), attentions
                 output_probs = torch.sigmoid(output_logits)  # (1, num_menus)
             
-            # Top-K を選択
-            top_indices = torch.argsort(output_probs[0], descending=True)[:top_k].cpu().numpy()
+            # その日に利用可能なメニューのスコアのみを抽出
+            daily_scores = []
+            for i, menu_idx in enumerate(daily_menu_indices):
+                score = output_probs[0, menu_idx].item()
+                daily_scores.append((menu_idx, daily_menu_names[i], score))
+            
+            # スコアでソートしてTop-Kを選択
+            daily_scores.sort(key=lambda x: x[2], reverse=True)
+            top_recommendations = daily_scores[:top_k]
+            
+            print(f"📅 {date_str}: {len(daily_menus)}個のメニューから{len(top_recommendations)}個を選択")
+
             
             # 推奨理由を生成する関数
             def generate_recommendation_reason(menu_name, score, rank):
@@ -198,16 +229,6 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                 except:
                     pass
                 
-                # 脂質情報も追加
-                try:
-                    fat = float(nutrition.get('脂質', 0))
-                    all_fats = [m.get('nutrition', {}).get('脂質', 0) for m in all_menu_dicts]
-                    fat_75p = np.percentile([float(f) if f else 0 for f in all_fats], 75)
-                    if fat > fat_75p * 1.2:
-                        reasons.append("しっかり脂質")
-                except:
-                    pass
-                
                 # ランクに基づく理由
                 if rank == 1:
                     reasons.append("最優先推奨")
@@ -218,21 +239,16 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                 
                 return reasons[:2]  # 最大2つまで
             
-            # 推奨メニューを取得
+            # 推奨メニューの詳細を構築
             recommended_menus = []
-            for rank, idx in enumerate(top_indices, 1):
-                menu_name = idx_to_menu[int(idx)]
-                score = output_probs[0, idx].item()
-                # 全メニューファイルから栄養情報を取得
+            for rank, (menu_idx, menu_name, score) in enumerate(top_recommendations, start=1):
                 nutrition = get_menu_nutrition(menu_name, menus_dir)
-                
-                # 推奨理由を生成
                 reasons = generate_recommendation_reason(menu_name, score, rank)
                 
                 recommended_menus.append({
                     'rank': rank,
                     'name': menu_name,
-                    'score': round(score, 4),
+                    'score': round(float(score), 3),
                     'reasons': reasons,
                     'nutrition': {
                         'energy': nutrition.get('エネルギー', 0),
@@ -243,6 +259,7 @@ def generate_recommendations(date=None, model_path='ml/seq2set_model_best.pth', 
                         'fiber': nutrition.get('食物繊維', 0)
                     }
                 })
+
             
             # セット全体の理由を生成
             def generate_set_reason(menus_with_reasons):
