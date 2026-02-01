@@ -116,6 +116,20 @@ class MenuOptimizationApp {
   }
 
   /**
+   * YYYY-MM-DD 形式を M/D(曜日) 形式に変換
+   */
+  isoDateToDateLabel(isoDate) {
+    if (!isoDate) return null;
+    
+    const [year, month, day] = isoDate.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    const dayOfWeek = days[date.getDay()];
+    
+    return `${month}/${day}(${dayOfWeek})`;
+  }
+
+  /**
    * メニューを読込（JSON ファイルから直接読込）
    */
   async loadMenus() {
@@ -190,12 +204,15 @@ class MenuOptimizationApp {
         return;
       }
 
-      // 本日の日付を取得（"M/D" 形式）
+      // YYYY-MM-DD 形式から M/D(曜日) 形式に変換
+      const dateLabels = availableDates.map(isoDate => this.isoDateToDateLabel(isoDate));
+      
+      // 本日の日付を取得
       const today = new Date();
       const todayMonthDay = `${today.getMonth() + 1}/${today.getDate()}`;
 
       // ページ開いている日以降の日付をフィルタリング
-      const filteredDates = availableDates.filter(dateLabel => {
+      const filteredDates = dateLabels.filter(dateLabel => {
         const match = dateLabel.match(/(\d{1,2})\/(\d{1,2})/);
         if (!match) return false;
 
@@ -204,8 +221,6 @@ class MenuOptimizationApp {
         const dayNum = parseInt(day);
 
         // 本日以降の日付か判定
-        // 注：月の跨ぎや年の跨ぎには対応していません
-        // スクレイプが最新なら、今月の日付のみで問題ありません
         if (monthNum > today.getMonth() + 1) {
           return true; // 翌月以降
         }
@@ -227,10 +242,10 @@ class MenuOptimizationApp {
       dateSelect.innerHTML = '';
 
       // フィルター後の日付をオプションに追加
-      filteredDates.forEach(date => {
+      filteredDates.forEach(dateLabel => {
         const option = document.createElement('option');
-        option.value = date; // "1/13(火)" 形式
-        option.textContent = date; // "1/13(火)" 形式で表示
+        option.value = dateLabel; // "1/13(火)" 形式
+        option.textContent = dateLabel; // "1/13(火)" 形式で表示
         dateSelect.appendChild(option);
       });
 
@@ -1442,7 +1457,580 @@ class MenuOptimizationApp {
         console.log('⚠️ AIタブ: 日付が設定されていません');
       }
     });
+
+    // ダッシュボード初期化
+    this.initDashboard();
   }
+
+  /**
+   * ダッシュボードタブの初期化
+   */
+  initDashboard() {
+    const dashboardTab = document.querySelector('[data-tab="dashboard-tab"]');
+    if (!dashboardTab) return;
+
+    dashboardTab.addEventListener('click', async () => {
+      console.log('🔄 ダッシュボード: タブクリックイベント');
+      await this.loadDashboardContent();
+    });
+  }
+
+  /**
+   * ダッシュボード用の全推奨データを読み込み・集計
+   */
+  async loadDashboardContent() {
+    const loadingEl = document.getElementById('dashboard-loading');
+    const errorEl = document.getElementById('dashboard-error');
+    const contentEl = document.getElementById('dashboard-content');
+
+    if (!loadingEl || !errorEl || !contentEl) {
+      console.error('❌ ダッシュボード: 必要な要素が見つかりません');
+      return;
+    }
+
+    loadingEl.style.display = 'flex';
+    errorEl.style.display = 'none';
+    contentEl.style.display = 'none';
+
+    try {
+      // 全推奨データを収集
+      const allRecommendations = await this.collectAllRecommendations();
+      
+      if (!allRecommendations || allRecommendations.length === 0) {
+        throw new Error('推奨データが見つかりません');
+      }
+
+      // 統計を計算
+      const stats = this.calculateStatistics(allRecommendations);
+      
+      // UI を更新
+      this.updateDashboardStats(stats);
+      this.renderDashboardCharts(stats, allRecommendations);
+      this.updateStatisticsTable(stats);
+      
+      contentEl.style.display = 'block';
+      console.log('✅ ダッシュボード: 表示完了');
+    } catch (error) {
+      console.error('❌ ダッシュボード読み込みエラー:', error);
+      errorEl.style.display = 'block';
+    } finally {
+      loadingEl.style.display = 'none';
+    }
+  }
+
+  /**
+   * 利用可能な全ての日付のAI推奨データを収集
+   */
+  async collectAllRecommendations() {
+    try {
+      // インデックスから利用可能な日付を取得
+      const response = await fetch('docs/ai-selections/available-ai-dates.json', {
+        cache: 'no-cache'
+      });
+
+      if (!response.ok) throw new Error('インデックスファイルが見つかりません');
+
+      const indexData = await response.json();
+      const dates = indexData.dates || [];
+
+      // 各日付のAI推奨データを読み込み
+      const allRecommendations = [];
+      for (const date of dates) {
+        try {
+          const aiResponse = await fetch(`docs/ai-selections/ai-selections_${date}.json`, {
+            cache: 'no-cache'
+          });
+
+          if (aiResponse.ok) {
+            const aiData = await aiResponse.json();
+            if (aiData.recommendations) {
+              allRecommendations.push(...aiData.recommendations);
+            }
+          }
+        } catch (e) {
+          console.warn(`推奨データ読み込み失敗: ${date}`, e);
+        }
+      }
+
+      return allRecommendations;
+    } catch (error) {
+      console.error('推奨データ収集エラー:', error);
+      return [];
+    }
+  }
+
+  /**
+   * 統計を計算
+   */
+  calculateStatistics(recommendations) {
+    if (!recommendations || recommendations.length === 0) {
+      return {};
+    }
+
+    const stats = {
+      totalMenus: recommendations.length,
+      scores: [],
+      energies: [],
+      proteins: [],
+      fats: [],
+      carbs: [],
+      menuFrequency: {},
+      scoresByDate: {},
+      avgPFC: { protein: 0, fat: 0, carbs: 0 }
+    };
+
+    let totalProteinCal = 0;
+    let totalFatCal = 0;
+    let totalCarbsCal = 0;
+    let totalCal = 0;
+
+    // データを集計
+    recommendations.forEach(rec => {
+      // スコア
+      const score = (rec.score * 100);
+      stats.scores.push(score);
+
+      // 栄養情報
+      const energy = rec.nutrition.energy || 0;
+      const protein = rec.nutrition.protein || 0;
+      const fat = rec.nutrition.fat || 0;
+      const carbs = rec.nutrition.carbs || 0;
+
+      stats.energies.push(energy);
+      stats.proteins.push(protein);
+      stats.fats.push(fat);
+      stats.carbs.push(carbs);
+
+      // PFC計算（カロリーベース）
+      totalProteinCal += protein * 4;
+      totalFatCal += fat * 9;
+      totalCarbsCal += carbs * 4;
+      totalCal += energy;
+
+      // メニュー頻度
+      const menuName = rec.name;
+      stats.menuFrequency[menuName] = (stats.menuFrequency[menuName] || 0) + 1;
+    });
+
+    // PFC平均比率
+    if (totalCal > 0) {
+      stats.avgPFC = {
+        protein: (totalProteinCal / totalCal * 100).toFixed(1),
+        fat: (totalFatCal / totalCal * 100).toFixed(1),
+        carbs: (totalCarbsCal / totalCal * 100).toFixed(1)
+      };
+    }
+
+    // 統計関数
+    const calcStats = (arr) => ({
+      min: Math.min(...arr),
+      max: Math.max(...arr),
+      avg: arr.reduce((a, b) => a + b, 0) / arr.length,
+      std: this.calculateStdDev(arr)
+    });
+
+    stats.scoreStats = calcStats(stats.scores);
+    stats.energyStats = calcStats(stats.energies);
+    stats.proteinStats = calcStats(stats.proteins);
+    stats.fatStats = calcStats(stats.fats);
+    stats.carbsStats = calcStats(stats.carbs);
+
+    return stats;
+  }
+
+  /**
+   * 標準偏差を計算
+   */
+  calculateStdDev(arr) {
+    if (arr.length === 0) return 0;
+    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+    const variance = arr.reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / arr.length;
+    return Math.sqrt(variance);
+  }
+
+  /**
+   * ダッシュボード統計を更新
+   */
+  updateDashboardStats(stats) {
+    document.getElementById('stat-total-menus').textContent = stats.totalMenus;
+    document.getElementById('stat-avg-score').textContent = stats.scoreStats.avg.toFixed(1) + '%';
+    document.getElementById('stat-avg-energy').textContent = Math.round(stats.energyStats.avg) + ' kcal';
+    document.getElementById('stat-avg-protein').textContent = stats.proteinStats.avg.toFixed(1) + ' g';
+  }
+
+  /**
+   * ダッシュボードチャートをレンダリング
+   */
+  renderDashboardCharts(stats, recommendations) {
+    // スコア分布 (ヒストグラム)
+    this.renderScoreDistribution(stats.scores);
+
+    // 日付別平均スコア
+    this.renderDailyAverageScore(recommendations);
+
+    // PFC比 (円グラフ)
+    this.renderPFCRatio(stats.avgPFC);
+
+    // Top 10 メニュー (棒グラフ)
+    this.renderTopMenus(stats.menuFrequency);
+
+    // エネルギー分布
+    this.renderEnergyDistribution(stats.energies);
+
+    // タンパク質分布
+    this.renderProteinDistribution(stats.proteins);
+  }
+
+  /**
+   * スコア分布チャート
+   */
+  renderScoreDistribution(scores) {
+    const ctx = document.getElementById('chart-score-distribution');
+    if (!ctx) return;
+
+    // ヒストグラム用のビン作成
+    const bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    const histogram = new Array(bins.length - 1).fill(0);
+
+    scores.forEach(score => {
+      for (let i = 0; i < bins.length - 1; i++) {
+        if (score >= bins[i] && score < bins[i + 1]) {
+          histogram[i]++;
+          break;
+        }
+      }
+    });
+
+    const labels = bins.slice(0, -1).map((b, i) => `${b}-${bins[i + 1]}%`);
+
+    if (window.chartInstances) {
+      window.chartInstances['score-distribution']?.destroy();
+    } else {
+      window.chartInstances = {};
+    }
+
+    window.chartInstances['score-distribution'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '推奨スコア',
+          data: histogram,
+          backgroundColor: 'rgba(52, 199, 89, 0.6)',
+          borderColor: 'rgba(52, 199, 89, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  /**
+   * 日付別平均スコアチャート
+   */
+  async renderDailyAverageScore(recommendations) {
+    const ctx = document.getElementById('chart-daily-average-score');
+    if (!ctx) return;
+
+    // インデックスから日付を取得
+    const indexResponse = await fetch('docs/ai-selections/available-ai-dates.json', {
+      cache: 'no-cache'
+    });
+    const indexData = await indexResponse.json();
+    const dates = indexData.dates || [];
+
+    // 日付ごとの平均スコアを計算
+    const scoresByDate = {};
+    const allRecsByDate = await Promise.all(
+      dates.map(async (date) => {
+        try {
+          const response = await fetch(`docs/ai-selections/ai-selections_${date}.json`, {
+            cache: 'no-cache'
+          });
+          if (response.ok) {
+            const data = await response.json();
+            return { date, recommendations: data.recommendations };
+          }
+        } catch (e) {
+          console.warn(`Failed to load: ${date}`, e);
+        }
+        return null;
+      })
+    );
+
+    allRecsByDate.forEach(item => {
+      if (item && item.recommendations) {
+        const avg = item.recommendations.reduce((sum, rec) => sum + (rec.score * 100), 0) / item.recommendations.length;
+        scoresByDate[item.date] = avg;
+      }
+    });
+
+    const chartDates = Object.keys(scoresByDate).sort();
+    const chartScores = chartDates.map(d => scoresByDate[d]);
+
+    if (window.chartInstances['daily-average-score']) {
+      window.chartInstances['daily-average-score'].destroy();
+    }
+
+    window.chartInstances['daily-average-score'] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartDates,
+        datasets: [{
+          label: '平均推奨スコア',
+          data: chartScores,
+          borderColor: 'rgba(0, 122, 255, 1)',
+          backgroundColor: 'rgba(0, 122, 255, 0.1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          y: { min: 0, max: 100 }
+        }
+      }
+    });
+  }
+
+  /**
+   * PFC比チャート
+   */
+  renderPFCRatio(avgPFC) {
+    const ctx = document.getElementById('chart-pfc-ratio');
+    if (!ctx) return;
+
+    if (window.chartInstances['pfc-ratio']) {
+      window.chartInstances['pfc-ratio'].destroy();
+    }
+
+    window.chartInstances['pfc-ratio'] = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['タンパク質', '脂質', '炭水化物'],
+        datasets: [{
+          data: [avgPFC.protein, avgPFC.fat, avgPFC.carbs],
+          backgroundColor: [
+            'rgba(255, 159, 64, 0.8)',
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)'
+          ],
+          borderColor: [
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  }
+
+  /**
+   * Top 10 メニューチャート
+   */
+  renderTopMenus(menuFrequency) {
+    const ctx = document.getElementById('chart-top-menus');
+    if (!ctx) return;
+
+    // Top 10 を取得
+    const sortedMenus = Object.entries(menuFrequency)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+
+    const labels = sortedMenus.map(([name]) => name.substring(0, 20));
+    const data = sortedMenus.map(([, count]) => count);
+
+    if (window.chartInstances['top-menus']) {
+      window.chartInstances['top-menus'].destroy();
+    }
+
+    window.chartInstances['top-menus'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '推奨回数',
+          data: data,
+          backgroundColor: 'rgba(154, 85, 255, 0.6)',
+          borderColor: 'rgba(154, 85, 255, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+
+  /**
+   * エネルギー分布チャート
+   */
+  renderEnergyDistribution(energies) {
+    const ctx = document.getElementById('chart-energy-distribution');
+    if (!ctx) return;
+
+    // ビン作成
+    const bins = [0, 100, 200, 300, 400, 500, 600, 700, 800];
+    const histogram = new Array(bins.length - 1).fill(0);
+
+    energies.forEach(energy => {
+      for (let i = 0; i < bins.length - 1; i++) {
+        if (energy >= bins[i] && energy < bins[i + 1]) {
+          histogram[i]++;
+          break;
+        }
+      }
+    });
+
+    const labels = bins.slice(0, -1).map((b, i) => `${b}-${bins[i + 1]}`);
+
+    if (window.chartInstances['energy-distribution']) {
+      window.chartInstances['energy-distribution'].destroy();
+    }
+
+    window.chartInstances['energy-distribution'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'エネルギー (kcal)',
+          data: histogram,
+          backgroundColor: 'rgba(255, 193, 7, 0.6)',
+          borderColor: 'rgba(255, 193, 7, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  /**
+   * タンパク質分布チャート
+   */
+  renderProteinDistribution(proteins) {
+    const ctx = document.getElementById('chart-protein-distribution');
+    if (!ctx) return;
+
+    // ビン作成
+    const bins = [0, 5, 10, 15, 20, 25, 30, 35, 40];
+    const histogram = new Array(bins.length - 1).fill(0);
+
+    proteins.forEach(protein => {
+      for (let i = 0; i < bins.length - 1; i++) {
+        if (protein >= bins[i] && protein < bins[i + 1]) {
+          histogram[i]++;
+          break;
+        }
+      }
+    });
+
+    const labels = bins.slice(0, -1).map((b, i) => `${b}-${bins[i + 1]}`);
+
+    if (window.chartInstances['protein-distribution']) {
+      window.chartInstances['protein-distribution'].destroy();
+    }
+
+    window.chartInstances['protein-distribution'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'タンパク質 (g)',
+          data: histogram,
+          backgroundColor: 'rgba(76, 175, 80, 0.6)',
+          borderColor: 'rgba(76, 175, 80, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  /**
+   * 統計テーブルを更新
+   */
+  updateStatisticsTable(stats) {
+    const updateCell = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = typeof value === 'number' ? value.toFixed(1) : value;
+      }
+    };
+
+    // スコア
+    updateCell('score-min', stats.scoreStats.min);
+    updateCell('score-avg', stats.scoreStats.avg);
+    updateCell('score-max', stats.scoreStats.max);
+    updateCell('score-std', stats.scoreStats.std);
+
+    // エネルギー
+    updateCell('energy-min', stats.energyStats.min);
+    updateCell('energy-avg', stats.energyStats.avg);
+    updateCell('energy-max', stats.energyStats.max);
+    updateCell('energy-std', stats.energyStats.std);
+
+    // タンパク質
+    updateCell('protein-min', stats.proteinStats.min);
+    updateCell('protein-avg', stats.proteinStats.avg);
+    updateCell('protein-max', stats.proteinStats.max);
+    updateCell('protein-std', stats.proteinStats.std);
+
+    // 脂質
+    updateCell('fat-min', stats.fatStats.min);
+    updateCell('fat-avg', stats.fatStats.avg);
+    updateCell('fat-max', stats.fatStats.max);
+    updateCell('fat-std', stats.fatStats.std);
+
+    // 炭水化物
+    updateCell('carbs-min', stats.carbsStats.min);
+    updateCell('carbs-avg', stats.carbsStats.avg);
+    updateCell('carbs-max', stats.carbsStats.max);
+    updateCell('carbs-std', stats.carbsStats.std);
+  }
+
 
   /**
    * 履歴データを読み込んで表示
@@ -1460,12 +2048,12 @@ class MenuOptimizationApp {
     dataArea.style.display = 'none';
 
     try {
-      // GitHub APIから履歴データを取得
-      const historyData = await this.fetchHistoryFromGitHub(date);
+      // AI推奨 JSON から推奨メニューを取得
+      const aiData = await this.fetchAIRecommendations(date);
 
-      if (historyData) {
+      if (aiData) {
         // データが存在する場合、表示
-        this.displayAIMenus(historyData);
+        this.displayAIRecommendations(aiData);
         dataArea.style.display = 'block';
         noDataEl.style.display = 'none';
         console.log('✅ AI Menus: データ表示完了');
@@ -1476,7 +2064,7 @@ class MenuOptimizationApp {
         console.log('⚠️ AI Menus: データなし');
       }
     } catch (error) {
-      console.error('履歴データの取得に失敗:', error);
+      console.error('AI推奨データの取得に失敗:', error);
       dataArea.style.display = 'none';
       noDataEl.style.display = 'block';
     } finally {
@@ -1487,118 +2075,218 @@ class MenuOptimizationApp {
   }
 
   /**
-   * GitHubから履歴データを取得（公開読み取り）
-   * プライベートリポジトリの場合はGitHub Pages経由でアクセス
+   * AI推奨 JSON から推奨メニューを取得
    */
-  async fetchHistoryFromGitHub(date) {
-    const owner = '1onotakanori-art';
-    const repo = 'kyowa-menu-history';
-    const path = `data/history/${date}.json`;
-    
-    // まずGitHub Pages経由でアクセスを試みる（プライベートリポジトリ対応）
-    const pagesUrl = `https://${owner}.github.io/${repo}/${path}`;
+  async fetchAIRecommendations(date) {
+    const aiJsonPath = `docs/ai-selections/ai-selections_${date}.json`;
     
     try {
-      const response = await fetch(pagesUrl, {
+      const response = await fetch(aiJsonPath, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-        cache: 'no-cache' // キャッシュを無効化して最新データを取得
+        cache: 'no-cache'
       });
       
       if (response.ok) {
         const data = await response.json();
-        console.log(`✅ 履歴データ取得成功 (GitHub Pages): ${date}`);
+        console.log(`✅ AI推奨データ取得成功: ${date}`);
         return data;
       }
       
       if (response.status === 404) {
-        console.log(`📭 履歴データなし: ${date}`);
+        console.log(`📭 AI推奨データなし: ${date}`);
         return null;
       }
       
-      // GitHub Pagesで失敗した場合はGitHub API経由を試す（パブリックリポジトリの場合）
-      console.log(`⚠️ GitHub Pages失敗 (${response.status}), GitHub API経由を試行...`);
-      return await this.fetchHistoryFromGitHubAPI(date);
+      console.error(`エラー (${response.status}): AI推奨データの取得に失敗`);
+      return null;
       
     } catch (error) {
-      console.error('GitHub Pages呼び出しエラー:', error);
-      // フォールバック: GitHub API経由を試す
-      try {
-        return await this.fetchHistoryFromGitHubAPI(date);
-      } catch (apiError) {
-        console.error('GitHub API呼び出しもエラー:', apiError);
-        throw apiError;
-      }
+      console.error('AI推奨データの取得エラー:', error);
+      return null;
     }
   }
 
   /**
-   * GitHub API経由で履歴データを取得（フォールバック）
+   * AI推奨メニューを表示
    */
-  async fetchHistoryFromGitHubAPI(date) {
-    const owner = '1onotakanori-art';
-    const repo = 'kyowa-menu-history';
-    const path = `data/history/${date}.json`;
-    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-
-    const response = await fetch(url);
+  displayAIRecommendations(aiData) {
+    const grid = document.getElementById('ai-menus-grid');
+    if (!grid) return;
     
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.log(`履歴データなし: ${date}`);
-        return null;
-      }
-      throw new Error(`GitHub API error: ${response.status}`);
+    grid.innerHTML = '';
+    
+    // タイトルセクション
+    const header = document.createElement('div');
+    header.className = 'ai-header';
+    const improvementNote = aiData.improvement_applied ? 
+      '<p class="improvement-badge">✨ 改善済み推奨</p>' : '';
+    header.innerHTML = `
+      <h3>🤖 AI推奨メニューセット</h3>
+      <p class="date-label">${aiData.date}</p>
+      <p class="model-info">モデル: ${aiData.model}</p>
+      ${improvementNote}
+    `;
+    grid.appendChild(header);
+    
+    // 推奨メニューカード
+    if (aiData.recommendations && aiData.recommendations.length > 0) {
+      aiData.recommendations.forEach((recommendation) => {
+        const card = document.createElement('div');
+        card.className = 'ai-menu-card';
+        
+        // スコア表示（改善済みの場合は複合スコア、そうでなければモデルスコア）
+        const displayScore = recommendation.composite_score || (recommendation.score * 100);
+        const scorePercent = (displayScore * 100).toFixed(1);
+        
+        // スコア内訳情報
+        const scoreBreakdown = recommendation.composite_score ? `
+          <div class="score-breakdown">
+            <small>複合スコア: ${(recommendation.composite_score * 100).toFixed(1)}%</small><br>
+            <small>モデル: ${(recommendation.model_score * 100).toFixed(1)}% | 多様性: ${(recommendation.diversity_score * 100).toFixed(1)}% | 栄養: ${(recommendation.nutrition_match_score * 100).toFixed(1)}%</small>
+          </div>
+        ` : '';
+        
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="rank">No. ${recommendation.rank}</span>
+            <span class="score">スコア: ${scorePercent}%</span>
+          </div>
+          <h4>${recommendation.name}</h4>
+          ${scoreBreakdown}
+          <div class="nutrition-info">
+            <div class="nutrition-item">
+              <span class="label">エネルギー</span>
+              <span class="value">${recommendation.nutrition.energy} kcal</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="label">タンパク質</span>
+              <span class="value">${recommendation.nutrition.protein}g</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="label">脂質</span>
+              <span class="value">${recommendation.nutrition.fat}g</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="label">炭水化物</span>
+              <span class="value">${recommendation.nutrition.carbs}g</span>
+            </div>
+          </div>
+          ${this.buildAllergenInfo(recommendation.allergens)}
+        `;
+        grid.appendChild(card);
+      });
     }
-
-    const data = await response.json();
     
-    // Base64デコード
-    const content = decodeURIComponent(escape(atob(data.content)));
-    return JSON.parse(content);
+    // 栄養サマリーセクション
+    if (aiData.nutrition_summary) {
+      const summary = document.createElement('div');
+      summary.className = 'nutrition-summary';
+      let summary_html = `
+        <h4>📊 栄養サマリー (セット全体)</h4>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="label">総エネルギー</span>
+            <span class="value">${aiData.nutrition_summary.total_energy} kcal</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">平均エネルギー</span>
+            <span class="value">${aiData.nutrition_summary.avg_energy} kcal</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">総タンパク質</span>
+            <span class="value">${aiData.nutrition_summary.total_protein} g</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">平均タンパク質</span>
+            <span class="value">${aiData.nutrition_summary.avg_protein} g</span>
+          </div>
+        </div>
+      `;
+      
+      // 改善統計セクション
+      if (aiData.improvement_stats) {
+        summary_html += `
+          <div class="improvement-stats">
+            <h5>✨ 推奨品質指標</h5>
+            <div class="stats-items">
+              <div class="stats-item">
+                <span class="label">多様性スコア</span>
+                <span class="value">${(aiData.improvement_stats.avg_diversity_score * 100).toFixed(1)}%</span>
+              </div>
+              <div class="stats-item">
+                <span class="label">栄養マッチ</span>
+                <span class="value">${(aiData.improvement_stats.avg_nutrition_match_score * 100).toFixed(1)}%</span>
+              </div>
+              <div class="stats-item">
+                <span class="label">複合スコア</span>
+                <span class="value">${(aiData.improvement_stats.avg_composite_score * 100).toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      // PFC バランスセクション
+      if (aiData.pfc_ratio) {
+        summary_html += `
+          <div class="pfc-ratio">
+            <h5>PFC バランス</h5>
+            <div class="pfc-items">
+              <div class="pfc-item">
+                <span class="label">タンパク質</span>
+                <span class="value">${aiData.pfc_ratio.protein}%</span>
+              </div>
+              <div class="pfc-item">
+                <span class="label">脂質</span>
+                <span class="value">${aiData.pfc_ratio.fat}%</span>
+              </div>
+              <div class="pfc-item">
+                <span class="label">炭水化物</span>
+                <span class="value">${aiData.pfc_ratio.carbs}%</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      summary.innerHTML = summary_html;
+      grid.appendChild(summary);
+    }
   }
 
   /**
-   * 履歴データを表示
+   * アレルゲン情報を構築
    */
-  displayAIMenus(historyData) {
-    // 旧形式と新形式の両方に対応
-    const isOldFormat = historyData.eaten && !historyData.selectedMenus;
+  buildAllergenInfo(allergens) {
+    const allergenMap = {
+      'egg': '卵',
+      'dairy': '乳類',
+      'wheat': '小麦',
+      'soba': 'そば',
+      'shrimp': '海老',
+      'crab': 'カニ',
+      'beef': '牛肉',
+      'walnut': 'くるみ',
+      'soy': '大豆',
+      'chicken': '鶏肉',
+      'pork': '豚肉'
+    };
     
-    if (isOldFormat) {
-      console.log('⚠️ 旧形式のデータを検出しました。表示を制限します。');
-      // 旧形式の場合
-      this.displayOnoTimestamp(historyData.timestamp);
-      
-      // 栄養成分サマリーのみ表示
-      const totals = historyData.nutrition?.total || {};
-      const count = historyData.eaten?.length || 0;
-      this.updateOnoSummary(totals, count);
-      
-      // 簡易メニューリスト表示
-      this.displayAIMenusGridSimple(historyData.eaten || []);
-      
-      // 栄養テーブルは非表示（目標情報がないため）
-      const nutritionSection = document.getElementById('ai-nutrition-section');
-      if (nutritionSection) nutritionSection.classList.add('hidden');
-    } else {
-      // 新形式の場合
-      this.displayOnoTimestamp(historyData.timestamp);
-      this.updateOnoSummary(historyData.totals, historyData.selectedMenus.length);
-      
-      if (historyData.settings && historyData.settings.targets) {
-        this.updateOnoNutritionTable(historyData.totals, historyData.settings.targets);
-      }
-      
-      this.displayAIMenusGrid(historyData.selectedMenus);
+    const activeAllergens = Object.entries(allergens)
+      .filter(([key, value]) => value === true)
+      .map(([key]) => allergenMap[key])
+      .filter(name => name);
+    
+    if (activeAllergens.length === 0) {
+      return '<div class="allergen-info"><span class="no-allergen">🟢 アレルゲンなし</span></div>';
     }
+    
+    return `<div class="allergen-info"><span class="allergen">⚠️ ${activeAllergens.join(', ')}</span></div>`;
   }
 
-  /**
-   * 記録日時を表示
-   */
   displayOnoTimestamp(timestamp) {
     const timestampEl = document.getElementById('ai-timestamp');
     if (!timestampEl || !timestamp) return;
@@ -1738,7 +2426,6 @@ class MenuOptimizationApp {
     const dateInput = document.getElementById('date-input');
     if (!dateInput || !dateInput.value) {
       console.warn('⚠️ AIタブ: 日付が選択されていません');
-      this.displayAIRecommendations(null, null);
       return;
     }
 
@@ -1750,41 +2437,12 @@ class MenuOptimizationApp {
     
     if (!isoDate) {
       console.error('❌ AIタブ: 日付の変換に失敗しました');
-      this.displayAIRecommendations(null, null);
       return;
     }
     
-    // AI推薦データを読み込み
-    console.log(`📡 AI推薦データを取得中: ${isoDate}`);
-    await this.loadAISelections(isoDate);
-    
-    // 管理者推薦データを読み込み
-    console.log(`📡 管理者推薦データを取得中: ${isoDate}`);
-    const adminSelections = await this.loadAdminSelections(isoDate);
-    
-    // 表示
-    console.log('🎨 AI推薦を表示中...');
-    this.displayAIRecommendations(this.aiSelections, adminSelections);
-  }
-
-  /**
-   * 管理者推薦データを読み込む
-   */
-  async loadAdminSelections(date) {
-    try {
-      const response = await fetch(`https://raw.githubusercontent.com/1onotakanori-art/kyowa-menu-history/main/data/history/${date}.json`);
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`✅ 管理者推薦データ読み込み完了: ${date}`);
-        return data;
-      } else {
-        console.log(`⚠️ 管理者推薦データが見つかりません: ${date}`);
-        return null;
-      }
-    } catch (error) {
-      console.warn('管理者推薦データ読み込みエラー:', error);
-      return null;
-    }
+    // AI推奨データを読み込み
+    console.log(`📡 AI推奨データを取得中: ${isoDate}`);
+    await this.loadAIMenus(isoDate);
   }
 
   /**
@@ -2182,5 +2840,170 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('アプリ初期化...');
   const app = new MenuOptimizationApp();
   app.initAIMenusTab(); // AI Menusタブを初期化
+  
+  // 評価機能を初期化
+  initRatingSystem();
+  
   console.log('アプリ準備完了');
 });
+
+/**
+ * ユーザー評価システムの初期化
+ */
+function initRatingSystem() {
+  const submitButton = document.getElementById('submit-rating-button');
+  const clearButton = document.getElementById('clear-rating-button');
+  const starButtons = document.querySelectorAll('.star-button');
+  const ratingMenuSelect = document.getElementById('rating-menu-select');
+  const ratingDisplay = document.getElementById('rating-display');
+  const ratingMessage = document.getElementById('rating-message');
+  const ratingStats = document.getElementById('rating-stats');
+  
+  let currentRating = 0;
+
+  // スター評価のクリックハンドラー
+  starButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      currentRating = parseInt(button.dataset.rating);
+      
+      // 選択状態を更新
+      starButtons.forEach(b => b.classList.remove('selected'));
+      for (let i = 1; i <= currentRating; i++) {
+        document.querySelector(`[data-rating="${i}"]`).classList.add('selected');
+      }
+      
+      // 表示を更新
+      const stars = '★'.repeat(currentRating);
+      ratingDisplay.textContent = `${stars} (${currentRating}/5)`;
+    });
+  });
+
+  // 評価送信ボタン
+  submitButton.addEventListener('click', async () => {
+    const menuName = ratingMenuSelect.value;
+    const feedback = document.getElementById('rating-feedback').value.trim();
+    
+    if (!menuName) {
+      showRatingMessage('メニューを選択してください', 'error');
+      return;
+    }
+    
+    if (currentRating === 0) {
+      showRatingMessage('★で評価を選択してください', 'error');
+      return;
+    }
+    
+    // 送信ボタンを無効化
+    submitButton.disabled = true;
+    submitButton.textContent = '送信中...';
+    
+    try {
+      // API に評価を送信
+      const response = await fetch('/api/ml/rate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          menu_name: menuName,
+          rating: currentRating,
+          feedback: feedback
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('API エラー: ' + response.statusText);
+      }
+      
+      const data = await response.json();
+      
+      // 成功メッセージ
+      showRatingMessage(`✅ 評価を保存しました: ${menuName} (★${currentRating}/5)`, 'success');
+      
+      // フォームをリセット
+      clearRatingForm();
+      
+      // 統計を更新
+      await updateRatingStats();
+      
+    } catch (error) {
+      console.error('❌ エラー:', error);
+      showRatingMessage('❌ 評価の保存に失敗しました: ' + error.message, 'error');
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = '💾 評価を送信';
+    }
+  });
+
+  // クリアボタン
+  clearButton.addEventListener('click', () => {
+    clearRatingForm();
+  });
+
+  // ヘルパー関数：評価フォームをリセット
+  function clearRatingForm() {
+    currentRating = 0;
+    ratingMenuSelect.value = '';
+    document.getElementById('rating-feedback').value = '';
+    ratingDisplay.textContent = '未選択';
+    starButtons.forEach(b => b.classList.remove('selected'));
+    ratingMessage.classList.remove('success', 'error');
+    ratingMessage.textContent = '';
+  }
+
+  // ヘルパー関数：メッセージを表示
+  function showRatingMessage(message, type) {
+    ratingMessage.textContent = message;
+    ratingMessage.className = `rating-message ${type}`;
+    setTimeout(() => {
+      if (type === 'success') {
+        ratingMessage.classList.remove('success', 'error');
+        ratingMessage.textContent = '';
+      }
+    }, 4000);
+  }
+
+  // ヘルパー関数：統計情報を更新
+  async function updateRatingStats() {
+    try {
+      const response = await fetch('/api/ml/preferences');
+      const data = await response.json();
+      
+      if (data.total_ratings > 0) {
+        document.getElementById('stat-total-ratings').textContent = data.total_ratings;
+        document.getElementById('stat-avg-rating').textContent = data.average_rating.toFixed(1);
+        document.getElementById('stat-unique-menus').textContent = data.unique_menus;
+        ratingStats.classList.remove('hidden');
+      }
+    } catch (error) {
+      console.warn('統計情報の更新に失敗:', error);
+    }
+  }
+
+  // 推奨結果が表示された時、メニュードロップダウンを更新
+  const originalDisplayResult = displayResult;
+  window.displayResult = function(result) {
+    originalDisplayResult.call(this, result);
+    updateMenuOptions();
+  };
+
+  // ドロップダウンオプションを更新
+  function updateMenuOptions() {
+    const menuItems = document.querySelectorAll('.menu-item[data-menu-name]');
+    const options = Array.from(menuItems).map(item => item.dataset.menuName);
+    
+    ratingMenuSelect.innerHTML = '<option value="">メニューを選択してください</option>';
+    
+    const uniqueOptions = [...new Set(options)];
+    uniqueOptions.forEach(optionValue => {
+      const option = document.createElement('option');
+      option.value = optionValue;
+      option.textContent = optionValue;
+      ratingMenuSelect.appendChild(option);
+    });
+  }
+
+  // 初期表示時の統計を読み込み
+  updateRatingStats();
+}
+
