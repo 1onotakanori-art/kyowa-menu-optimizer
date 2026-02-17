@@ -1,98 +1,70 @@
 {
   "date": "2026-02-09",
-  "generated_at": "2026-02-02T08:59:18.618804",
-  "model": "Seq2Set Transformer v1",
-  "set_reason": "チーズとペッパーの焼きチキンカツはタンパク質豊富 / ボリューム満点 / 好みに合致 / じゃこと梅のビーフンは低カロリー / 鶏しお野菜炒めは野菜たっぷり / 好みに合致 / 豆腐とシーフードの韓国風チゲは野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
-  "recommendations": [
+  "dayOfWeek": "月",
+  "user": "ONO",
+  "timestamp": "2026-02-09T05:13:33.863Z",
+  "settings": {
+    "targets": {},
+    "preferences": {}
+  },
+  "selectedMenus": [
     {
-      "rank": 1,
-      "name": "チーズとペッパーの焼きチキンカツ",
-      "score": 1.244,
-      "model_score": 1.0,
-      "preference_score": 8.85,
-      "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 596,
-        "protein": 28.9,
-        "fat": 11.9,
-        "carbs": 92.1,
-        "vegetable_weight": 130,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 2,
-      "name": "じゃこと梅のビーフン",
-      "score": 0.806,
-      "model_score": 1.0,
-      "preference_score": 2.83,
-      "reasons": [
-        "低カロリー"
-      ],
-      "nutrition": {
-        "energy": 73,
-        "protein": 1.9,
-        "fat": 0.7,
-        "carbs": 14.7,
-        "vegetable_weight": 17,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
-      "name": "鶏しお野菜炒め",
-      "score": 1.203,
-      "model_score": 1.0,
-      "preference_score": 8.3,
-      "reasons": [
-        "野菜たっぷり",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 139,
-        "protein": 11.3,
-        "fat": 4.7,
-        "carbs": 13.5,
-        "vegetable_weight": 171,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
       "name": "豆腐とシーフードの韓国風チゲ",
-      "score": 1.239,
-      "model_score": 1.0,
-      "preference_score": 8.79,
-      "reasons": [
-        "野菜たっぷり",
-        "好みに合致"
-      ],
       "nutrition": {
-        "energy": 194,
-        "protein": 14.5,
-        "fat": 7.3,
-        "carbs": 16.6,
-        "vegetable_weight": 178,
-        "fiber": 0
-      }
+        "エネルギー": 194,
+        "たんぱく質": 14.5,
+        "脂質": 7.3,
+        "炭水化物": 16.6,
+        "飽和脂肪酸": 0.81,
+        "食塩相当量": 4.1,
+        "野菜重量": 178,
+        "卵": "－",
+        "乳類": "◯",
+        "小麦": "◯",
+        "そば": "－",
+        "落花生": "－",
+        "海老": "◯",
+        "カニ": "◯",
+        "牛肉": "－",
+        "くるみ": "－",
+        "大豆": "◯",
+        "鶏肉": "◯",
+        "豚肉": "◯"
+      },
+      "rating": 3
+    },
+    {
+      "name": "チーズとペッパーの焼きチキンカツ",
+      "nutrition": {
+        "エネルギー": 596,
+        "たんぱく質": 28.9,
+        "脂質": 11.9,
+        "炭水化物": 92.1,
+        "飽和脂肪酸": 1.79,
+        "食塩相当量": 2.2,
+        "野菜重量": 130,
+        "卵": "◯",
+        "乳類": "◯",
+        "小麦": "◯",
+        "そば": "－",
+        "落花生": "－",
+        "海老": "－",
+        "カニ": "－",
+        "牛肉": "－",
+        "くるみ": "－",
+        "大豆": "◯",
+        "鶏肉": "◯",
+        "豚肉": "－"
+      },
+      "rating": 3
     }
   ],
-  "nutrition_summary": {
-    "total_energy": 1002,
-    "total_protein": 56.6,
-    "total_fat": 24.6,
-    "total_carbs": 136.9,
-    "average_energy": 250.5,
-    "average_protein": 14.1
+  "totals": {
+    "エネルギー": 790,
+    "たんぱく質": 43.4,
+    "脂質": 19.2,
+    "炭水化物": 108.69999999999999,
+    "野菜重量": 308
   },
-  "pfc_ratio": {
-    "protein": 22.6,
-    "fat": 22.1,
-    "carbs": 54.7
-  },
-  "recommendation_count": 4
+  "achievement": {}
 }

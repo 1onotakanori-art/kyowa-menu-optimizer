@@ -1,100 +1,68 @@
 {
   "date": "2026-01-26",
-  "generated_at": "2026-02-02T08:59:18.182788",
-  "model": "Seq2Set Transformer v1",
-  "set_reason": "焼肉サラダﾞおろしポン酢かけはタンパク質豊富 / ボリューム満点 / 好みに合致 / ほうれん草のお浸しは低カロリー / 好みに合致 / 野菜とベーコンのあっさり和風醤油炒めは野菜たっぷり / 好みに合致 / 野菜たっぷり鍋風煮込みは低カロリー / 野菜たっぷり / 好みに合致 / 全体: 全体で高スコア維持",
-  "recommendations": [
+  "dayOfWeek": "月",
+  "user": "ONO",
+  "timestamp": "2026-01-26T03:07:20.019Z",
+  "settings": {
+    "targets": {},
+    "preferences": {}
+  },
+  "selectedMenus": [
     {
-      "rank": 1,
-      "name": "焼肉サラダﾞおろしポン酢かけ",
-      "score": 1.485,
-      "model_score": 1.0,
-      "preference_score": 12.18,
-      "reasons": [
-        "タンパク質豊富",
-        "ボリューム満点",
-        "好みに合致"
-      ],
+      "name": "極み関西出汁の稲庭風うどん＆ミニうなぎ丼",
       "nutrition": {
-        "energy": 661,
-        "protein": 26.4,
-        "fat": 21.4,
-        "carbs": 91.2,
-        "vegetable_weight": 244,
-        "fiber": 0
+        "エネルギー": 803,
+        "たんぱく質": 28.9,
+        "脂質": 16.7,
+        "炭水化物": 132.4,
+        "飽和脂肪酸": 4.02,
+        "食塩相当量": 4.2,
+        "野菜重量": 1,
+        "卵": "◯",
+        "乳類": "◯",
+        "小麦": "◯",
+        "そば": "－",
+        "落花生": "◯",
+        "海老": "◯",
+        "カニ": "◯",
+        "牛肉": "◯",
+        "くるみ": "－",
+        "大豆": "◯",
+        "鶏肉": "◯",
+        "豚肉": "◯"
       }
     },
     {
-      "rank": 2,
-      "name": "ほうれん草のお浸し",
-      "score": 0.895,
-      "model_score": 1.0,
-      "preference_score": 4.05,
-      "reasons": [
-        "低カロリー",
-        "好みに合致"
-      ],
+      "name": "グリーンサラダ(2F)",
       "nutrition": {
-        "energy": 17,
-        "protein": 1.5,
-        "fat": 0.2,
-        "carbs": 2.4,
-        "vegetable_weight": 63,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 3,
-      "name": "野菜とベーコンのあっさり和風醤油炒め",
-      "score": 1.107,
-      "model_score": 1.0,
-      "preference_score": 6.97,
-      "reasons": [
-        "野菜たっぷり",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 96,
-        "protein": 5.3,
-        "fat": 4.2,
-        "carbs": 10.9,
-        "vegetable_weight": 163,
-        "fiber": 0
-      }
-    },
-    {
-      "rank": 4,
-      "name": "野菜たっぷり鍋風煮込み",
-      "score": 0.915,
-      "model_score": 1.0,
-      "preference_score": 4.33,
-      "reasons": [
-        "低カロリー",
-        "野菜たっぷり",
-        "好みに合致"
-      ],
-      "nutrition": {
-        "energy": 62,
-        "protein": 4.5,
-        "fat": 2.6,
-        "carbs": 5.4,
-        "vegetable_weight": 78,
-        "fiber": 0
+        "エネルギー": 15,
+        "たんぱく質": 0.6,
+        "脂質": 0.5,
+        "炭水化物": 2.7,
+        "飽和脂肪酸": 0.01,
+        "食塩相当量": 0.1,
+        "野菜重量": 53,
+        "卵": "－",
+        "乳類": "－",
+        "小麦": "－",
+        "そば": "－",
+        "落花生": "－",
+        "海老": "－",
+        "カニ": "－",
+        "牛肉": "－",
+        "くるみ": "－",
+        "大豆": "－",
+        "鶏肉": "－",
+        "豚肉": "－"
       }
     }
   ],
-  "nutrition_summary": {
-    "total_energy": 836,
-    "total_protein": 37.7,
-    "total_fat": 28.4,
-    "total_carbs": 109.9,
-    "average_energy": 209.0,
-    "average_protein": 9.4
+  "totals": {
+    "エネルギー": 818,
+    "たんぱく質": 29.5,
+    "脂質": 17.2,
+    "炭水化物": 135.1,
+    "野菜重量": 54
   },
-  "pfc_ratio": {
-    "protein": 18.0,
-    "fat": 30.6,
-    "carbs": 52.6
-  },
-  "recommendation_count": 4
+  "achievement": {}
 }
