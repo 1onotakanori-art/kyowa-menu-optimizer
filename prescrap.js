@@ -51,14 +51,37 @@ function saveMenusToOutput(dateLabel, data) {
 
 /**
  * 利用可能日付リスト（available-dates.json）を生成
- * 
- * @param {Array<string>} dates - 日付ラベルの配列
+ * 既存のファイルがある場合はマージする
+ *
+ * @param {Array<string>} newDateLabels - 新しくスクレイプした日付ラベルの配列
  * @returns {void}
  */
-function generateAvailableDatesFile(dates) {
+function generateAvailableDatesFile(newDateLabels) {
   const filePath = path.join(OUTPUT_DIR, 'available-dates.json');
-  fs.writeFileSync(filePath, JSON.stringify({ dates: dates.sort() }, null, 2), 'utf-8');
-  console.log('✅ available-dates.json を生成しました');
+
+  // 新しい日付ラベルを YYYY-MM-DD 形式に変換
+  const newDates = newDateLabels.map(label => {
+    const fileName = getCacheFileName(label);
+    // "menus_2026-01-12.json" -> "2026-01-12"
+    return fileName.replace('menus_', '').replace('.json', '');
+  });
+
+  // 既存の日付を読み込んでマージ
+  let existingDates = [];
+  if (fs.existsSync(filePath)) {
+    try {
+      const existing = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      existingDates = existing.dates || [];
+    } catch (e) {
+      console.log('⚠️  既存の available-dates.json の読み込みに失敗。新規作成します。');
+    }
+  }
+
+  // 重複を除いてマージし、ソート
+  const allDates = [...new Set([...existingDates, ...newDates])].sort();
+
+  fs.writeFileSync(filePath, JSON.stringify({ dates: allDates }, null, 2), 'utf-8');
+  console.log(`✅ available-dates.json を更新しました（合計 ${allDates.length} 日分）`);
 }
 
 /**
@@ -123,15 +146,3 @@ prescrapMultipleDays(numDays).catch(error => {
   process.exit(1);
 });
 
-// prescrap.js の最後に追加
-const { execSync } = require('child_process');
-
-console.log('📤 GitHub にプッシュ中...');
-try {
-  execSync('git add menus/ && git commit -m "chore: Auto-update menu data" && git push origin main', {
-    stdio: 'inherit'
-  });
-  console.log('✅ GitHub へのプッシュ完了');
-} catch (error) {
-  console.error('❌ プッシュエラー:', error.message);
-}
