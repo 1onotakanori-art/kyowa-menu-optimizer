@@ -35,9 +35,19 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run menu scraper
+        id: scrape
         run: node prescrap.js ${{ github.event.inputs.days || '5' }}
         env:
           TZ: Asia/Tokyo
+
+      - name: Upload debug screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-screenshots
+          path: debug-screenshots/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Check for changes
         id: check
