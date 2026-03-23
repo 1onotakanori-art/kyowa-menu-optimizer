@@ -411,4 +411,42 @@ async function scrapeMenus(page) {
   return results;
 }
 
-module.exports = { fetchMenus };
+/**
+ * サイトから利用可能な日付ラベル一覧を取得
+ * 「今週」タブに表示されている日付ボタンのテキストをすべて返す
+ *
+ * @returns {Promise<string[]>} "3/24(火)" 形式の日付ラベル配列
+ */
+async function getAvailableSiteDates() {
+  let browser;
+
+  try {
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage();
+
+    await page.goto('https://kyowa2407225.uguide.info', {
+      waitUntil: 'networkidle'
+    });
+    await page.waitForTimeout(2000);
+
+    // 「今週」タブを選択
+    await selectTab(page, '今週');
+
+    // 日付ボタンからテキストを取得
+    await page.waitForSelector('.weeks-day-btn button.after-btn', { timeout: 5000 });
+    const dates = await page.evaluate(() => {
+      const btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
+      return btns.map(b => b.textContent.trim());
+    });
+
+    console.log(`📅 サイトで利用可能な日付: ${dates.join(', ')}`);
+    return dates;
+
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+}
+
+module.exports = { fetchMenus, getAvailableSiteDates };

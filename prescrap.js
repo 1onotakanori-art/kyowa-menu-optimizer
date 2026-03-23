@@ -12,8 +12,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { fetchMenus } = require('./src/scraper/fetchMenus');
-const { toDateLabel, getNearestWeekday } = require('./src/utils/date');
+const { fetchMenus, getAvailableSiteDates } = require('./src/scraper/fetchMenus');
 
 // 出力ディレクトリ
 const OUTPUT_DIR = path.join(__dirname, 'menus');
@@ -85,48 +84,49 @@ function generateAvailableDatesFile(newDateLabels) {
 }
 
 /**
- * 複数日分のメニューをプリスクレイピング
- * 参照: SCRAPER_REBUILD_PLAN.md の「Phase 5: 統合テスト」
- * 
- * @param {number} numDays - 取得日数（デフォルト: 5日）
+ * サイトから利用可能な平日の日付を取得してスクレイピング
+ * ローカルでの日付計算ではなく、サイトが実際に提供する日付を使用
+ *
+ * @param {number} maxDays - 最大取得日数（デフォルト: 5日）
  * @returns {Promise<void>}
  */
-async function prescrapMultipleDays(numDays = 5) {
+async function prescrapMultipleDays(maxDays = 5) {
   console.log(`\n${'='.repeat(60)}`);
-  console.log(`🔥 メニュープリスクレイピング開始 (${numDays}日間)`);
+  console.log(`🔥 メニュープリスクレイピング開始 (最大${maxDays}日間)`);
   console.log(`${'='.repeat(60)}`);
 
+  // サイトから利用可能な日付を取得
+  console.log('🌐 サイトから利用可能な日付を取得中...');
+  const allSiteDates = await getAvailableSiteDates();
+
+  // 平日のみフィルタ（土日を除外）
+  const weekdayLabels = allSiteDates.filter(label => {
+    return !label.includes('(土)') && !label.includes('(日)');
+  });
+
+  // 指定日数分に制限
+  const targetDates = weekdayLabels.slice(0, maxDays);
+  console.log(`📅 スクレイプ対象: ${targetDates.join(', ')} (${targetDates.length}日)\n`);
+
   const scrapedDates = [];
-  let date = getNearestWeekday();
 
-  console.log(`🔍 最初の平日: ${toDateLabel(date)}\n`);
-
-  for (let i = 0; i < numDays; i++) {
-    const dateLabel = toDateLabel(date);
-    console.log(`\n📅 [${i + 1}/${numDays}] ${dateLabel}`);
+  for (let i = 0; i < targetDates.length; i++) {
+    const dateLabel = targetDates[i];
+    console.log(`\n📅 [${i + 1}/${targetDates.length}] ${dateLabel}`);
 
     try {
-      // Phase 4 完了のスクレイピング処理を実行
       const result = await fetchMenus(dateLabel);
-      
-      // JSON ファイルで保存
       saveMenusToOutput(dateLabel, result);
       console.log(`   ✅ メニュー数: ${result.menus?.length || 0}`);
-      
-      // 成功した日付をリストに追加
       scrapedDates.push(dateLabel);
-      
     } catch (error) {
       console.error(`   ❌ エラー: ${error.message}`);
     }
 
-    // 次の営業日に進む
-    do {
-      date.setDate(date.getDate() + 1);
-    } while (date.getDay() === 0 || date.getDay() === 6);
-
     // サーバー負荷軽減のためスリープ
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (i < targetDates.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
   }
 
   // 利用可能日付リストを生成
@@ -134,7 +134,7 @@ async function prescrapMultipleDays(numDays = 5) {
 
   console.log('\n' + '='.repeat(60));
   console.log(`📊 プリスクレイピング完了`);
-  console.log(`   成功日付数: ${scrapedDates.length}/${numDays}`);
+  console.log(`   成功日付数: ${scrapedDates.length}/${targetDates.length}`);
   console.log(`   保存日付: ${scrapedDates.join(', ')}`);
   console.log('='.repeat(60));
 }
