@@ -1,9 +1,38 @@
 const { chromium } = require('playwright');
 const { toDateLabel } = require('../utils/date');
+const fs = require('fs');
 const path = require('path');
 
 // デバッグ用スクリーンショット保存先
 const DEBUG_DIR = path.join(__dirname, '..', '..', 'debug-screenshots');
+
+/**
+ * ブラウザコンテキストを作成（実ブラウザに近い設定）
+ * headless検出回避のためviewport・userAgentを設定
+ */
+async function createBrowserAndPage() {
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 720 },
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    locale: 'ja-JP',
+    timezoneId: 'Asia/Tokyo',
+  });
+  const page = await context.newPage();
+
+  // デバッグ: ブラウザコンソール・エラー・リクエスト失敗をログ出力
+  page.on('console', msg => {
+    if (msg.type() === 'error' || msg.type() === 'warning') {
+      console.log(`[Browser ${msg.type()}] ${msg.text()}`);
+    }
+  });
+  page.on('pageerror', err => console.error(`[JS Error] ${err.message}`));
+  page.on('requestfailed', req =>
+    console.error(`[Request Failed] ${req.url()} - ${req.failure()?.errorText}`)
+  );
+
+  return { browser, page };
+}
 
 /**
  * 指定した日付のメニューをスクレイプ
@@ -21,21 +50,22 @@ async function fetchMenus(dateLabel) {
   console.log(`${'='.repeat(60)}`);
   
   try {
-    // ステップ 1: ブラウザ起動
-    browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
+    // ステップ 1: ブラウザ起動（viewport/userAgent設定済み）
+    const ctx = await createBrowserAndPage();
+    browser = ctx.browser;
+    const page = ctx.page;
     console.log('✅ ブラウザ起動完了');
 
     // ステップ 2: サイト読み込み
     console.log('⏳ サイト読み込み中...');
     await page.goto('https://kyowa2407225.uguide.info', {
-      waitUntil: 'networkidle'
+      waitUntil: 'networkidle',
+      timeout: 30000
     });
     console.log('✅ サイト読み込み完了');
-    
+
     // ステップ 3: サイト完全レンダリング待機
-    // 参照: SCRAPER_REBUILD_PLAN.md の「タイミング・待機処理」
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(3000);
     console.log('✅ サイト完全レンダリング完了');
 
     // ステップ 4: タブ切り替え
@@ -146,7 +176,12 @@ async function selectDate(page, dateLabel) {
   }
   console.log(`✅ 日付をクリック: "${dateLabel}"`);
 
-  // メニュー表示待機（タイムアウトを延長: 5s → 15s）
+  // ネットワーク安定待機（日付クリックでAPIコールが発生する場合に対応）
+  console.log('⏳ ネットワーク安定待機中...');
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(2000);
+
+  // メニュー表示待機
   console.log('⏳ メニュー表示待機中...');
   try {
     await page.waitForFunction(
@@ -156,26 +191,35 @@ async function selectDate(page, dateLabel) {
     const menuCount = await page.$$eval('.menu-content', els => els.length);
     console.log(`✅ メニュー表示確認: ${menuCount} メニュー`);
   } catch (error) {
-    // デバッグ: 失敗時のページ状態をログ出力
+    // デバッグ: 失敗時のページ状態を詳細ログ出力
     const debugInfo = await page.evaluate(() => {
+      // 全HTML構造からメニュー関連クラスを探す
+      const allClasses = new Set();
+      document.querySelectorAll('*').forEach(el => {
+        el.classList.forEach(c => { if (c.includes('menu')) allClasses.add(c); });
+      });
       return {
         url: location.href,
         title: document.title,
         bodyClasses: document.body.className,
+        menuRelatedClasses: [...allClasses],
         visibleElements: {
           menuContent: document.querySelectorAll('.menu-content').length,
           menuName: document.querySelectorAll('.menu-name').length,
           tabButtons: document.querySelectorAll('.tab-button').length,
           afterBtns: document.querySelectorAll('.after-btn').length,
         },
-        bodyTextPreview: document.body.innerText.substring(0, 500)
+        // 選択中のタブ情報
+        activeTab: document.querySelector('.tab-button.active, .tab-button.selected')?.textContent?.trim(),
+        // 選択中の日付情報
+        selectedDate: document.querySelector('.after-btn.selected, .after-btn.active')?.textContent?.trim(),
+        bodyTextPreview: document.body.innerText.substring(0, 1000)
       };
     });
     console.error(`🔍 デバッグ情報:`, JSON.stringify(debugInfo, null, 2));
 
     // スクリーンショットを保存（CI でのデバッグ用）
     try {
-      const fs = require('fs');
       if (!fs.existsSync(DEBUG_DIR)) fs.mkdirSync(DEBUG_DIR, { recursive: true });
       const screenshotPath = path.join(DEBUG_DIR, `fail-${dateLabel.replace(/\//g, '-')}.png`);
       await page.screenshot({ path: screenshotPath, fullPage: true });
@@ -402,13 +446,15 @@ async function getAvailableSiteDates() {
   let browser;
 
   try {
-    browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
+    const ctx = await createBrowserAndPage();
+    browser = ctx.browser;
+    const page = ctx.page;
 
     await page.goto('https://kyowa2407225.uguide.info', {
-      waitUntil: 'networkidle'
+      waitUntil: 'networkidle',
+      timeout: 30000
     });
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(3000);
 
     // 「今週」タブを選択
     await selectTab(page, '今週');
