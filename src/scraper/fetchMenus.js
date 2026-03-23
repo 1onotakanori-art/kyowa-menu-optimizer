@@ -30,6 +30,12 @@ async function createBrowserAndPage() {
   page.on('requestfailed', req =>
     console.error(`[Request Failed] ${req.url()} - ${req.failure()?.errorText}`)
   );
+  // 4xx/5xx レスポンスのURLを特定するためのログ
+  page.on('response', res => {
+    if (res.status() >= 400) {
+      console.error(`[HTTP ${res.status()}] ${res.url()}`);
+    }
+  });
 
   return { browser, page };
 }
