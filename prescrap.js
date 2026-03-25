@@ -12,7 +12,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { fetchMenus, getAvailableSiteDates } = require('./src/scraper/fetchMenus');
+const { fetchMenus, getAvailableWeekdays } = require('./src/scraper/fetchMenus');
 
 // 出力ディレクトリ
 const OUTPUT_DIR = path.join(__dirname, 'menus');
@@ -95,17 +95,8 @@ async function prescrapMultipleDays(maxDays = 5) {
   console.log(`🔥 メニュープリスクレイピング開始 (最大${maxDays}日間)`);
   console.log(`${'='.repeat(60)}`);
 
-  // サイトから利用可能な日付を取得
-  console.log('🌐 サイトから利用可能な日付を取得中...');
-  const allSiteDates = await getAvailableSiteDates();
-
-  // 平日のみフィルタ（土日を除外）
-  const weekdayLabels = allSiteDates.filter(label => {
-    return !label.includes('(土)') && !label.includes('(日)');
-  });
-
-  // 指定日数分に制限
-  const targetDates = weekdayLabels.slice(0, maxDays);
+  // 今日から先の平日日付を生成（Playwright不要）
+  const targetDates = getAvailableWeekdays(maxDays);
   console.log(`📅 スクレイプ対象: ${targetDates.join(', ')} (${targetDates.length}日)\n`);
 
   const scrapedDates = [];
