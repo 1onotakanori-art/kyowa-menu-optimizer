@@ -3,6 +3,13 @@
  * iPhone 対応、チェックボタン式メニュー選択
  */
 
+// Supabase クライアント初期化
+// ※ ユーザーが YOUR_SUPABASE_URL と YOUR_SUPABASE_ANON_KEY を差し替える
+const _supabaseClient = window.supabase.createClient(
+  'YOUR_SUPABASE_URL',
+  'YOUR_SUPABASE_ANON_KEY'
+);
+
 class MenuOptimizationApp {
   constructor() {
     this.allMenus = []; // スクレイピングされた全メニュー
@@ -139,33 +146,43 @@ class MenuOptimizationApp {
   }
 
   /**
-   * メニューを読込（JSON ファイルから直接読込）
+   * メニューを読込（Supabase から取得）
    */
   async loadMenus() {
     try {
       const dateSelect = document.getElementById('date-input');
-      const selectedDateLabel = dateSelect.value; // "1/13(火)" 形式
+      const selectedDateLabel = dateSelect.value;
 
       if (!selectedDateLabel) {
         console.error('日付が選択されていません');
         return;
       }
 
-      // dateLabel を YYYY-MM-DD 形式に変換
       const isoDate = this.dateLabelToISOString(selectedDateLabel);
       if (!isoDate) {
         throw new Error('日付の形式が正しくありません');
       }
 
-      // JSON ファイルから直接読込（GitHub Pages）
-      const response = await fetch(`./menus/menus_${isoDate}.json`);
-      if (!response.ok) {
+      // Supabase からメニューデータを取得
+      const { data, error } = await _supabaseClient
+        .from('menus')
+        .select('menu_name, nutrition')
+        .eq('date', isoDate);
+
+      if (error) throw new Error(`Supabase エラー: ${error.message}`);
+
+      if (!data || data.length === 0) {
         throw new Error(`メニュー「${selectedDateLabel}」が見つかりません`);
       }
-      const data = await response.json();
-      this.allMenus = data.menus || [];
+
+      // 既存コードが期待する {name, nutrition} 形式に変換
+      // nutrition は JSONB のまま返るため、既存のキー名（"エネルギー" 等）でそのまま参照可能
+      this.allMenus = data.map(row => ({
+        name: row.menu_name,
+        nutrition: row.nutrition
+      }));
       this.filteredMenus = [...this.allMenus];
-      
+
       // AI推薦データを読み込み（エラーでも継続）
       try {
         await this.loadAISelections(isoDate);
@@ -173,69 +190,52 @@ class MenuOptimizationApp {
         console.warn('AI推薦データの読み込みに失敗しましたが、メニュー表示は継続します:', aiError);
         this.aiSelections = null;
       }
-      
+
       this.renderMenusList();
       this.updateFixedSummary();
     } catch (error) {
       console.error('メニュー読込エラー:', error);
-      document.getElementById('menus-list-container').innerHTML = 
+      document.getElementById('menus-list-container').innerHTML =
         `<p class="error-message">メニュー読込エラー: ${error.message}</p>`;
     }
   }
 
   /**
-   * 利用可能な日付を読込（menus/ フォルダのデータから）
+   * 利用可能な日付を読込（Supabase から取得）
    * - ページ開いている日以降のみを選択可能
    * - デフォルトは本日（存在する場合）
    */
   async loadAvailableDates() {
     try {
       console.log('📅 loadAvailableDates() 実行開始');
-      
-      // ✅ 修正：ファイルパスを menus/ フォルダに統一
-      const response = await fetch('./menus/available-dates.json');
-      
-      console.log('🔗 Fetch response status:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: 利用可能な日付の取得に失敗しました`);
-      }
-      
-      const data = await response.json();
-      console.log('✅ データ取得成功:', data);
-      
-      const availableDates = data.dates || [];
+
+      const { data, error } = await _supabaseClient
+        .from('menus')
+        .select('date')
+        .order('date', { ascending: true });
+
+      if (error) throw new Error(`Supabase エラー: ${error.message}`);
+
+      const availableDates = [...new Set(data.map(r => r.date))];
       console.log('📅 利用可能な日付:', availableDates);
-      
+
       if (availableDates.length === 0) {
         const dateSelect = document.getElementById('date-input');
         dateSelect.innerHTML = '<option value="">メニューデータがありません</option>';
         return;
       }
 
-      // YYYY-MM-DD 形式から M/D(曜日) 形式に変換
       const dateLabels = availableDates.map(isoDate => this.isoDateToDateLabel(isoDate));
-      
-      // 本日の日付を取得
       const today = new Date();
-      const todayMonthDay = `${today.getMonth() + 1}/${today.getDate()}`;
 
-      // ページ開いている日以降の日付をフィルタリング
       const filteredDates = dateLabels.filter(dateLabel => {
         const match = dateLabel.match(/(\d{1,2})\/(\d{1,2})/);
         if (!match) return false;
-
         const [, month, day] = match;
         const monthNum = parseInt(month);
         const dayNum = parseInt(day);
-
-        // 本日以降の日付か判定
-        if (monthNum > today.getMonth() + 1) {
-          return true; // 翌月以降
-        }
-        if (monthNum === today.getMonth() + 1 && dayNum >= today.getDate()) {
-          return true; // 今月で本日以降
-        }
+        if (monthNum > today.getMonth() + 1) return true;
+        if (monthNum === today.getMonth() + 1 && dayNum >= today.getDate()) return true;
         return false;
       });
 
@@ -249,49 +249,33 @@ class MenuOptimizationApp {
 
       const dateSelect = document.getElementById('date-input');
       dateSelect.innerHTML = '';
-
-      // フィルター後の日付をオプションに追加
       filteredDates.forEach(dateLabel => {
         const option = document.createElement('option');
-        option.value = dateLabel; // "1/13(火)" 形式
-        option.textContent = dateLabel; // "1/13(火)" 形式で表示
+        option.value = dateLabel;
+        option.textContent = dateLabel;
         dateSelect.appendChild(option);
       });
 
-      // デフォルトは本日（存在する場合）、なければ本日以降の最初の平日
       const getNearestWeekday = (startDate) => {
-        // 指定日付から開始して、最初の平日を見つける
         let current = new Date(startDate);
         while (true) {
           const dayOfWeek = current.getDay();
-          // 平日判定（月=1 ～ 金=5、土=6日曜=0は除外）
-          if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-            return current;
-          }
-          // 次の日へ
+          if (dayOfWeek >= 1 && dayOfWeek <= 5) return current;
           current.setDate(current.getDate() + 1);
-          
-          // 無限ループ防止（30日以内）
-          if (current > new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000)) {
-            return startDate;
-          }
+          if (current > new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000)) return startDate;
         }
       };
-      
-      // 本日が平日か、そうでなければ次の平日を見つける
+
       const todayOrNextWeekday = getNearestWeekday(today);
       const targetMonthDay = `${todayOrNextWeekday.getMonth() + 1}/${todayOrNextWeekday.getDate()}`;
-      
       const targetOption = filteredDates.find(d => d.startsWith(targetMonthDay));
       if (targetOption) {
-        console.log('✅ デフォルト選択日付:', targetOption);
         dateSelect.value = targetOption;
       } else {
-        console.log('ℹ️ デフォルト選択日付なし。最初の利用可能日付を選択:', filteredDates[0]);
         dateSelect.value = filteredDates[0];
       }
 
-      await this.loadMenus(); // メニュー読込
+      await this.loadMenus();
     } catch (error) {
       console.error('❌ 利用可能な日付の読込エラー:', error);
       const dateSelect = document.getElementById('date-input');
