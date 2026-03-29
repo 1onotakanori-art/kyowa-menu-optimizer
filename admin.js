@@ -2,35 +2,26 @@
  * 管理者ページ - 食事記録管理
  * 
  * 機能:
- * - 簡易パスワード認証
- * - 日付選択 & メニュー読込
+ * - 日付選択 & メニュー読込（Supabaseから）
  * - 食べたメニューの選択
- * - GitHub API経由でデータ保存
+ * - Supabase経由でデータ保存
  * - 履歴表示
  */
 
+// Supabase クライアント初期化
+const _adminSupabaseClient = window.supabase.createClient(
+  'https://zzleqjendqkoizbdvblw.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6bGVxamVuZHFrb2l6YmR2Ymx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjA0ODYsImV4cCI6MjA5MDAzNjQ4Nn0.OwuE6oJYLuA9nzEm-lAKq6BNc-J9RWv1ylZ9cH34vY8'
+);
+
 class AdminApp {
   constructor() {
-    // GitHub設定（プライベートリポジトリ）
-    this.GITHUB_OWNER = '1onotakanori-art'; // あなたのGitHubユーザー名
-    this.GITHUB_REPO = 'kyowa-menu-history'; // プライベートリポジトリ名
-    
-    // Personal Access Token はローカルストレージから読み込む
-    try {
-      this.GITHUB_TOKEN = localStorage.getItem('github_token') || null;
-      console.log('トークン読み込み:', this.GITHUB_TOKEN ? '成功' : 'なし');
-    } catch (error) {
-      console.error('localStorage読み込みエラー:', error);
-      this.GITHUB_TOKEN = null;
-    }
-    
     this.currentDate = null;
     this.availableMenus = [];
     this.selectedMenus = new Set();
     this.menuRatings = {}; // メニュー名 -> 評価(1-5) のマッピング
     
     this.initializeEventListeners();
-    this.showMainScreen();
     this.loadRecentHistory();
   }
 
@@ -38,12 +29,6 @@ class AdminApp {
    * イベントリスナー初期化
    */
   initializeEventListeners() {
-    // トークン保存
-    document.getElementById('save-token-button').addEventListener('click', () => this.saveToken());
-    document.getElementById('token-input').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') this.saveToken();
-    });
-    
     // 日付選択（デフォルトは今日）
     const dateInput = document.getElementById('date-input');
     dateInput.value = this.getTodayISO();
@@ -66,76 +51,10 @@ class AdminApp {
     return `${year}-${month}-${day}`;
   }
 
-  /**
-   * メイン画面表示
-   */
-  showMainScreen() {
-    this.updateTokenStatus();
-  }
+
 
   /**
-   * トークン保存
-   */
-  saveToken() {
-    const tokenInput = document.getElementById('token-input');
-    const token = tokenInput.value.trim();
-    
-    console.log('トークン保存開始:', token.substring(0, 10) + '...');
-    
-    if (!token) {
-      alert('トークンを入力してください');
-      return;
-    }
-    
-    if (!token.startsWith('ghp_')) {
-      alert(`無効なトークン形式です。\n入力値: ${token.substring(0, 10)}...\nGitHub Personal Access Token は ghp_ で始まります。`);
-      return;
-    }
-    
-    try {
-      // localStorageへの保存を試行
-      localStorage.setItem('github_token', token);
-      
-      // 保存確認
-      const saved = localStorage.getItem('github_token');
-      if (saved !== token) {
-        throw new Error('localStorageに保存できませんでした');
-      }
-      
-      this.GITHUB_TOKEN = token;
-      tokenInput.value = '';
-      this.updateTokenStatus();
-      console.log('✅ トークン保存成功');
-      alert('✅ トークンを保存しました！\n\nGitHub保存が有効になりました。');
-      
-    } catch (error) {
-      console.error('トークン保存エラー:', error);
-      alert(`❌ トークンの保存に失敗しました。\n\nエラー: ${error.message}\n\niOSのプライベートブラウジングモードでは保存できません。通常モードでお試しください。`);
-    }
-  }
-
-  /**
-   * トークン状態を更新
-   */
-  updateTokenStatus() {
-    const statusText = document.getElementById('token-status-text');
-    const tokenInput = document.getElementById('token-input');
-    
-    console.log('トークン状態更新:', this.GITHUB_TOKEN ? 'あり' : 'なし');
-    
-    if (this.GITHUB_TOKEN) {
-      statusText.textContent = `✅ 設定済み（GitHub保存有効）- ${this.GITHUB_TOKEN.substring(0, 10)}...`;
-      statusText.style.color = '#28a745';
-      tokenInput.placeholder = '新しいトークンで上書きする場合は入力';
-    } else {
-      statusText.textContent = '❌ 未設定（ローカルのみ保存）';
-      statusText.style.color = '#dc3545';
-      tokenInput.placeholder = 'Personal Access Token (ghp_...)';
-    }
-  }
-
-  /**
-   * メニュー読込
+   * メニュー読込（Supabaseから取得）
    */
   async loadMenus() {
     const dateInput = document.getElementById('date-input');
@@ -152,15 +71,23 @@ class AdminApp {
     this.showLoadStatus('メニュー読込中...', 'info');
     
     try {
-      // パブリックリポジトリからメニューデータを取得
-      const response = await fetch(`./menus/menus_${date}.json`);
+      // Supabaseからメニューデータを取得
+      const { data, error } = await _adminSupabaseClient
+        .from('menus')
+        .select('menu_name, nutrition')
+        .eq('date', date);
       
-      if (!response.ok) {
+      if (error) throw new Error(`Supabase エラー: ${error.message}`);
+      
+      if (!data || data.length === 0) {
         throw new Error('メニューデータが見つかりません');
       }
       
-      const data = await response.json();
-      this.availableMenus = data.menus || [];
+      // データ形式を変換
+      this.availableMenus = data.map(item => ({
+        name: item.menu_name,
+        nutrition: item.nutrition
+      }));
       
       this.renderMenuSelection();
       this.showLoadStatus(`${this.availableMenus.length}件のメニューを読み込みました`, 'success');
@@ -338,24 +265,19 @@ class AdminApp {
    */
   async loadExistingHistory(date) {
     try {
-      // まずGitHub（kyowa-menu-history）から取得を試みる
-      const githubData = await this.fetchHistoryFromGitHub(date);
+      // まずSupabaseから取得を試みる
+      const supabaseData = await this.fetchHistoryFromSupabase(date);
       
-      if (githubData) {
-        // 新形式・旧形式の両方に対応
+      if (supabaseData) {
         let menuNames = [];
-        if (githubData.selectedMenus) {
-          // 新形式（評価スコア対応）
-          menuNames = githubData.selectedMenus.map(m => m.name);
+        if (supabaseData.selected_menus) {
+          menuNames = supabaseData.selected_menus.map(m => m.name);
           // 評価データも復元
-          githubData.selectedMenus.forEach(m => {
+          supabaseData.selected_menus.forEach(m => {
             if (m.rating) {
               this.menuRatings[m.name] = m.rating;
             }
           });
-        } else if (githubData.eaten) {
-          // 旧形式
-          menuNames = githubData.eaten;
         }
         
         if (menuNames.length > 0) {
@@ -368,7 +290,7 @@ class AdminApp {
         }
       }
       
-      // GitHubにデータがなければローカルストレージを確認
+      // Supabaseにデータがなければローカルストレージを確認
       const storageKey = `history_${date}`;
       const existingData = localStorage.getItem(storageKey);
       
@@ -383,8 +305,6 @@ class AdminApp {
               this.menuRatings[m.name] = m.rating;
             }
           });
-        } else if (data.eaten) {
-          menuNames = data.eaten;
         }
         
         if (menuNames.length > 0) {
@@ -402,39 +322,30 @@ class AdminApp {
   }
 
   /**
-   * GitHubから履歴データを取得
+   * Supabaseから履歴データを取得
    */
-  async fetchHistoryFromGitHub(date) {
-    const path = `data/history/${date}.json`;
-    
-    // GitHub Pages経由でアクセス（公開読み取り可能）
-    const pagesUrl = `https://${this.GITHUB_OWNER}.github.io/${this.GITHUB_REPO}/${path}`;
-    
+  async fetchHistoryFromSupabase(date) {
     try {
-      const response = await fetch(pagesUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-        cache: 'no-cache'
-      });
+      const { data, error } = await _adminSupabaseClient
+        .from('meal_history')
+        .select('*')
+        .eq('date', date)
+        .single();
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`✅ 履歴データ取得成功: ${date}`);
-        return data;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // データが見つからない
+          console.log(`📭Supabase: 履歴データなし: ${date}`);
+          return null;
+        }
+        throw error;
       }
       
-      if (response.status === 404) {
-        console.log(`📭 履歴データなし: ${date}`);
-        return null;
-      }
-      
-      console.log(`⚠️ 履歴取得失敗 (${response.status})`);
-      return null;
+      console.log(`✅ Supabase履歴データ取得成功: ${date}`);
+      return data;
       
     } catch (error) {
-      console.error('履歴取得エラー:', error);
+      console.error('Supabase履歴取得エラー:', error);
       return null;
     }
   }
@@ -480,39 +391,44 @@ class AdminApp {
         }
       });
       
-      // 保存データ作成（新形式）
+      // 保存データ作成
       const historyData = {
         date: this.currentDate,
-        dayOfWeek: this.getDayOfWeek(this.currentDate),
-        user: "ONO",
+        day_of_week: this.getDayOfWeek(this.currentDate),
+        user_name: "ONO",
         timestamp: new Date().toISOString(),
         settings: {
           targets: {}, // 管理者ページでは目標設定なし
           preferences: {}
         },
-        selectedMenus: selectedMenusData,
+        selected_menus: selectedMenusData,
         totals: nutritionTotal,
         achievement: {} // 目標がないので空
       };
       
-      // Phase 1: ローカルストレージに保存
+      // Phase 1: ローカルストレージに保存（オフライン用）
       const storageKey = `history_${this.currentDate}`;
-      localStorage.setItem(storageKey, JSON.stringify(historyData));
+      const localData = {
+        date: this.currentDate,
+        dayOfWeek: historyData.day_of_week,
+        user: "ONO",
+        timestamp: historyData.timestamp,
+        settings: historyData.settings,
+        selectedMenus: selectedMenusData,
+        totals: nutritionTotal,
+        achievement: {}
+      };
+      localStorage.setItem(storageKey, JSON.stringify(localData));
       
-      // Phase 2: GitHub API経由の保存
-      let githubSaveSuccess = false;
+      // Phase 2: Supabaseに保存
       try {
-        if (this.GITHUB_TOKEN) {
-          await this.saveToGitHub(historyData);
-          githubSaveSuccess = true;
-          this.showSaveStatus('GitHub にも保存しました！', 'success');
-        } else {
-          this.showSaveStatus('保存しました（ローカルのみ）', 'success');
-        }
-      } catch (githubError) {
-        console.error('GitHub保存エラー:', githubError);
-        this.showSaveStatus(`ローカル保存成功、GitHub保存失敗: ${githubError.message}`, 'warning');
+        await this.saveToSupabase(historyData);
+        this.showSaveStatus('Supabase に保存しました！', 'success');
+      } catch (supabaseError) {
+        console.error('Supabase保存エラー:', supabaseError);
+        this.showSaveStatus(`ローカル保存成功、Supabase保存失敗: ${supabaseError.message}`, 'warning');
       }
+      
       this.loadRecentHistory();
       
       // 5秒後にメッセージを消す
@@ -527,70 +443,29 @@ class AdminApp {
   }
 
   /**
-   * GitHub API経由で保存（Phase 2実装）
+   * Supabase経由で保存
    */
-  async saveToGitHub(data) {
-    if (!this.GITHUB_TOKEN) {
-      throw new Error('GitHub Personal Access Tokenが設定されていません');
+  async saveToSupabase(data) {
+    const { error } = await _adminSupabaseClient
+      .from('meal_history')
+      .upsert({
+        date: data.date,
+        day_of_week: data.day_of_week,
+        user_name: data.user_name,
+        timestamp: data.timestamp,
+        settings: data.settings,
+        selected_menus: data.selected_menus,
+        totals: data.totals,
+        achievement: data.achievement
+      }, {
+        onConflict: 'date'
+      });
+    
+    if (error) {
+      throw new Error(`Supabase API エラー: ${error.message}`);
     }
     
-    const fileName = `data/history/${data.date}.json`;
-    const content = JSON.stringify(data, null, 2);
-    const contentBase64 = btoa(unescape(encodeURIComponent(content)));
-    
-    // 既存ファイルのSHA取得（更新の場合）
-    let existingSha = null;
-    try {
-      const getResponse = await fetch(
-        `https://api.github.com/repos/${this.GITHUB_OWNER}/${this.GITHUB_REPO}/contents/${fileName}`,
-        {
-          headers: {
-            'Authorization': `token ${this.GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        }
-      );
-      if (getResponse.ok) {
-        const existingFile = await getResponse.json();
-        existingSha = existingFile.sha;
-      }
-    } catch (error) {
-      // ファイルが存在しない場合は新規作成
-      console.log('新規ファイル作成:', fileName);
-    }
-    
-    // ファイルのコミット
-    const requestBody = {
-      message: `Update history for ${data.date}`,
-      content: contentBase64,
-      branch: 'main'
-    };
-    
-    if (existingSha) {
-      requestBody.sha = existingSha;
-    }
-    
-    const response = await fetch(
-      `https://api.github.com/repos/${this.GITHUB_OWNER}/${this.GITHUB_REPO}/contents/${fileName}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${this.GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-      }
-    );
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`GitHub API エラー: ${errorData.message}`);
-    }
-    
-    const result = await response.json();
-    console.log('GitHub保存成功:', result.content.html_url);
-    return result;
+    console.log('Supabase保存成功:', data.date);
   }
 
   /**
