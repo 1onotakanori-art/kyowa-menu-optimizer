@@ -88,40 +88,37 @@ async function fetchMenus(dateLabel) {
  */
 async function selectTab(page, tabText) {
   console.log(`🔍 タブ選択開始: "${tabText}"`);
-  
+
   // ステップ 1: タブが DOM に存在することを確認（タブ消失防止）
-  // 参照: SCRAPER_REBUILD_PLAN.md の「保持すべき機能」
   await page.waitForSelector('#menu-target .tab-button', { timeout: 5000 });
   console.log('✅ タブ要素を確認');
 
-  // ステップ 2: DOM 操作はすべて evaluate 内で完結（serialize エラー防止）
-  // 理由: Playwright の serialize エラーを回避するため、
-  // DOM 操作・クリック・条件判定をすべて evaluate 内で実行
-  const selected = await page.evaluate((text) => {
-    const tabs = [...document.querySelectorAll('#menu-target .tab-button')];
-    const target = tabs.find(t => t.textContent.includes(text));
-    
-    if (!target) {
-      return { 
-        success: false, 
-        message: `タブ「${text}」が見つかりません。利用可能: ${tabs.map(t => t.textContent.trim()).join(', ')}`
-      };
+  // ステップ 2: Playwright locator でタブをクリック
+  // 理由: evaluate 内の element.click() ではサイトのJSイベントハンドラが
+  // 発火しないため、Playwright のブラウザレベルクリックを使用
+  const tabs = page.locator('#menu-target .tab-button');
+  const count = await tabs.count();
+  let clicked = false;
+
+  for (let i = 0; i < count; i++) {
+    const text = await tabs.nth(i).textContent();
+    if (text.includes(tabText)) {
+      await tabs.nth(i).click();
+      clicked = true;
+      break;
     }
+  }
 
-    // ユーザーインタラクションを含むアクション（クリック）は evaluate 内で完結
-    target.click();
-    return { success: true };
-  }, tabText);
-
-  // ステップ 3: エラーハンドリング
-  if (!selected.success) {
-    throw new Error(selected.message);
+  if (!clicked) {
+    const available = [];
+    for (let i = 0; i < count; i++) {
+      available.push((await tabs.nth(i).textContent()).trim());
+    }
+    throw new Error(`タブ「${tabText}」が見つかりません。利用可能: ${available.join(', ')}`);
   }
   console.log(`✅ タブをクリック: "${tabText}"`);
 
-  // ステップ 4: タブ切り替えアニメーション待ち
-  // 参照: SCRAPER_REBUILD_PLAN.md の「タイミング・待機処理」
-  // 理由: タブアニメーション、コンテンツ切り替え完全待機
+  // ステップ 3: タブ切り替えアニメーション待ち
   await page.waitForTimeout(800);
   console.log('✅ タブ切り替え完了（アニメーション待機）');
 }
@@ -145,54 +142,43 @@ async function selectDate(page, dateLabel) {
 
   // ステップ 2: 現在選択されている日付を確認
   // 理由: 既に選択されていればスキップして効率化
-  const currentSelectedDate = await page.evaluate(() => {
-    const selectedButton = document.querySelector('.weeks-day-btn button.after-btn.selected');
-    return selectedButton ? selectedButton.textContent.trim() : null;
-  });
-
-  if (currentSelectedDate === dateLabel) {
-    console.log(`✅ 既に選択済みの日付: ${currentSelectedDate}`);
-    return;
+  const selectedBtn = page.locator('.weeks-day-btn button.after-btn.selected');
+  if (await selectedBtn.count() > 0) {
+    const currentSelectedDate = (await selectedBtn.first().textContent()).trim();
+    if (currentSelectedDate === dateLabel) {
+      console.log(`✅ 既に選択済みの日付: ${currentSelectedDate}`);
+      return;
+    }
   }
 
-  // ステップ 3: スクロール＆クリック処理をすべて evaluate 内で実行
-  // 参照: SCRAPER_REBUILD_PLAN.md の「保持すべき機能」
-  const selected = await page.evaluate((label) => {
-    // 最初に見える範囲のボタンを取得
-    let btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
-    const availableDates = btns.map(b => b.textContent.trim());
+  // ステップ 3: Playwright locator でスクロール＆クリック
+  // 理由: evaluate 内の element.click() ではサイトのJSイベントハンドラが
+  // 発火しないため、Playwright のブラウザレベルクリックを使用
+  // scrollIntoViewIfNeeded() でSwiperカルーセル内のスクロールも自動処理
+  const buttons = page.locator('.weeks-day-btn button.after-btn');
+  const count = await buttons.count();
+  let clicked = false;
 
-    let target = btns.find(btn => btn.textContent.trim() === label);
-
-    // ボタンが見つからない場合、スクロール後に再検索
-    // 理由: 日付ボタンはスクロール可能なコンテナ内に存在
-    if (!target) {
-      const container = document.querySelector('.weeks-day-btn');
-      if (container) {
-        container.scrollLeft += 200;
-      }
-      btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
-      target = btns.find(btn => btn.textContent.trim() === label);
+  for (let i = 0; i < count; i++) {
+    const text = await buttons.nth(i).textContent();
+    if (text.trim() === dateLabel) {
+      await buttons.nth(i).scrollIntoViewIfNeeded();
+      await buttons.nth(i).click();
+      clicked = true;
+      break;
     }
+  }
 
-    if (!target) {
-      return {
-        success: false,
-        message: `日付「${label}」が見つかりません。利用可能な日付: ${availableDates.join(', ')}`
-      };
+  if (!clicked) {
+    const available = [];
+    for (let i = 0; i < count; i++) {
+      available.push((await buttons.nth(i).textContent()).trim());
     }
-
-    target.click();
-    return { success: true };
-  }, dateLabel);
-
-  // ステップ 4: エラーハンドリング
-  if (!selected.success) {
-    throw new Error(selected.message);
+    throw new Error(`日付「${dateLabel}」が見つかりません。利用可能な日付: ${available.join(', ')}`);
   }
   console.log(`✅ 日付をクリック: "${dateLabel}"`);
 
-  // ステップ 5: メニュー表示待機
+  // ステップ 4: メニュー表示待機
   // 参照: SCRAPER_REBUILD_PLAN.md の「タイミング・待機処理」
   console.log('⏳ メニュー表示待機中...');
   try {
