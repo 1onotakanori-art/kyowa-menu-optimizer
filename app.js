@@ -208,9 +208,22 @@ class MenuOptimizationApp {
     try {
       console.log('📅 loadAvailableDates() 実行開始');
 
+      // 今日から90日先までの日付を取得（1000件制限を回避）
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const startDate = today.toISOString().split('T')[0];
+      
+      const endDate = new Date(today);
+      endDate.setDate(endDate.getDate() + 90);
+      const endDateStr = endDate.toISOString().split('T')[0];
+
+      console.log(`📅 取得範囲: ${startDate} 〜 ${endDateStr}`);
+
       const { data, error } = await _supabaseClient
         .from('menus')
         .select('date')
+        .gte('date', startDate)
+        .lte('date', endDateStr)
         .order('date', { ascending: true });
 
       if (error) throw new Error(`Supabase エラー: ${error.message}`);
@@ -220,15 +233,11 @@ class MenuOptimizationApp {
 
       if (availableDates.length === 0) {
         const dateSelect = document.getElementById('date-input');
-        dateSelect.innerHTML = '<option value="">メニューデータがありません</option>';
+        dateSelect.innerHTML = '<option value="">本日以降のメニューデータがありません</option>';
         return;
       }
 
-      // 今日の日付（年月日を考慮）
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      // 本日以降の日付のみフィルタリング（ISO形式で比較）
+      // 本日以降の日付のみフィルタリング（既にクエリで絞っているが念のため）
       const filteredISODates = availableDates.filter(isoDate => {
         const menuDate = new Date(isoDate);
         return menuDate >= today;
