@@ -10,6 +10,7 @@
 - 🎯 **栄養目標最適化** - E/P/F/C/V の5つの栄養素を同時に最適化
 - 🎨 **直感的なUI** - 色で状態を判別（推奨/固定/除外）
 - 📊 **レーダーチャート** - 目標vs実績を視覚的に表示
+- 🔷 **Supabase 連携** - クラウドでメニューデータを一元管理
 - 🌐 **完全無料** - GitHub Pages でホスト
 - 💻 **サーバー不要** - 静的サイトのみで動作
 
@@ -20,11 +21,15 @@
   ↓
 [prescrap.js] Playwright でメニュー取得
   ↓
-[menus/] JSON ファイル生成
+[menus/] JSON ファイル生成（ローカル）
+  ↓
+Supabase へ自動アップロード（クラウドDB）
   ↓
 Git push → GitHub
   ↓
 GitHub Pages で自動デプロイ（1-2分）
+  ↓
+フロントエンドが Supabase から直接データ取得
   ↓
 https://1onotakanori-art.github.io/kyowa-menu-optimizer/
 ```
@@ -40,13 +45,40 @@ cd kyowa-menu-optimizer
 
 ### 2. 依存関係のインストール
 
+```bashSupabase の設定 (推奨)
+
+Supabase 連携により、メニューデータをクラウドで管理できます。
+
+詳細な手順は **[docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)** を参照してください。
+
+#### 簡易手順：
+
+1. [Supabase](https://supabase.com/) でプロジェクト作成
+2. テーブル `menus` を作成（SQL は SUPABASE_SETUP.md 参照）
+3. 環境変数を設定：
+   ```bash
+   e5. GitHub Pages の設定
+
+リポジトリの Settings → Pages → Source を以下に設定：
+- **Source**: Deploy from a branch
+- **Branch**: main
+- **Folder**: / (root)
+
+### 6. スクレイピング実行（ローカル）
+
 ```bash
-npm install
+npm run scrape
 ```
 
-### 3. スクレイピング実行（ローカル）
+または
 
 ```bash
+node prescrap.js
+```
+
+スクレイピングされたメニューは：
+- `menus/` ディレクトリに JSON ファイルとして保存
+- Supabase へ自動アップロード（環境変数設定時）
 node prescrap.js
 ```
 
