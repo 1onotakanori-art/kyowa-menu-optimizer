@@ -141,7 +141,6 @@ async function selectDate(page, dateLabel) {
   console.log(`🔍 日付選択開始: "${dateLabel}"`);
 
   // ステップ 2: 現在選択されている日付を確認
-  // 理由: 既に選択されていればスキップして効率化
   const selectedBtn = page.locator('.weeks-day-btn button.after-btn.selected');
   if (await selectedBtn.count() > 0) {
     const currentSelectedDate = (await selectedBtn.first().textContent()).trim();
@@ -151,35 +150,255 @@ async function selectDate(page, dateLabel) {
     }
   }
 
-  // ステップ 3: Playwright locator でスクロール＆クリック
-  // 理由: evaluate 内の element.click() ではサイトのJSイベントハンドラが
-  // 発火しないため、Playwright のブラウザレベルクリックを使用
-  // scrollIntoViewIfNeeded() でSwiperカルーセル内のスクロールも自動処理
+  // デバッグ: menu-area の子要素構造を事前に取得
+  const preClickDebug = await page.evaluate(() => {
+    const menuArea = document.querySelector('.menu-area');
+    if (!menuArea) return { error: 'menu-area not found' };
+
+    const children = [...menuArea.children].map(child => ({
+      tag: child.tagName,
+      class: typeof child.className === 'string' ? child.className : '',
+      id: child.id || '',
+      childCount: child.children.length,
+      html: child.outerHTML.substring(0, 500)
+    }));
+
+    // 日付ボタンの詳細情報
+    const btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
+    const btnInfo = btns.slice(0, 5).map(btn => ({
+      text: btn.textContent.trim(),
+      class: btn.className,
+      parentClass: btn.parentElement?.className || '',
+      grandparentClass: btn.parentElement?.parentElement?.className || '',
+      isVisible: btn.offsetWidth > 0 && btn.offsetHeight > 0,
+      rect: btn.getBoundingClientRect()
+    }));
+
+    return { childCount: menuArea.children.length, children, btnInfo };
+  });
+  console.log('📊 [事前] menu-area 子要素:', JSON.stringify(preClickDebug, null, 2));
+
+  // ステップ 3: 複数のクリック手法を順番に試行
   const buttons = page.locator('.weeks-day-btn button.after-btn');
   const count = await buttons.count();
-  let clicked = false;
+  let targetIndex = -1;
 
   for (let i = 0; i < count; i++) {
     const text = await buttons.nth(i).textContent();
     if (text.trim() === dateLabel) {
-      await buttons.nth(i).scrollIntoViewIfNeeded();
-      await buttons.nth(i).click();
-      clicked = true;
+      targetIndex = i;
       break;
     }
   }
 
-  if (!clicked) {
+  if (targetIndex === -1) {
     const available = [];
     for (let i = 0; i < count; i++) {
       available.push((await buttons.nth(i).textContent()).trim());
     }
     throw new Error(`日付「${dateLabel}」が見つかりません。利用可能な日付: ${available.join(', ')}`);
   }
-  console.log(`✅ 日付をクリック: "${dateLabel}"`);
 
-  // ステップ 4: メニュー表示待機
-  // 参照: SCRAPER_REBUILD_PLAN.md の「タイミング・待機処理」
+  const targetBtn = buttons.nth(targetIndex);
+
+  // 手法A: Playwright locator.click()
+  console.log('🔧 [手法A] Playwright locator.click() を試行...');
+  await targetBtn.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500); // スクロール安定待機
+  await targetBtn.click();
+  await page.waitForTimeout(1500);
+
+  let menuCount = await page.$$eval('.menu-content', els => els.length);
+  let selectedDate = await page.evaluate(() => {
+    const btn = document.querySelector('.weeks-day-btn button.after-btn.selected');
+    return btn ? btn.textContent.trim() : 'なし';
+  });
+  console.log(`   結果: selected="${selectedDate}", menu-content数=${menuCount}`);
+
+  if (menuCount > 0) {
+    console.log(`✅ [手法A成功] 日付をクリック: "${dateLabel}"`);
+    await waitForMenuDisplay(page, dateLabel);
+    return;
+  }
+
+  // 手法B: Playwright page.tap()（タッチイベント）
+  console.log('🔧 [手法B] Playwright page.tap() を試行...');
+  try {
+    await targetBtn.tap();
+    await page.waitForTimeout(1500);
+
+    menuCount = await page.$$eval('.menu-content', els => els.length);
+    selectedDate = await page.evaluate(() => {
+      const btn = document.querySelector('.weeks-day-btn button.after-btn.selected');
+      return btn ? btn.textContent.trim() : 'なし';
+    });
+    console.log(`   結果: selected="${selectedDate}", menu-content数=${menuCount}`);
+
+    if (menuCount > 0) {
+      console.log(`✅ [手法B成功] 日付をタップ: "${dateLabel}"`);
+      await waitForMenuDisplay(page, dateLabel);
+      return;
+    }
+  } catch (e) {
+    console.log(`   tap失敗: ${e.message}`);
+  }
+
+  // 手法C: locator.click({ force: true }) - アクション可能性チェックをバイパス
+  console.log('🔧 [手法C] locator.click({ force: true }) を試行...');
+  await targetBtn.click({ force: true });
+  await page.waitForTimeout(1500);
+
+  menuCount = await page.$$eval('.menu-content', els => els.length);
+  selectedDate = await page.evaluate(() => {
+    const btn = document.querySelector('.weeks-day-btn button.after-btn.selected');
+    return btn ? btn.textContent.trim() : 'なし';
+  });
+  console.log(`   結果: selected="${selectedDate}", menu-content数=${menuCount}`);
+
+  if (menuCount > 0) {
+    console.log(`✅ [手法C成功] 日付を強制クリック: "${dateLabel}"`);
+    await waitForMenuDisplay(page, dateLabel);
+    return;
+  }
+
+  // 手法D: evaluate内でPointerEventシーケンスをdispatch
+  console.log('🔧 [手法D] PointerEvent + MouseEvent シーケンスを試行...');
+  await page.evaluate((label) => {
+    const btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
+    const target = btns.find(btn => btn.textContent.trim() === label);
+    if (!target) return;
+
+    const rect = target.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const opts = { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse' };
+
+    target.dispatchEvent(new PointerEvent('pointerdown', opts));
+    target.dispatchEvent(new PointerEvent('pointerup', opts));
+    target.dispatchEvent(new MouseEvent('mousedown', opts));
+    target.dispatchEvent(new MouseEvent('mouseup', opts));
+    target.dispatchEvent(new MouseEvent('click', opts));
+  }, dateLabel);
+  await page.waitForTimeout(1500);
+
+  menuCount = await page.$$eval('.menu-content', els => els.length);
+  selectedDate = await page.evaluate(() => {
+    const btn = document.querySelector('.weeks-day-btn button.after-btn.selected');
+    return btn ? btn.textContent.trim() : 'なし';
+  });
+  console.log(`   結果: selected="${selectedDate}", menu-content数=${menuCount}`);
+
+  if (menuCount > 0) {
+    console.log(`✅ [手法D成功] 日付をイベントディスパッチ: "${dateLabel}"`);
+    await waitForMenuDisplay(page, dateLabel);
+    return;
+  }
+
+  // 手法E: 親要素（swiper-slide）をクリック
+  console.log('🔧 [手法E] 親要素 (swiper-slide) をクリック...');
+  const slideClicked = await page.evaluate((label) => {
+    const btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
+    const target = btns.find(btn => btn.textContent.trim() === label);
+    if (!target) return false;
+
+    // 親のswiper-slideを探してクリック
+    let parent = target.parentElement;
+    while (parent && !parent.classList.contains('swiper-slide')) {
+      parent = parent.parentElement;
+    }
+    if (parent) {
+      parent.click();
+      return true;
+    }
+    return false;
+  }, dateLabel);
+  if (slideClicked) {
+    await page.waitForTimeout(1500);
+    menuCount = await page.$$eval('.menu-content', els => els.length);
+    selectedDate = await page.evaluate(() => {
+      const btn = document.querySelector('.weeks-day-btn button.after-btn.selected');
+      return btn ? btn.textContent.trim() : 'なし';
+    });
+    console.log(`   結果: selected="${selectedDate}", menu-content数=${menuCount}`);
+  }
+
+  if (menuCount > 0) {
+    console.log(`✅ [手法E成功] 日付をスライドクリック: "${dateLabel}"`);
+    await waitForMenuDisplay(page, dateLabel);
+    return;
+  }
+
+  // 全手法失敗 - 詳細デバッグ
+  console.error(`\n${'='.repeat(60)}`);
+  console.error('🔍 [デバッグ] 全クリック手法失敗 - 詳細ページ状態');
+  console.error(`${'='.repeat(60)}`);
+  console.error(`📍 現在のURL: ${page.url()}`);
+
+  // スクリーンショット保存
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const debugDir = path.join(process.cwd(), 'debug');
+    if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
+    const screenshotPath = path.join(debugDir, `timeout_${dateLabel.replace(/[\/()]/g, '_')}.png`);
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+    console.error(`📸 スクリーンショット保存: ${screenshotPath}`);
+  } catch (ssErr) {
+    console.error(`📸 スクリーンショット保存失敗: ${ssErr.message}`);
+  }
+
+  // 詳細DOM調査
+  const debugInfo = await page.evaluate(() => {
+    const menuArea = document.querySelector('.menu-area');
+    const menuAreaHTML = menuArea ? menuArea.innerHTML : 'NOT FOUND';
+
+    // 全selected要素
+    const allSelected = [...document.querySelectorAll('[class*="selected"], [class*="active"]')]
+      .slice(0, 20)
+      .map(el => ({
+        tag: el.tagName,
+        class: typeof el.className === 'string' ? el.className : '',
+        text: (el.textContent || '').substring(0, 50).trim()
+      }));
+
+    // menu-areaの全子孫のクラス一覧
+    const allClasses = new Set();
+    if (menuArea) {
+      menuArea.querySelectorAll('*').forEach(el => {
+        if (el.classList) el.classList.forEach(c => allClasses.add(c));
+      });
+    }
+
+    // ネットワークリクエスト用: fetchやXHRの存在確認
+    const hasServiceWorker = 'serviceWorker' in navigator;
+
+    return {
+      menuAreaHTML: menuAreaHTML.substring(0, 5000),
+      menuAreaFullLength: menuAreaHTML.length,
+      allSelected,
+      allMenuAreaClasses: [...allClasses].sort(),
+      hasServiceWorker
+    };
+  });
+
+  console.error(`\n📊 [詳細デバッグ結果]`);
+  console.error(`  menu-area HTML長: ${debugInfo.menuAreaFullLength}`);
+  console.error(`  menu-area 全クラス: ${debugInfo.allMenuAreaClasses.join(', ')}`);
+  console.error(`  selected/active 要素:`);
+  debugInfo.allSelected.forEach((el, i) => {
+    console.error(`    [${i}] <${el.tag}> class="${el.class}" text="${el.text}"`);
+  });
+  console.error(`\n📄 [menu-area HTML (先頭5000文字)]`);
+  console.error(debugInfo.menuAreaHTML);
+  console.error(`${'='.repeat(60)}\n`);
+
+  throw new Error(`メニュー表示タイムアウト（${dateLabel}）- 全クリック手法失敗`);
+}
+
+/**
+ * メニュー表示の完了を待機するヘルパー
+ */
+async function waitForMenuDisplay(page, dateLabel) {
   console.log('⏳ メニュー表示待機中...');
   try {
     await page.waitForFunction(
@@ -189,101 +408,8 @@ async function selectDate(page, dateLabel) {
     const menuCount = await page.$$eval('.menu-content', els => els.length);
     console.log(`✅ メニュー表示確認: ${menuCount} メニュー`);
   } catch (error) {
-    // デバッグ: タイムアウト時のページ状態を詳しく出力
-    console.error(`\n${'='.repeat(60)}`);
-    console.error('🔍 [デバッグ] メニュー表示タイムアウト - ページ状態調査');
-    console.error(`${'='.repeat(60)}`);
-
-    // 現在のURLを確認
-    console.error(`📍 現在のURL: ${page.url()}`);
-
-    // スクリーンショットを保存
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const debugDir = path.join(process.cwd(), 'debug');
-      if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
-      const screenshotPath = path.join(debugDir, `timeout_${dateLabel.replace(/[\/()]/g, '_')}.png`);
-      await page.screenshot({ path: screenshotPath, fullPage: true });
-      console.error(`📸 スクリーンショット保存: ${screenshotPath}`);
-    } catch (ssErr) {
-      console.error(`📸 スクリーンショット保存失敗: ${ssErr.message}`);
-    }
-
-    // DOM構造の調査
-    const debugInfo = await page.evaluate(() => {
-      const body = document.body;
-
-      // メニュー関連のクラスを持つ要素を検索
-      const allElements = [...document.querySelectorAll('*')];
-      const menuRelated = allElements
-        .filter(el => {
-          const cls = el.className || '';
-          const id = el.id || '';
-          return (typeof cls === 'string' && cls.toLowerCase().includes('menu')) ||
-                 (typeof id === 'string' && id.toLowerCase().includes('menu'));
-        })
-        .slice(0, 30)
-        .map(el => ({
-          tag: el.tagName,
-          id: el.id || '',
-          class: typeof el.className === 'string' ? el.className : '',
-          childCount: el.children.length,
-          textPreview: (el.textContent || '').substring(0, 80).trim()
-        }));
-
-      // .menu-content の存在確認
-      const menuContent = document.querySelectorAll('.menu-content');
-
-      // ページ全体の主要構造
-      const topLevelDivs = [...document.querySelectorAll('body > div, body > main, body > section')]
-        .slice(0, 10)
-        .map(el => ({
-          tag: el.tagName,
-          id: el.id || '',
-          class: typeof el.className === 'string' ? el.className : '',
-          childCount: el.children.length
-        }));
-
-      // 現在選択されている日付ボタン
-      const selectedBtn = document.querySelector('.weeks-day-btn button.after-btn.selected');
-      const selectedDate = selectedBtn ? selectedBtn.textContent.trim() : 'なし';
-
-      // タブの状態
-      const tabs = [...document.querySelectorAll('#menu-target .tab-button')].map(t => ({
-        text: t.textContent.trim(),
-        classes: typeof t.className === 'string' ? t.className : ''
-      }));
-
-      return {
-        menuContentCount: menuContent.length,
-        selectedDate,
-        tabs,
-        topLevelDivs,
-        menuRelatedElements: menuRelated,
-        bodyChildCount: body.children.length,
-        bodyHTML: body.innerHTML.substring(0, 3000)
-      };
-    });
-
-    console.error(`\n📊 [デバッグ結果]`);
-    console.error(`  .menu-content 要素数: ${debugInfo.menuContentCount}`);
-    console.error(`  選択中の日付: ${debugInfo.selectedDate}`);
-    console.error(`  タブ状態: ${JSON.stringify(debugInfo.tabs)}`);
-    console.error(`  トップレベル構造: ${JSON.stringify(debugInfo.topLevelDivs, null, 2)}`);
-    console.error(`  メニュー関連要素 (${debugInfo.menuRelatedElements.length}件):`);
-    debugInfo.menuRelatedElements.forEach((el, i) => {
-      console.error(`    [${i}] <${el.tag}> id="${el.id}" class="${el.class}" children=${el.childCount}`);
-      if (el.textPreview) console.error(`        text: "${el.textPreview}"`);
-    });
-    console.error(`\n📄 [HTML先頭3000文字]`);
-    console.error(debugInfo.bodyHTML);
-    console.error(`${'='.repeat(60)}\n`);
-
     throw new Error(`メニュー表示タイムアウト（${dateLabel}）`);
   }
-
-  // ステップ 6: DOM 安定待機
   await page.waitForTimeout(500);
 }
 
