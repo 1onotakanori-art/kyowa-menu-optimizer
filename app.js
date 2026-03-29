@@ -216,7 +216,7 @@ class MenuOptimizationApp {
       if (error) throw new Error(`Supabase エラー: ${error.message}`);
 
       const availableDates = [...new Set(data.map(r => r.date))];
-      console.log('📅 利用可能な日付:', availableDates);
+      console.log('📅 利用可能な日付（ISO形式）:', availableDates);
 
       if (availableDates.length === 0) {
         const dateSelect = document.getElementById('date-input');
@@ -224,21 +224,22 @@ class MenuOptimizationApp {
         return;
       }
 
-      const dateLabels = availableDates.map(isoDate => this.isoDateToDateLabel(isoDate));
+      // 今日の日付（年月日を考慮）
       const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-      const filteredDates = dateLabels.filter(dateLabel => {
-        const match = dateLabel.match(/(\d{1,2})\/(\d{1,2})/);
-        if (!match) return false;
-        const [, month, day] = match;
-        const monthNum = parseInt(month);
-        const dayNum = parseInt(day);
-        if (monthNum > today.getMonth() + 1) return true;
-        if (monthNum === today.getMonth() + 1 && dayNum >= today.getDate()) return true;
-        return false;
+      // 本日以降の日付のみフィルタリング（ISO形式で比較）
+      const filteredISODates = availableDates.filter(isoDate => {
+        const menuDate = new Date(isoDate);
+        return menuDate >= today;
       });
 
-      console.log('🔍 フィルター後の日付:', filteredDates);
+      console.log('🔍 フィルター後の日付（本日以降）:', filteredISODates);
+
+      // 日付ラベルに変換（例: "3/30(月)"）
+      const filteredDates = filteredISODates.map(isoDate => this.isoDateToDateLabel(isoDate));
+
+      console.log('🔍 表示用日付ラベル:', filteredDates);
 
       if (filteredDates.length === 0) {
         const dateSelect = document.getElementById('date-input');
@@ -255,6 +256,7 @@ class MenuOptimizationApp {
         dateSelect.appendChild(option);
       });
 
+      // デフォルト選択: 本日の平日、または最初の利用可能日
       const getNearestWeekday = (startDate) => {
         let current = new Date(startDate);
         while (true) {
@@ -266,11 +268,15 @@ class MenuOptimizationApp {
       };
 
       const todayOrNextWeekday = getNearestWeekday(today);
-      const targetMonthDay = `${todayOrNextWeekday.getMonth() + 1}/${todayOrNextWeekday.getDate()}`;
-      const targetOption = filteredDates.find(d => d.startsWith(targetMonthDay));
-      if (targetOption) {
-        dateSelect.value = targetOption;
+      const todayOrNextWeekdayISO = todayOrNextWeekday.toISOString().split('T')[0];
+      
+      // フィルター後のISO日付から該当する日付を探す
+      const targetIndex = filteredISODates.findIndex(isoDate => isoDate === todayOrNextWeekdayISO);
+      
+      if (targetIndex !== -1) {
+        dateSelect.value = filteredDates[targetIndex];
       } else {
+        // 見つからない場合は最初の日付を選択
         dateSelect.value = filteredDates[0];
       }
 
