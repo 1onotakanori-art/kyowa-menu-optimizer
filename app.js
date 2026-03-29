@@ -4,10 +4,9 @@
  */
 
 // Supabase クライアント初期化
-// ※ ユーザーが YOUR_SUPABASE_URL と YOUR_SUPABASE_ANON_KEY を差し替える
 const _supabaseClient = window.supabase.createClient(
-  'YOUR_SUPABASE_URL',
-  'YOUR_SUPABASE_ANON_KEY'
+  'https://zzleqjendqkoizbdvblw.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6bGVxamVuZHFrb2l6YmR2Ymx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjA0ODYsImV4cCI6MjA5MDAzNjQ4Nn0.OwuE6oJYLuA9nzEm-lAKq6BNc-J9RWv1ylZ9cH34vY8'
 );
 
 class MenuOptimizationApp {
