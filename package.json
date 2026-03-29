@@ -9,15 +9,17 @@
     "scrape": "node prescrap.js",
     "scrape:10": "node prescrap.js 10",
     "scrape:20": "node prescrap.js 20",
-    "scrape:upload": "node scrape-and-upload.js"
+    "scrape:upload": "node scrape-and-upload.js",
+    "migrate": "node migrate-to-supabase.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@supabase/supabase-js": "^2.100.1",
     "express": "^4.18.2",
-    "playwright": "^1.57.0",
-    "node-cron": "^3.0.2"
+    "node-cron": "^3.0.2",
+    "playwright": "^1.57.0"
   }
 }

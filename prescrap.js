@@ -13,6 +13,12 @@
 const fs = require('fs');
 const path = require('path');
 const { fetchMenus, getAvailableSiteDates } = require('./src/scraper/fetchMenus');
+const { createClient } = require('@supabase/supabase-js');
+
+// Supabase クライアント（SERVICE_KEY があればアップロード、なければローカル保存のみ）
+const SUPABASE_URL = 'https://zzleqjendqkoizbdvblw.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const supabase = SUPABASE_SERVICE_KEY ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY) : null;
 
 // 出力ディレクトリ
 const OUTPUT_DIR = path.join(__dirname, 'menus');
@@ -46,6 +52,27 @@ function saveMenusToOutput(dateLabel, data) {
   const filePath = path.join(OUTPUT_DIR, fileName);
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
   console.log(`✅ 保存完了: ${fileName}`);
+}
+
+/**
+ * 1日分のメニューを Supabase へアップサート
+ *
+ * @param {string} date - "2026-01-13" 形式
+ * @param {Array} menus - [{name, nutrition}] 配列
+ * @returns {Promise<number>} アップロード件数
+ */
+async function uploadToSupabase(date, menus) {
+  if (!supabase) return 0;
+  const rows = menus.map(menu => ({
+    date,
+    menu_name: menu.name,
+    nutrition: menu.nutrition,
+  }));
+  const { error } = await supabase
+    .from('menus')
+    .upsert(rows, { onConflict: 'date,menu_name' });
+  if (error) throw new Error(`Supabase upsert エラー: ${error.message}`);
+  return rows.length;
 }
 
 /**
@@ -117,7 +144,22 @@ async function prescrapMultipleDays(maxDays = 5) {
     try {
       const result = await fetchMenus(dateLabel);
       saveMenusToOutput(dateLabel, result);
-      console.log(`   ✅ メニュー数: ${result.menus?.length || 0}`);
+      const menuCount = result.menus?.length || 0;
+      console.log(`   ✅ メニュー数: ${menuCount}`);
+
+      // Supabase へアップロード
+      if (supabase) {
+        const isoDate = getCacheFileName(dateLabel).replace('menus_', '').replace('.json', '');
+        try {
+          const uploaded = await uploadToSupabase(isoDate, result.menus || []);
+          console.log(`   ☁️  Supabase アップロード: ${uploaded} 件`);
+        } catch (uploadError) {
+          console.error(`   ⚠️  Supabase アップロード失敗: ${uploadError.message}`);
+        }
+      } else {
+        console.log(`   ℹ️  SUPABASE_SERVICE_KEY 未設定のため Supabase アップロードをスキップ`);
+      }
+
       scrapedDates.push(dateLabel);
     } catch (error) {
       console.error(`   ❌ エラー: ${error.message}`);
