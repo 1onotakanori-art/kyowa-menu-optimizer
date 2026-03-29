@@ -198,11 +198,102 @@ async function selectDate(page, dateLabel) {
   try {
     await page.waitForFunction(
       () => document.querySelectorAll('.menu-content').length > 0,
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
     const menuCount = await page.$$eval('.menu-content', els => els.length);
     console.log(`✅ メニュー表示確認: ${menuCount} メニュー`);
   } catch (error) {
+    // デバッグ: タイムアウト時のページ状態を詳しく出力
+    console.error(`\n${'='.repeat(60)}`);
+    console.error('🔍 [デバッグ] メニュー表示タイムアウト - ページ状態調査');
+    console.error(`${'='.repeat(60)}`);
+
+    // 現在のURLを確認
+    console.error(`📍 現在のURL: ${page.url()}`);
+
+    // スクリーンショットを保存
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const debugDir = path.join(process.cwd(), 'debug');
+      if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
+      const screenshotPath = path.join(debugDir, `timeout_${dateLabel.replace(/[\/()]/g, '_')}.png`);
+      await page.screenshot({ path: screenshotPath, fullPage: true });
+      console.error(`📸 スクリーンショット保存: ${screenshotPath}`);
+    } catch (ssErr) {
+      console.error(`📸 スクリーンショット保存失敗: ${ssErr.message}`);
+    }
+
+    // DOM構造の調査
+    const debugInfo = await page.evaluate(() => {
+      const body = document.body;
+
+      // メニュー関連のクラスを持つ要素を検索
+      const allElements = [...document.querySelectorAll('*')];
+      const menuRelated = allElements
+        .filter(el => {
+          const cls = el.className || '';
+          const id = el.id || '';
+          return (typeof cls === 'string' && cls.toLowerCase().includes('menu')) ||
+                 (typeof id === 'string' && id.toLowerCase().includes('menu'));
+        })
+        .slice(0, 30)
+        .map(el => ({
+          tag: el.tagName,
+          id: el.id || '',
+          class: typeof el.className === 'string' ? el.className : '',
+          childCount: el.children.length,
+          textPreview: (el.textContent || '').substring(0, 80).trim()
+        }));
+
+      // .menu-content の存在確認
+      const menuContent = document.querySelectorAll('.menu-content');
+
+      // ページ全体の主要構造
+      const topLevelDivs = [...document.querySelectorAll('body > div, body > main, body > section')]
+        .slice(0, 10)
+        .map(el => ({
+          tag: el.tagName,
+          id: el.id || '',
+          class: typeof el.className === 'string' ? el.className : '',
+          childCount: el.children.length
+        }));
+
+      // 現在選択されている日付ボタン
+      const selectedBtn = document.querySelector('.weeks-day-btn button.after-btn.selected');
+      const selectedDate = selectedBtn ? selectedBtn.textContent.trim() : 'なし';
+
+      // タブの状態
+      const tabs = [...document.querySelectorAll('#menu-target .tab-button')].map(t => ({
+        text: t.textContent.trim(),
+        classes: typeof t.className === 'string' ? t.className : ''
+      }));
+
+      return {
+        menuContentCount: menuContent.length,
+        selectedDate,
+        tabs,
+        topLevelDivs,
+        menuRelatedElements: menuRelated,
+        bodyChildCount: body.children.length,
+        bodyHTML: body.innerHTML.substring(0, 3000)
+      };
+    });
+
+    console.error(`\n📊 [デバッグ結果]`);
+    console.error(`  .menu-content 要素数: ${debugInfo.menuContentCount}`);
+    console.error(`  選択中の日付: ${debugInfo.selectedDate}`);
+    console.error(`  タブ状態: ${JSON.stringify(debugInfo.tabs)}`);
+    console.error(`  トップレベル構造: ${JSON.stringify(debugInfo.topLevelDivs, null, 2)}`);
+    console.error(`  メニュー関連要素 (${debugInfo.menuRelatedElements.length}件):`);
+    debugInfo.menuRelatedElements.forEach((el, i) => {
+      console.error(`    [${i}] <${el.tag}> id="${el.id}" class="${el.class}" children=${el.childCount}`);
+      if (el.textPreview) console.error(`        text: "${el.textPreview}"`);
+    });
+    console.error(`\n📄 [HTML先頭3000文字]`);
+    console.error(debugInfo.bodyHTML);
+    console.error(`${'='.repeat(60)}\n`);
+
     throw new Error(`メニュー表示タイムアウト（${dateLabel}）`);
   }
 
