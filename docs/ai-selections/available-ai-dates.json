@@ -1,25 +1,279 @@
 {
   "dates": [
-    "2026-01-13",
-    "2026-01-14",
-    "2026-01-15",
-    "2026-01-16",
-    "2026-01-19",
-    "2026-01-20",
-    "2026-01-21",
-    "2026-01-22",
-    "2026-01-23",
-    "2026-01-26",
-    "2026-01-27",
-    "2026-01-28",
-    "2026-01-29",
-    "2026-01-30",
-    "2026-02-02",
-    "2026-02-03",
-    "2026-02-09",
-    "2026-02-10",
-    "2026-02-11",
-    "2026-02-12",
-    "2026-02-13"
-  ]
+    {
+      "date": "2026-01-13",
+      "dateLabel": "1/13(火)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-14",
+      "dateLabel": "1/14(水)",
+      "menuCount": 10,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-15",
+      "dateLabel": "1/15(木)",
+      "menuCount": 39,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-16",
+      "dateLabel": "1/16(金)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-19",
+      "dateLabel": "1/19(月)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-20",
+      "dateLabel": "1/20(火)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-21",
+      "dateLabel": "1/21(水)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-22",
+      "dateLabel": "1/22(木)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-23",
+      "dateLabel": "1/23(金)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-26",
+      "dateLabel": "1/26(月)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-27",
+      "dateLabel": "1/27(火)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-28",
+      "dateLabel": "1/28(水)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-29",
+      "dateLabel": "1/29(木)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-01-30",
+      "dateLabel": "1/30(金)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-02",
+      "dateLabel": "2/2(月)",
+      "menuCount": 39,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-03",
+      "dateLabel": "2/3(火)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-04",
+      "dateLabel": "2/4(水)",
+      "menuCount": 8,
+      "selectedCount": 2
+    },
+    {
+      "date": "2026-02-06",
+      "dateLabel": "2/6(金)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-09",
+      "dateLabel": "2/9(月)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-10",
+      "dateLabel": "2/10(火)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-11",
+      "dateLabel": "2/11(水)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-12",
+      "dateLabel": "2/12(木)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-13",
+      "dateLabel": "2/13(金)",
+      "menuCount": 41,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-18",
+      "dateLabel": "2/18(水)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-19",
+      "dateLabel": "2/19(木)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-20",
+      "dateLabel": "2/20(金)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-23",
+      "dateLabel": "2/23(月)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-24",
+      "dateLabel": "2/24(火)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-25",
+      "dateLabel": "2/25(水)",
+      "menuCount": 20,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-26",
+      "dateLabel": "2/26(木)",
+      "menuCount": 10,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-02-27",
+      "dateLabel": "2/27(金)",
+      "menuCount": 10,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-03-03",
+      "dateLabel": "3/3(火)",
+      "menuCount": 30,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-03-04",
+      "dateLabel": "3/4(水)",
+      "menuCount": 20,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-03-05",
+      "dateLabel": "3/5(木)",
+      "menuCount": 20,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-03-06",
+      "dateLabel": "3/6(金)",
+      "menuCount": 20,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-03-30",
+      "dateLabel": "3/30(月)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-03-31",
+      "dateLabel": "3/31(火)",
+      "menuCount": 39,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-04-01",
+      "dateLabel": "4/1(水)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-04-02",
+      "dateLabel": "4/2(木)",
+      "menuCount": 39,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-04-03",
+      "dateLabel": "4/3(金)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-04-06",
+      "dateLabel": "4/6(月)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-04-07",
+      "dateLabel": "4/7(火)",
+      "menuCount": 39,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-04-08",
+      "dateLabel": "4/8(水)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-04-09",
+      "dateLabel": "4/9(木)",
+      "menuCount": 40,
+      "selectedCount": 3
+    },
+    {
+      "date": "2026-04-10",
+      "dateLabel": "4/10(金)",
+      "menuCount": 40,
+      "selectedCount": 3
+    }
+  ],
+  "generatedAt": "2026-03-31T08:38:33.893975",
+  "modelInfo": {
+    "model": "RandomForest",
+    "accuracy": 0.9995
+  }
 }

@@ -2,6 +2,10 @@
 """
 AI推薦メニューを全日付分生成し、GitHub Pages用のJSONファイルとして出力する
 
+データソース:
+- 学習データ: Supabaseの meal_history テーブル（menu_recommender.pyで使用）
+- メニューデータ: menusディレクトリのJSONファイル
+
 出力フォーマット:
 docs/ai-selections/ai-selections_YYYY-MM-DD.json
 {
@@ -21,6 +25,11 @@ docs/ai-selections/ai-selections_YYYY-MM-DD.json
         "accuracy": 0.9995
     }
 }
+
+使用手順:
+1. 学習データをSupabaseに追加（admin.htmlで食事記録を保存）
+2. モデルを学習: python ml/menu_recommender.py
+3. AI推薦を生成: python ml/generate_ai_selections.py
 """
 
 import json
@@ -205,6 +214,9 @@ def main():
     print("=" * 60)
     print("AI推薦メニュー生成スクリプト")
     print("=" * 60)
+    print("\n📝 注意: このスクリプトは学習済みモデルを使用します")
+    print("   学習データはSupabaseから自動取得されます")
+    print("   モデルの再学習: python ml/menu_recommender.py\n")
     
     # ディレクトリ設定
     project_root = Path(__file__).parent.parent
@@ -213,7 +225,7 @@ def main():
     
     # 出力ディレクトリ作成
     output_dir.mkdir(parents=True, exist_ok=True)
-    print(f"\n出力先: {output_dir}")
+    print(f"出力先: {output_dir}")
     
     # モデル読み込み
     print("\n学習済みモデルを読み込み中...")
@@ -227,7 +239,9 @@ def main():
             print(f"  - 特徴量数: {len(recommender.feature_names)}")
     else:
         print("✗ モデルが見つかりません。先に学習を実行してください。")
-        print("  実行コマンド: python menu_recommender.py")
+        print("  実行コマンド: python ml/menu_recommender.py")
+        print("\n  学習データはSupabaseから自動取得されます。")
+        print("  事前にadmin.htmlで食事記録を保存してください。")
         return
     
     # メニューファイル一覧を取得

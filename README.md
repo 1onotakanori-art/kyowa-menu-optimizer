@@ -350,6 +350,78 @@ MIT License
 - [ ] PWA 対応
 - [ ] 多言語対応
 
+## 🤖 AIタブ - Supabase連携
+
+### 概要
+機械学習を使って、過去の食事履歴から最適なメニューを自動推薦する機能です。
+
+### 新機能（2026年3月31日リリース）
+✅ **Supabase直接連携** - ローカルファイル不要
+✅ **リアルタイム学習** - 食事記録を保存すると即座に反映
+✅ **シンプルなワークフロー** - 3ステップで完了
+
+### ワークフロー
+
+```
+1. 食事記録を保存（admin.html）
+   ↓
+2. モデルを学習（Supabaseから自動取得）
+   python ml/menu_recommender.py
+   ↓
+3. AI推薦を生成
+   python ml/generate_ai_selections.py
+   ↓
+4. GitHub Pages にデプロイ
+   git push
+```
+
+### セットアップ
+
+#### 1. Python環境の準備
+```bash
+# 仮想環境を作成
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 依存関係をインストール
+pip install -r requirements.txt
+```
+
+#### 2. 学習データの準備
+- `admin.html`で食事記録を保存（最低3日分推奨）
+- データは自動的にSupabaseに保存されます
+
+#### 3. モデルの学習
+```bash
+# Supabaseから学習データを取得して学習
+python ml/menu_recommender.py
+```
+
+#### 4. AI推薦の生成
+```bash
+# 学習済みモデルでAI推薦を生成
+python ml/generate_ai_selections.py
+```
+
+#### 5. デプロイ
+```bash
+git add docs/ai-selections/
+git commit -m "Update AI recommendations"
+git push origin main
+```
+
+### 詳細ドキュメント
+
+- **[AIクイックスタートガイド](docs/AI_QUICK_START.md)** - 使い方の詳細
+- **[AI Supabase移行レポート](docs/AI_SUPABASE_MIGRATION.md)** - 技術詳細
+
+### 利点
+
+1. **シンプル** - `sync-training-data.js`の実行が不要
+2. **リアルタイム** - 食事記録を保存すると即座に反映
+3. **一元管理** - すべてのデータがSupabaseに集約
+4. **スケーラブル** - データ量が増えても対応可能
+
 ---
 
 **2026年1月 - GitHub Pages Edition**

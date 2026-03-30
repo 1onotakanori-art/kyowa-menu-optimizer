@@ -22,6 +22,14 @@ from sklearn.metrics import classification_report, roc_auc_score
 import warnings
 warnings.filterwarnings('ignore')
 
+# Supabaseデータローダーをインポート
+try:
+    from supabase_data_loader import SupabaseDataLoader
+    SUPABASE_AVAILABLE = True
+except ImportError:
+    SUPABASE_AVAILABLE = False
+    print("⚠️  Supabaseデータローダーが利用できません（ローカルファイルモードで動作）")
+
 
 class MenuFeatureExtractor:
     """メニューから特徴量を抽出するクラス"""
@@ -198,12 +206,44 @@ class MenuRecommender:
         self.best_model = None
         self.best_model_name = None
         
-    def load_data(self, data_path='data/training_data.json'):
-        """データを読み込み"""
-        with open(data_path, 'r', encoding='utf-8') as f:
-            self.training_data = json.load(f)
-        print(f"✅ データ読み込み完了: {len(self.training_data)}日分")
-        return self.training_data
+    def load_data(self, data_path='data/training_data.json', use_supabase=True):
+        """
+        データを読み込み
+        
+        Args:
+            data_path: ローカルファイルパス（use_supabase=Falseの場合に使用）
+            use_supabase: Supabaseから直接データを取得する場合はTrue
+        
+        Returns:
+            学習データ
+        """
+        if use_supabase and SUPABASE_AVAILABLE:
+            print("📡 Supabaseから学習データを取得中...")
+            try:
+                loader = SupabaseDataLoader()
+                self.training_data = loader.get_training_data()
+                
+                if not self.training_data:
+                    print("⚠️  Supabaseにデータがありません。ローカルファイルを試します...")
+                    raise ValueError("No data in Supabase")
+                
+                print(f"✅ Supabaseからデータ読み込み完了: {len(self.training_data)}日分")
+                return self.training_data
+            except Exception as e:
+                print(f"⚠️  Supabase読み込みエラー: {e}")
+                print("   ローカルファイルにフォールバック...")
+        
+        # ローカルファイルから読み込み
+        print(f"📁 ローカルファイルからデータを読み込み中: {data_path}")
+        try:
+            with open(data_path, 'r', encoding='utf-8') as f:
+                self.training_data = json.load(f)
+            print(f"✅ データ読み込み完了: {len(self.training_data)}日分")
+            return self.training_data
+        except FileNotFoundError:
+            print(f"❌ ファイルが見つかりません: {data_path}")
+            print("   Supabaseにデータを登録するか、ローカルファイルを配置してください")
+            raise
     
     def prepare_features(self):
         """特徴量を準備"""

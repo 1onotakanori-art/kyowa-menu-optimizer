@@ -1,0 +1,15 @@
+# Kyowa Menu Optimizer - Python依存関係
+# インストール: pip install -r requirements.txt
+
+# 機械学習
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+
+# Supabase接続
+supabase>=2.0.0
+
+# データ処理
+python-dateutil>=2.8.0
+
+# その他
