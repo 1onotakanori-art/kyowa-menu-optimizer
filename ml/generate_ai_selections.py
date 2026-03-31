@@ -1,35 +1,22 @@
 #!/usr/bin/env python3
 """
-AI推薦メニューを全日付分生成し、GitHub Pages用のJSONファイルとして出力する
+AI推薦メニューを全日付分生成し、Supabaseに保存する
 
-データソース:
-- 学習データ: Supabaseの meal_history テーブル（menu_recommender.pyで使用）
-- メニューデータ: menusディレクトリのJSONファイル
+データフロー:
+1. Supabase meal_history → 学習データ（menu_recommender.pyで使用）
+2. menus/ ディレクトリ → メニューデータ
+3. 学習済みモデル → AI推薦スコア計算
+4. Supabase ai_selections テーブル → 結果を保存
+5. GitHub Pages → Supabaseから直接読み取り表示
 
-出力フォーマット:
-docs/ai-selections/ai-selections_YYYY-MM-DD.json
-{
-    "date": "2026-01-13",
-    "dateLabel": "1/13(火)",
-    "selectedMenus": [
-        {
-            "name": "メニュー名",
-            "score": 0.85,
-            "rank": 1,
-            "reasons": ["共起パターンが強い", "たんぱく質が豊富"]
-        }
-    ],
-    "modelInfo": {
-        "model": "RandomForest",
-        "trainingDays": 15,
-        "accuracy": 0.9995
-    }
-}
+事前準備:
+- Supaaseの ai_selections テーブルを作成（docs/AI_SELECTIONS_TABLE.sql）
+- モデルを学習: python ml/menu_recommender.py
 
 使用手順:
 1. 学習データをSupabaseに追加（admin.htmlで食事記録を保存）
 2. モデルを学習: python ml/menu_recommender.py
-3. AI推薦を生成: python ml/generate_ai_selections.py
+3. AI推薦を生成・Supabaseに保存: python ml/generate_ai_selections.py
 """
 
 import json
@@ -48,6 +35,8 @@ from menu_recommender import (
     MenuFeatureExtractor,
     CooccurrenceAnalyzer
 )
+
+from supabase_data_loader import SupabaseDataLoader
 
 
 def get_feature_reasons(features, feature_names, top_n=3):
@@ -85,7 +74,7 @@ def get_feature_reasons(features, feature_names, top_n=3):
     return reasons[:3]  # 上位3つまで
 
 
-def generate_ai_selections_for_date(recommender, date_str, menus_data, output_dir):
+def generate_ai_selections_for_date(recommender, date_str, menus_data, output_dir=None):
     """指定日付のAI推薦結果を生成"""
     print(f"\n=== {date_str} の推薦を生成中 ===")
     
@@ -201,31 +190,65 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
         }
     }
     
-    # ファイル出力
-    output_path = output_dir / f"ai-selections_{date_str}.json"
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, ensure_ascii=False, indent=2)
+    # ファイル出力（output_dirが指定されている場合のみ - レガシーモード）
+    if output_dir:
+        output_path = output_dir / f"ai-selections_{date_str}.json"
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(output_data, f, ensure_ascii=False, indent=2)
+        print(f"  ✓ ファイル保存: {output_path}")
     
-    print(f"  ✓ 保存: {output_path}")
     return output_data
+
+
+def upload_to_supabase(loader, output_data):
+    """AI推薦結果をSupabaseにアップロード"""
+    date_str = output_data['date']
+    
+    row = {
+        'date': date_str,
+        'date_label': output_data['dateLabel'],
+        'generated_at': output_data['generatedAt'],
+        'selected_menus': output_data['selectedMenus'],
+        'all_menus_with_scores': output_data['allMenusWithScores'],
+        'model_info': output_data['modelInfo']
+    }
+    
+    try:
+        # UPSERT: dateがユニークなので、既存レコードは更新
+        response = loader.client.table('ai_selections').upsert(
+            row, on_conflict='date'
+        ).execute()
+        
+        if response.data:
+            print(f"  ✓ Supabase保存: {date_str}")
+            return True
+        else:
+            print(f"  ⚠️  Supabase保存失敗: {date_str}")
+            return False
+    except Exception as e:
+        print(f"  ❌ Supabaseエラー ({date_str}): {e}")
+        return False
 
 
 def main():
     print("=" * 60)
-    print("AI推薦メニュー生成スクリプト")
+    print("AI推薦メニュー生成 → Supabase保存")
     print("=" * 60)
-    print("\n📝 注意: このスクリプトは学習済みモデルを使用します")
-    print("   学習データはSupabaseから自動取得されます")
+    print("\n📝 学習データ: Supabaseから自動取得")
+    print("   AI推薦結果: Supabaseに直接保存")
     print("   モデルの再学習: python ml/menu_recommender.py\n")
     
     # ディレクトリ設定
     project_root = Path(__file__).parent.parent
     menus_dir = project_root / 'menus'
-    output_dir = project_root / 'docs' / 'ai-selections'
     
-    # 出力ディレクトリ作成
-    output_dir.mkdir(parents=True, exist_ok=True)
-    print(f"出力先: {output_dir}")
+    # Supabaseクライアント初期化
+    print("📡 Supabaseに接続中...")
+    try:
+        loader = SupabaseDataLoader()
+    except Exception as e:
+        print(f"❌ Supabase接続失敗: {e}")
+        return
     
     # モデル読み込み
     print("\n学習済みモデルを読み込み中...")
@@ -248,9 +271,9 @@ def main():
     menu_files = sorted(menus_dir.glob('menus_*.json'))
     print(f"\n✓ {len(menu_files)}日分のメニューデータを検出")
     
-    # 各日付のAI推薦を生成
+    # 各日付のAI推薦を生成してSupabaseに保存
     generated_count = 0
-    available_dates = []
+    uploaded_count = 0
     
     for menu_file in menu_files:
         # 日付を抽出（menus_2026-01-13.json → 2026-01-13）
@@ -260,42 +283,24 @@ def main():
         with open(menu_file, 'r', encoding='utf-8') as f:
             menus_data = json.load(f)
         
-        # AI推薦生成
+        # AI推薦生成（ファイル出力なし）
         result = generate_ai_selections_for_date(
-            recommender, date_str, menus_data, output_dir
+            recommender, date_str, menus_data
         )
         
         if result:
             generated_count += 1
-            available_dates.append({
-                'date': date_str,
-                'dateLabel': result['dateLabel'],
-                'menuCount': len(menus_data.get('menus', [])),
-                'selectedCount': len(result['selectedMenus'])
-            })
-    
-    # available-ai-dates.json を生成
-    available_dates_file = output_dir / 'available-ai-dates.json'
-    with open(available_dates_file, 'w', encoding='utf-8') as f:
-        json.dump({
-            'dates': available_dates,
-            'generatedAt': datetime.now().isoformat(),
-            'modelInfo': {
-                'model': 'RandomForest',
-                'accuracy': 0.9995
-            }
-        }, f, ensure_ascii=False, indent=2)
+            # Supabaseに保存
+            if upload_to_supabase(loader, result):
+                uploaded_count += 1
     
     print("\n" + "=" * 60)
-    print(f"✓ 完了: {generated_count}日分のAI推薦を生成しました")
-    print(f"✓ 利用可能日付一覧: {available_dates_file}")
+    print(f"✓ 完了: {generated_count}日分のAI推薦を生成")
+    print(f"✓ Supabase保存: {uploaded_count}日分")
     print("=" * 60)
     
-    print("\n次のステップ:")
-    print("  1. git add docs/ai-selections/")
-    print("  2. git commit -m 'Add AI menu selections'")
-    print("  3. git push")
-    print("  4. GitHub Pagesで表示確認")
+    print("\n✅ GitHub PagesからSupabase経由で自動的に表示されます。")
+    print("   git push は不要です！")
 
 
 if __name__ == '__main__':

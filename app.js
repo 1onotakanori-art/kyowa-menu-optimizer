@@ -298,18 +298,28 @@ class MenuOptimizationApp {
   }
 
   /**
-   * AI推薦データを読み込む
+   * AI推薦データを読み込む（Supabaseから取得）
    */
   async loadAISelections(date) {
     try {
-      const response = await fetch(`./docs/ai-selections/ai-selections_${date}.json`);
-      if (response.ok) {
-        this.aiSelections = await response.json();
-        console.log(`✅ AI推薦データ読み込み完了: ${date}`);
-      } else {
+      const { data, error } = await _supabaseClient
+        .from('ai_selections')
+        .select('selected_menus, all_menus_with_scores, model_info')
+        .eq('date', date)
+        .single();
+
+      if (error || !data) {
         console.log(`⚠️  AI推薦データが見つかりません: ${date}`);
         this.aiSelections = null;
+        return;
       }
+
+      this.aiSelections = {
+        selectedMenus: data.selected_menus || [],
+        allMenusWithScores: data.all_menus_with_scores || [],
+        modelInfo: data.model_info || {}
+      };
+      console.log(`✅ AI推薦データ読み込み完了 (Supabase): ${date}`);
     } catch (error) {
       console.warn('AI推薦データ読み込みエラー:', error);
       this.aiSelections = null;
@@ -2110,34 +2120,48 @@ class MenuOptimizationApp {
   }
 
   /**
-   * AI推奨 JSON から推奨メニューを取得
+   * AI推奨データをSupabaseから取得
    */
   async fetchAIRecommendations(date) {
-    const aiJsonPath = `docs/ai-selections/ai-selections_${date}.json`;
-    console.log('📡 AI推奨データを取得中:', aiJsonPath);
+    console.log('📡 AI推奨データをSupabaseから取得中:', date);
     
     try {
-      const response = await fetch(aiJsonPath, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-        cache: 'no-cache'
-      });
+      const { data, error } = await _supabaseClient
+        .from('ai_selections')
+        .select('*')
+        .eq('date', date)
+        .single();
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`✅ AI推奨データ取得成功: ${date}`, data);
-        return data;
-      }
-      
-      if (response.status === 404) {
-        console.log(`📭 AI推奨データなし: ${date}`);
+      if (error || !data) {
+        console.log(`📭 AI推奨データなし (Supabase): ${date}`);
         return null;
       }
       
-      console.error(`エラー (${response.status}): AI推奨データの取得に失敗`);
-      return null;
+      // フロントエンドの表示形式に変換
+      const aiData = {
+        date: data.date,
+        dateLabel: data.date_label,
+        generatedAt: data.generated_at,
+        recommendations: (data.selected_menus || []).map(menu => ({
+          name: menu.name,
+          score: menu.score,
+          rank: menu.rank,
+          reasons: menu.reasons || [],
+          nutrition: menu.nutrition ? {
+            energy: menu.nutrition['エネルギー'] || 0,
+            protein: menu.nutrition['たんぱく質'] || 0,
+            fat: menu.nutrition['脂質'] || 0,
+            carbs: menu.nutrition['炭水化物'] || 0,
+            vegetable_weight: menu.nutrition['野菜重量'] || 0,
+            salt: menu.nutrition['食塩相当量'] || 0
+          } : {}
+        })),
+        allMenusWithScores: data.all_menus_with_scores || [],
+        modelInfo: data.model_info || {}
+      };
+      
+      console.log(`✅ AI推奨データ取得成功 (Supabase): ${date}`, aiData);
+      return aiData;
       
     } catch (error) {
       console.error('AI推奨データの取得エラー:', error);
