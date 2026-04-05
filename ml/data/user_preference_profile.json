@@ -103,12 +103,12 @@
     ]
   },
   "claude_analysis": {
-    "taste_preference": "焼き物や炒め物で、タンパク質豊富な食材を活かした、香ばしく風味のある料理を好む傾向。濃すぎない味付けが好み。",
-    "nutrition_tendency": "タンパク質を意識的に摂取。魚介類や鶏肉などヘルシーなタンパク源を選択。低カロリー副菜も適度に取り入れ、バランス志向。",
+    "taste_preference": "素材の味を活かした上品な和風の焼き物や煮物を好む。濃厚な味付けより繊細な風味を選好。",
+    "nutrition_tendency": "たんぱく質摂取を重視し、魚介類や鶏肉など良質なたんぱく源を意識的に選択している。",
     "preferred_cooking_methods": [
       "焼き物",
-      "炒め物",
-      "煮物"
+      "煮物",
+      "炒め物"
     ],
     "preferred_proteins": [
       "魚介類",
@@ -117,16 +117,16 @@
     ],
     "preferred_cuisines": [
       "和食",
-      "中華",
-      "エスニック"
+      "エスニック",
+      "中華"
     ],
     "avoidance_patterns": [
-      "濃厚な辛さ（激辛メニュー）",
-      "ラーメンなど高カロリー炭水化物重視",
-      "揚げ物の多用"
+      "こってりした揚げ物",
+      "激辛メニュー",
+      "麺類やご飯もの単品"
     ],
-    "set_combination_tendency": "メインは焼き物や炒め物でタンパク質を確保し、副菜は煮物や蒸し物など低カロリーでバランス取る組み合わせが多い。",
-    "health_consciousness": 0.78,
-    "adventurousness": 0.65
+    "set_combination_tendency": "主菜＋低カロリーな煮物や小鉢の組み合わせで栄養バランスを取る傾向。定食セット形式を好む。",
+    "health_consciousness": 0.75,
+    "adventurousness": 0.6
   }
 }
