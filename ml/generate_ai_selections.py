@@ -33,10 +33,19 @@ sys.path.insert(0, str(Path(__file__).parent))
 from menu_recommender import (
     MenuRecommender, 
     MenuFeatureExtractor,
-    CooccurrenceAnalyzer
+    CooccurrenceAnalyzer,
+    CLAUDE_AVAILABLE,
+    CLAUDE_FEATURE_NAMES
 )
 
 from supabase_data_loader import SupabaseDataLoader
+
+# Claude解析モジュール
+try:
+    from claude_analyzer import ClaudeMenuAnalyzer, CACHE_FILE as CLAUDE_CACHE_FILE
+    from claude_preference_analyzer import PreferenceAnalyzer
+except ImportError:
+    pass
 
 
 def get_feature_reasons(features, feature_names, top_n=3):
@@ -87,6 +96,11 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
     # 日付ラベルを取得
     date_label = menus_data.get('dateLabel', date_str)
     
+    # Claude解析が有効なら未解析メニューをバッチ解析
+    use_claude = recommender.feature_extractor.use_claude
+    if use_claude and recommender.feature_extractor.claude_analyzer:
+        recommender.feature_extractor.claude_analyzer.analyze_menus(menus)
+    
     # 各メニューの推薦スコアを計算
     menu_scores = []
     for menu in menus:
@@ -105,10 +119,16 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
             menu_name, 0
         ) / 15  # 学習データは15日分
         
+        # Claude特徴量
+        claude_features = recommender.feature_extractor.extract_claude_features(menu_name)
+        preference_score = recommender.feature_extractor.get_preference_score(menu_name)
+        
         # 特徴量ベクトル構築（辞書→リスト変換）
         feature_list = list(nutrition_features.values())
         feature_list.extend(text_features)
         feature_list.extend([int(v) for v in category_features.values()])
+        feature_list.extend(claude_features)
+        feature_list.append(preference_score)
         feature_list.append(cooc_score)
         feature_list.append(selection_freq)
         
@@ -154,6 +174,7 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
         print(f"    {menu['rank']}位: {menu['name']} (スコア: {menu['score']:.3f})")
     
     # JSON出力データ
+    claude_feature_count = len(CLAUDE_FEATURE_NAMES) if CLAUDE_AVAILABLE else 0
     output_data = {
         'date': date_str,
         'dateLabel': date_label,
@@ -178,13 +199,16 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
         ],
         'modelInfo': {
             'model': recommender.best_model_name or 'RandomForest',
-            'trainingDays': 15,  # 学習データ日数
+            'trainingDays': 15,
             'accuracy': 0.9995,
+            'useClaude': use_claude,
             'features': {
                 'total': len(recommender.feature_names) if hasattr(recommender, 'feature_names') else 258,
                 'nutrition': 13,
-                'text': 230,
+                'text': len(recommender.feature_extractor.word_to_idx) if hasattr(recommender.feature_extractor, 'word_to_idx') else 230,
                 'category': 13,
+                'claude': claude_feature_count,
+                'preference': 1 if use_claude else 0,
                 'cooccurrence': 2
             }
         }

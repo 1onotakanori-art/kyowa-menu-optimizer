@@ -30,6 +30,16 @@ except ImportError:
     SUPABASE_AVAILABLE = False
     print("⚠️  Supabaseデータローダーが利用できません（ローカルファイルモードで動作）")
 
+# Claude解析モジュールをインポート
+try:
+    from claude_analyzer import ClaudeMenuAnalyzer, FEATURE_NAMES as CLAUDE_FEATURE_NAMES
+    from claude_preference_analyzer import PreferenceAnalyzer
+    CLAUDE_AVAILABLE = True
+except ImportError:
+    CLAUDE_AVAILABLE = False
+    CLAUDE_FEATURE_NAMES = []
+    print("⚠️  Claude解析モジュールが利用できません（Claude特徴量なしで動作）")
+
 
 class MenuFeatureExtractor:
     """メニューから特徴量を抽出するクラス"""
@@ -38,6 +48,9 @@ class MenuFeatureExtractor:
         self.word_counter = Counter()
         self.word_to_idx = {}
         self.scaler = StandardScaler()
+        self.claude_analyzer = None
+        self.preference_analyzer = None
+        self.use_claude = False
         
     def extract_words(self, menu_name):
         """メニュー名から単語を抽出"""
@@ -128,6 +141,36 @@ class MenuFeatureExtractor:
             'is_dessert': bool(re.search(r'プリン|ケーキ|ヨーグルト|デザート|フルーツ|バナナ', menu_name)),
         }
         return categories
+
+    def extract_claude_features(self, menu_name):
+        """Claude解析キャッシュからセマンティック特徴量を取得"""
+        if self.claude_analyzer and self.use_claude:
+            return self.claude_analyzer.get_feature_vector(menu_name)
+        # Claude未使用時はゼロベクトル
+        return [0.0] * len(CLAUDE_FEATURE_NAMES) if CLAUDE_FEATURE_NAMES else []
+
+    def get_preference_score(self, menu_name):
+        """嗜好プロファイルとの一致度スコアを返す"""
+        if self.preference_analyzer and self.use_claude:
+            cache = self.claude_analyzer.cache if self.claude_analyzer else None
+            return self.preference_analyzer.get_preference_score(menu_name, cache)
+        return 0.5  # 中立値
+
+    def init_claude(self):
+        """Claude解析モジュールを初期化"""
+        if not CLAUDE_AVAILABLE:
+            print("⚠️  Claude解析は利用できません")
+            return False
+        try:
+            self.claude_analyzer = ClaudeMenuAnalyzer()
+            self.preference_analyzer = PreferenceAnalyzer()
+            self.use_claude = True
+            print("✅ Claude解析モジュール初期化完了")
+            return True
+        except ValueError as e:
+            print(f"⚠️  Claude初期化スキップ: {e}")
+            self.use_claude = False
+            return False
 
 
 class CooccurrenceAnalyzer:
@@ -257,6 +300,19 @@ class MenuRecommender:
         # 語彙構築
         self.feature_extractor.build_vocabulary(all_menus)
         
+        # Claude解析の初期化と実行
+        if CLAUDE_AVAILABLE:
+            if self.feature_extractor.init_claude():
+                # 未解析メニューをバッチ解析
+                print("\n🧠 Claude メニュー意味解析...")
+                self.feature_extractor.claude_analyzer.analyze_menus(all_menus)
+                # 嗜好プロファイル生成
+                print("\n🧠 ユーザー嗜好プロファイル生成...")
+                self.feature_extractor.preference_analyzer.generate_profile(
+                    self.training_data,
+                    self.feature_extractor.claude_analyzer.cache
+                )
+        
         # 共起分析
         print("\n📈 共起分析中...")
         self.cooccurrence_analyzer.analyze(self.training_data, self.feature_extractor)
@@ -293,10 +349,16 @@ class MenuRecommender:
                     menu['name'], 0
                 ) / max(len(self.training_data), 1)
                 
+                # Claude特徴量
+                claude_features = self.feature_extractor.extract_claude_features(menu['name'])
+                preference_score = self.feature_extractor.get_preference_score(menu['name'])
+                
                 # 特徴量を結合
                 features = list(nutrition_features.values())
                 features.extend(text_features)
                 features.extend([int(v) for v in category_features.values()])
+                features.extend(claude_features)
+                features.append(preference_score)
                 features.append(cooccurrence_score)
                 features.append(selection_frequency)
                 
@@ -314,11 +376,14 @@ class MenuRecommender:
         nutrition_feature_names = list(self.feature_extractor.extract_nutrition_features({}).keys())
         text_feature_names = [f'word_{w}' for w in self.feature_extractor.word_to_idx.keys()]
         category_feature_names = list(self.feature_extractor.extract_category_features('').keys())
+        claude_feature_names = list(CLAUDE_FEATURE_NAMES) if CLAUDE_FEATURE_NAMES else []
         
         self.feature_names = (
             nutrition_feature_names + 
             text_feature_names + 
             category_feature_names + 
+            claude_feature_names +
+            ['preference_score'] +
             ['cooccurrence_score', 'selection_frequency']
         )
         
@@ -424,16 +489,25 @@ class MenuRecommender:
         print("\n📊 カテゴリ別重要度:")
         nutrition_end = 13  # 栄養素特徴量の数
         text_end = nutrition_end + len(self.feature_extractor.word_to_idx)
+        category_end = text_end + 13  # カテゴリ特徴量の数
+        claude_dim = len(CLAUDE_FEATURE_NAMES) if CLAUDE_FEATURE_NAMES else 0
+        claude_end = category_end + claude_dim
+        pref_end = claude_end + 1  # preference_score
         
         nutrition_importance = np.sum(importances[:nutrition_end])
         text_importance = np.sum(importances[nutrition_end:text_end])
-        category_importance = np.sum(importances[text_end:-2])
-        other_importance = np.sum(importances[-2:])
-        total = nutrition_importance + text_importance + category_importance + other_importance
+        category_importance = np.sum(importances[text_end:category_end])
+        claude_importance = np.sum(importances[category_end:claude_end]) if claude_dim > 0 else 0
+        pref_importance = importances[claude_end] if claude_end < len(importances) else 0
+        other_importance = np.sum(importances[pref_end:])  # cooccurrence + frequency
+        total = nutrition_importance + text_importance + category_importance + claude_importance + pref_importance + other_importance
         
         print(f"  栄養素特徴量: {nutrition_importance/total*100:.1f}%")
         print(f"  テキスト特徴量: {text_importance/total*100:.1f}%")
         print(f"  カテゴリ特徴量: {category_importance/total*100:.1f}%")
+        if claude_dim > 0:
+            print(f"  Claude特徴量: {claude_importance/total*100:.1f}%")
+            print(f"  嗜好一致スコア: {pref_importance/total*100:.1f}%")
         print(f"  その他（共起・頻度）: {other_importance/total*100:.1f}%")
     
     def predict(self, menus, already_selected=None):
@@ -454,6 +528,10 @@ class MenuRecommender:
             # カテゴリ特徴量
             category_features = self.feature_extractor.extract_category_features(menu['name'])
             
+            # Claude特徴量
+            claude_features = self.feature_extractor.extract_claude_features(menu['name'])
+            preference_score = self.feature_extractor.get_preference_score(menu['name'])
+            
             # 共起スコア
             cooccurrence_score = self.cooccurrence_analyzer.get_cooccurrence_score(
                 menu['name'], already_selected
@@ -468,6 +546,8 @@ class MenuRecommender:
             features = list(nutrition_features.values())
             features.extend(text_features)
             features.extend([int(v) for v in category_features.values()])
+            features.extend(claude_features)
+            features.append(preference_score)
             features.append(cooccurrence_score)
             features.append(selection_frequency)
             
@@ -499,13 +579,22 @@ class MenuRecommender:
         
         os.makedirs(path, exist_ok=True)
         
+        # Claude関連オブジェクトはpickle保存しない（APIクライアントを含むため）
+        feature_extractor_copy = MenuFeatureExtractor()
+        feature_extractor_copy.word_counter = self.feature_extractor.word_counter
+        feature_extractor_copy.word_to_idx = self.feature_extractor.word_to_idx
+        feature_extractor_copy.scaler = self.feature_extractor.scaler
+        feature_extractor_copy.use_claude = self.feature_extractor.use_claude
+        # claude_analyzer と preference_analyzer は保存しない（実行時に再初期化）
+        
         model_data = {
             'best_model': self.best_model,
             'best_model_name': self.best_model_name,
             'scaler': self.scaler,
-            'feature_extractor': self.feature_extractor,
+            'feature_extractor': feature_extractor_copy,
             'cooccurrence_analyzer': self.cooccurrence_analyzer,
-            'feature_names': self.feature_names
+            'feature_names': self.feature_names,
+            'use_claude': self.feature_extractor.use_claude
         }
         
         with open(f'{path}/menu_recommender.pkl', 'wb') as f:
@@ -530,7 +619,13 @@ class MenuRecommender:
         recommender.feature_names = model_data['feature_names']
         recommender.training_data = []  # 予測時は不要
         
+        # Claude解析モジュールの再初期化（モデルがClaude特徴量を使用している場合）
+        use_claude = model_data.get('use_claude', False)
+        if use_claude and CLAUDE_AVAILABLE:
+            recommender.feature_extractor.init_claude()
+        
         print(f"✅ モデルを読み込みました: {path}")
+        print(f"   Claude特徴量: {'有効' if recommender.feature_extractor.use_claude else '無効'}")
         return recommender
 
 
