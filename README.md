@@ -148,6 +148,26 @@ npm run scrape:10
 npm run scrape:20
 ```
 
+## 🤖 週次 ML ワークフロー
+
+| コマンド | 内容 |
+|---|---|
+| `npm run ml:dry-run` | 新規メニュー数と推定APIコストを確認（実行なし） |
+| `npm run ml:analyze` | 新規メニューのみ Claude で解析（再学習はスキップ） |
+| `npm run ml:retrain` | 学習済みデータでモデルを再学習 |
+| `npm run ml:regen` | 全日付の AI 推薦を再生成して Supabase に反映 |
+| `npm run ml:regen-only` | Claude 解析・再学習をスキップし推薦のみ再生成 |
+| `npm run ml:weekly` | 新規 Claude 解析 → 再学習 → 推薦生成（週次フル更新） |
+| `npm run weekly` | スクレイプ→アップロード→週次 ML フル更新（一括実行） |
+
+```bash
+# 毎週の標準ワークフロー
+npm run weekly
+
+# 事前に処理内容とコストを確認したい場合
+npm run ml:dry-run
+```
+
 **定期実行（crontab）:**
 
 ```bash
@@ -315,14 +335,23 @@ MIT License
 ```
 1. 食事記録を保存（admin.html）
    ↓
-2. モデルを学習（Supabaseから自動取得）
-   python ml/menu_recommender.py
+2. 週次更新を一括実行
+   npm run weekly
+     ├─ スクレイプ + Supabase アップロード
+     ├─ 新規メニューのみ Claude で解析（既存はキャッシュ活用）
+     ├─ モデル再学習
+     └─ AI 推薦を Supabase に保存
    ↓
-3. AI推薦を生成
-   python ml/generate_ai_selections.py
-   ↓
-4. GitHub Pages にデプロイ
-   git push
+3. GitHub Pages に自動デプロイ
+   git push（weekly コマンドに含まれる）
+```
+
+**個別実行:**
+```bash
+npm run ml:dry-run    # 事前コスト確認
+npm run ml:analyze    # Claude 解析のみ
+npm run ml:retrain    # モデル再学習のみ
+npm run ml:regen      # 推薦再生成のみ
 ```
 
 ### セットアップ

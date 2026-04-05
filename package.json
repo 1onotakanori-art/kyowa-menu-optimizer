@@ -8,7 +8,14 @@
     "scrape": "node prescrap.js",
     "scrape:10": "node prescrap.js 10",
     "scrape:20": "node prescrap.js 20",
-    "scrape:upload": "node scrape-and-upload.js"
+    "scrape:upload": "node scrape-and-upload.js",
+    "ml:dry-run": ".venv/bin/python3 ml/update_weekly.py --dry-run",
+    "ml:analyze": ".venv/bin/python3 ml/update_weekly.py --skip-retrain",
+    "ml:retrain": ".venv/bin/python3 ml/menu_recommender.py",
+    "ml:regen": ".venv/bin/python3 ml/generate_ai_selections.py",
+    "ml:regen-only": ".venv/bin/python3 ml/update_weekly.py --regen-only",
+    "ml:weekly": ".venv/bin/python3 ml/update_weekly.py",
+    "weekly": "npm run scrape:upload && npm run ml:weekly"
   },
   "keywords": [],
   "author": "",
