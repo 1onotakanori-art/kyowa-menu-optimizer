@@ -119,16 +119,18 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
             menu_name, 0
         ) / 15  # 学習データは15日分
         
-        # Claude特徴量
-        claude_features = recommender.feature_extractor.extract_claude_features(menu_name)
-        preference_score = recommender.feature_extractor.get_preference_score(menu_name)
-        
         # 特徴量ベクトル構築（辞書→リスト変換）
         feature_list = list(nutrition_features.values())
         feature_list.extend(text_features)
         feature_list.extend([int(v) for v in category_features.values()])
-        feature_list.extend(claude_features)
-        feature_list.append(preference_score)
+        
+        # Claude特徴量（学習時にClaude特徴量を使用していた場合のみ追加）
+        if use_claude:
+            claude_features = recommender.feature_extractor.extract_claude_features(menu_name)
+            preference_score = recommender.feature_extractor.get_preference_score(menu_name)
+            feature_list.extend(claude_features)
+            feature_list.append(preference_score)
+        
         feature_list.append(cooc_score)
         feature_list.append(selection_freq)
         

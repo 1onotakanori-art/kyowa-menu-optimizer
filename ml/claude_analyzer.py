@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Optional
 
 # --- 定数 ---
-MODEL_NAME = "claude-haiku-4-20250414"
+MODEL_NAME = "claude-haiku-4-5-20251001"
 CACHE_FILE = Path(__file__).parent / "data" / "claude_menu_cache.json"
 BATCH_SIZE = 15  # 1回のAPIコールで処理するメニュー数
 

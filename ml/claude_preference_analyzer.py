@@ -20,7 +20,7 @@ from collections import Counter
 
 # 嗜好プロファイルの保存先
 PROFILE_FILE = Path(__file__).parent / "data" / "user_preference_profile.json"
-MODEL_NAME = "claude-haiku-4-20250414"
+MODEL_NAME = "claude-haiku-4-5-20251001"
 
 
 class PreferenceAnalyzer:

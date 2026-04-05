@@ -51,6 +51,16 @@ class MenuFeatureExtractor:
         self.claude_analyzer = None
         self.preference_analyzer = None
         self.use_claude = False
+
+    def __setstate__(self, state):
+        """古いpickleとの互換性のため、新属性がない場合はデフォルト値を設定"""
+        self.__dict__.update(state)
+        if 'use_claude' not in self.__dict__:
+            self.use_claude = False
+        if 'claude_analyzer' not in self.__dict__:
+            self.claude_analyzer = None
+        if 'preference_analyzer' not in self.__dict__:
+            self.preference_analyzer = None
         
     def extract_words(self, menu_name):
         """メニュー名から単語を抽出"""
@@ -619,13 +629,22 @@ class MenuRecommender:
         recommender.feature_names = model_data['feature_names']
         recommender.training_data = []  # 予測時は不要
         
+        # 古いpickle互換: 属性が存在しない場合はデフォルト値を補完
+        fe = recommender.feature_extractor
+        if not hasattr(fe, 'use_claude'):
+            fe.use_claude = False
+        if not hasattr(fe, 'claude_analyzer'):
+            fe.claude_analyzer = None
+        if not hasattr(fe, 'preference_analyzer'):
+            fe.preference_analyzer = None
+        
         # Claude解析モジュールの再初期化（モデルがClaude特徴量を使用している場合）
         use_claude = model_data.get('use_claude', False)
         if use_claude and CLAUDE_AVAILABLE:
             recommender.feature_extractor.init_claude()
         
         print(f"✅ モデルを読み込みました: {path}")
-        print(f"   Claude特徴量: {'有効' if recommender.feature_extractor.use_claude else '無効'}")
+        print(f"   Claude特徴量: {'有効' if getattr(recommender.feature_extractor, 'use_claude', False) else '無効'}")
         return recommender
 
 
