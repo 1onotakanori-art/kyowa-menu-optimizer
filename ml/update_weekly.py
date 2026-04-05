@@ -154,7 +154,7 @@ def step_analyze(all_menus: list, new_menus: list):
 
 def step_retrain():
     """Step: モデル再学習"""
-    from menu_recommender import MenuRecommender
+    from menu_recommender import MenuRecommender, MenuFeatureExtractor  # noqa: F401 (pickle needs this)
 
     print("\n🤖 モデル再学習中...")
     recommender = MenuRecommender()
@@ -168,7 +168,7 @@ def step_retrain():
 
 def step_regen(menu_files: list):
     """Step: 指定日付のAI推薦を再生成してSupabaseに保存"""
-    from menu_recommender import MenuRecommender
+    from menu_recommender import MenuRecommender, MenuFeatureExtractor  # noqa: F401 (pickle needs this)
     from supabase_data_loader import SupabaseDataLoader
     from generate_ai_selections import generate_ai_selections_for_date, upload_to_supabase
 

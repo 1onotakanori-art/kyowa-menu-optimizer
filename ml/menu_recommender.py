@@ -616,9 +616,16 @@ class MenuRecommender:
     def load_model(cls, path='model/menu_recommender.pkl'):
         """モデルを読み込み"""
         import pickle
-        
+
+        class _Unpickler(pickle.Unpickler):
+            """__main__ で保存されたクラスを menu_recommender モジュールにリマップ"""
+            def find_class(self, module, name):
+                if module == '__main__':
+                    module = 'menu_recommender'
+                return super().find_class(module, name)
+
         with open(path, 'rb') as f:
-            model_data = pickle.load(f)
+            model_data = _Unpickler(f).load()
         
         recommender = cls()
         recommender.best_model = model_data['best_model']
