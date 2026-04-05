@@ -133,44 +133,9 @@ kyowa-menu-optimizer/
 └── package.json
 ```
 
-## 🔧 スクレイピング & データ同期
+## 🔧 スクレイピング
 
-### データ管理スクリプト
-
-プロジェクトには2つの独立したデータ管理スクリプトがあります：
-
-1. **学習用データ同期** (`sync-training-data.js`)
-2. **メニュースクレイプ & アップロード** (`scrape-and-upload.js`)
-
-### 事前準備: SSH キーの設定
-
-```bash
-# GitHub との接続テスト
-ssh -T git@github.com
-```
-
-**SSH キーがない場合:**
-1. `ssh-keygen -t ed25519 -C "your_email@example.com"` で生成
-2. `pbcopy < ~/.ssh/id_ed25519.pub` で公開鍵をコピー
-3. GitHub → Settings → SSH and GPG keys に登録
-
-### 1. 学習用データ同期
-
-管理者ページで記録した食事データを GitHub から取得し、ローカルに同期します。
-
-```bash
-# 実行
-npm run sync
-```
-
-**動作:**
-- `kyowa-menu-history` リポジトリを clone/pull
-- 食事履歴を `docs/ai-selections/` に保存
-- 更新されたデータのみコピー
-
-### 2. メニュースクレイプ & アップロード
-
-Kyowa のメニューサイトからメニューをスクレイピングし、GitHub にアップロードします。
+Kyowa のメニューサイトからメニューをスクレイピングし、`menus/` に保存 + Supabase へアップロードします。
 
 ```bash
 # デフォルト（5日分）
@@ -183,27 +148,12 @@ npm run scrape:10
 npm run scrape:20
 ```
 
-**動作:**
-1. `kyowa-menu-history` リポジトリを clone/pull
-2. メニューをスクレイピング（平日のみ）
-3. ローカルの `menus/` に保存
-4. リポジトリと比較して更新があれば commit & push
-
-### 定期実行の推奨
-
-**crontab での自動実行:**
+**定期実行（crontab）:**
 
 ```bash
-# 学習データ同期（毎日午前9時）
-0 9 * * * cd /path/to/kyowa-menu-optimizer && node sync-training-data.js >> logs/sync.log 2>&1
-
-# メニュースクレイプ（毎週月曜 午前8時に10日分）
+# 毎週月曜 午前8時に10日分
 0 8 * * 1 cd /path/to/kyowa-menu-optimizer && node scrape-and-upload.js 10 >> logs/scrape.log 2>&1
 ```
-
-### 詳細ドキュメント
-
-詳しい使用方法は [docs/DATA_SYNC_GUIDE.md](docs/DATA_SYNC_GUIDE.md) を参照してください。
 
 ## 🔧 スクレイピング詳細（旧）
 
@@ -413,14 +363,12 @@ git push origin main
 ### 詳細ドキュメント
 
 - **[AIクイックスタートガイド](docs/AI_QUICK_START.md)** - 使い方の詳細
-- **[AI Supabase移行レポート](docs/AI_SUPABASE_MIGRATION.md)** - 技術詳細
 
 ### 利点
 
-1. **シンプル** - `sync-training-data.js`の実行が不要
-2. **リアルタイム** - 食事記録を保存すると即座に反映
-3. **一元管理** - すべてのデータがSupabaseに集約
-4. **スケーラブル** - データ量が増えても対応可能
+1. **リアルタイム** - 食事記録を保存すると即座に反映
+2. **一元管理** - すべてのデータがSupabaseに集約
+3. **スケーラブル** - データ量が増えても対応可能
 
 ---
 

@@ -5,12 +5,10 @@
   "main": "scrape.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "sync": "node sync-training-data.js",
     "scrape": "node prescrap.js",
     "scrape:10": "node prescrap.js 10",
     "scrape:20": "node prescrap.js 20",
-    "scrape:upload": "node scrape-and-upload.js",
-    "migrate": "node migrate-to-supabase.js"
+    "scrape:upload": "node scrape-and-upload.js"
   },
   "keywords": [],
   "author": "",

@@ -172,6 +172,5 @@ recommender.load_data(use_supabase=False, data_path='data/training_data.json')
 
 ## 参照ドキュメント
 
-- [AI Supabase移行レポート](./AI_SUPABASE_MIGRATION.md)
 - [Supabaseセットアップガイド](./SUPABASE_SETUP.md)
 - [管理画面セットアップ](./ADMIN_SETUP.md)
