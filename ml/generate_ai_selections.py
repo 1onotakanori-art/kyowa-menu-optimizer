@@ -26,6 +26,8 @@ from pathlib import Path
 from datetime import datetime
 import numpy as np
 
+TARGET_NUTRITION_KEYS = ['エネルギー', 'たんぱく質', '脂質', '炭水化物', '野菜重量']
+
 # menu_recommender.pyを直接実行できるようにする
 # （pickleがクラス定義を見つけられるようにするため）
 sys.path.insert(0, str(Path(__file__).parent))
@@ -83,7 +85,236 @@ def get_feature_reasons(features, feature_names, top_n=3):
     return reasons[:3]  # 上位3つまで
 
 
-def generate_ai_selections_for_date(recommender, date_str, menus_data, output_dir=None):
+def _safe_float(value):
+    """数値に変換できない値は0.0にする"""
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return 0.0
+    return 0.0
+
+
+def _extract_nutrition_totals(nutrition):
+    """栄養辞書から主要5指標を抽出"""
+    return {
+        key: _safe_float(nutrition.get(key, 0))
+        for key in TARGET_NUTRITION_KEYS
+    }
+
+
+def _calc_pfc_ratios(nutrition_totals):
+    """PFCバランス（カロリー比率）を計算"""
+    protein_kcal = nutrition_totals['たんぱく質'] * 4
+    fat_kcal = nutrition_totals['脂質'] * 9
+    carb_kcal = nutrition_totals['炭水化物'] * 4
+    total = protein_kcal + fat_kcal + carb_kcal
+    if total <= 0:
+        return {'p': 0.0, 'f': 0.0, 'c': 0.0}
+    return {
+        'p': protein_kcal / total,
+        'f': fat_kcal / total,
+        'c': carb_kcal / total,
+    }
+
+
+def build_historical_set_profile(loader, limit=120):
+    """過去の選択履歴から、セット単位の目標プロファイルを作る"""
+    training_data = loader.get_training_data(limit=limit)
+    if not training_data:
+        return None
+
+    daily_totals = []
+    daily_ratios = []
+    daily_counts = []
+
+    for day_data in training_data:
+        selected = [m for m in day_data.get('allMenus', []) if m.get('selected')]
+        if not selected:
+            continue
+
+        totals = {k: 0.0 for k in TARGET_NUTRITION_KEYS}
+        for menu in selected:
+            menu_totals = _extract_nutrition_totals(menu.get('nutrition', {}))
+            for key in TARGET_NUTRITION_KEYS:
+                totals[key] += menu_totals[key]
+
+        daily_totals.append(totals)
+        daily_ratios.append(_calc_pfc_ratios(totals))
+        daily_counts.append(len(selected))
+
+    if not daily_totals:
+        return None
+
+    avg_totals = {
+        key: float(np.mean([d[key] for d in daily_totals]))
+        for key in TARGET_NUTRITION_KEYS
+    }
+    avg_ratios = {
+        key: float(np.mean([r[key] for r in daily_ratios]))
+        for key in ('p', 'f', 'c')
+    }
+    avg_count = float(np.mean(daily_counts))
+
+    return {
+        'daysUsed': len(daily_totals),
+        'avgMenuCount': avg_count,
+        'targetTotals': avg_totals,
+        'targetPfcRatio': avg_ratios,
+    }
+
+
+def _score_set(candidate_set, profile, recommender):
+    """候補セットの適合度（低いほど良い）"""
+    totals = {k: 0.0 for k in TARGET_NUTRITION_KEYS}
+    names = []
+    scores = []
+
+    for menu in candidate_set:
+        names.append(menu['name'])
+        scores.append(menu['score'])
+        for key in TARGET_NUTRITION_KEYS:
+            totals[key] += menu['nutritionTotals'][key]
+
+    ratios = _calc_pfc_ratios(totals)
+    target_totals = profile['targetTotals']
+    target_ratios = profile['targetPfcRatio']
+    target_count = max(profile['avgMenuCount'], 1.0)
+
+    # 合計栄養の誤差（相対誤差）
+    nutrition_error = 0.0
+    nutrition_weights = {
+        'エネルギー': 1.0,
+        'たんぱく質': 1.2,
+        '脂質': 1.0,
+        '炭水化物': 1.0,
+        '野菜重量': 1.2,
+    }
+    for key in TARGET_NUTRITION_KEYS:
+        denominator = max(target_totals[key], 1.0)
+        nutrition_error += nutrition_weights[key] * abs(totals[key] - target_totals[key]) / denominator
+
+    # PFCバランス誤差
+    ratio_error = (
+        abs(ratios['p'] - target_ratios['p'])
+        + abs(ratios['f'] - target_ratios['f'])
+        + abs(ratios['c'] - target_ratios['c'])
+    )
+
+    # 品数誤差
+    count_error = abs(len(candidate_set) - target_count) / target_count
+
+    # メニュー単体スコアの高さ（高いほど良いので 1-score を誤差扱い）
+    avg_item_quality_error = 1.0 - float(np.mean(scores)) if scores else 1.0
+
+    # 共起ボーナス（誤差から減点）
+    cooc_sum = 0.0
+    if len(names) >= 2:
+        for i in range(len(names)):
+            for j in range(i + 1, len(names)):
+                cooc_sum += recommender.cooccurrence_analyzer.get_cooccurrence_score(
+                    names[i], [names[j]]
+                )
+    cooc_bonus = min(cooc_sum / 20.0, 0.8)
+
+    total_error = (
+        nutrition_error * 0.55
+        + ratio_error * 2.0
+        + count_error * 0.6
+        + avg_item_quality_error * 0.35
+        - cooc_bonus
+    )
+
+    return {
+        'error': float(total_error),
+        'totals': totals,
+        'ratios': ratios,
+        'count': len(candidate_set),
+        'cooccurrenceBonus': float(cooc_bonus),
+    }
+
+
+def select_best_menu_set(menu_scores, profile, recommender):
+    """可変品数の最適セットを探索（ビームサーチ）"""
+    if not menu_scores:
+        return [], None
+
+    # 探索対象を上位候補に絞る（計算量を制御）
+    candidate_pool_size = min(max(12, int(profile['avgMenuCount'] * 5)), len(menu_scores), 24)
+    candidates = menu_scores[:candidate_pool_size]
+
+    # 目標品数の近傍を探索
+    target_count = int(round(profile['avgMenuCount']))
+    min_count = max(1, target_count - 2)
+    max_count = min(len(candidates), target_count + 2)
+    if min_count > max_count:
+        min_count = max_count
+
+    beam_width = 30
+    global_best = None
+
+    for set_size in range(min_count, max_count + 1):
+        beams = [([], 0)]  # (selected_indices, next_start_idx)
+
+        for _ in range(set_size):
+            next_beams = []
+            for selected_indices, start_idx in beams:
+                for idx in range(start_idx, len(candidates)):
+                    if idx in selected_indices:
+                        continue
+                    new_indices = selected_indices + [idx]
+                    candidate_set = [candidates[i] for i in new_indices]
+                    scored = _score_set(candidate_set, profile, recommender)
+                    next_beams.append((new_indices, idx + 1, scored['error']))
+
+            next_beams.sort(key=lambda x: x[2])
+            beams = [(indices, next_start) for indices, next_start, _ in next_beams[:beam_width]]
+            if not beams:
+                break
+
+        for selected_indices, _ in beams:
+            candidate_set = [candidates[i] for i in selected_indices]
+            set_eval = _score_set(candidate_set, profile, recommender)
+            if (global_best is None) or (set_eval['error'] < global_best['evaluation']['error']):
+                global_best = {
+                    'menus': candidate_set,
+                    'evaluation': set_eval,
+                }
+
+    if global_best is None:
+        fallback_count = max(1, min(target_count, len(candidates)))
+        fallback_set = candidates[:fallback_count]
+        return fallback_set, _score_set(fallback_set, profile, recommender)
+
+    return global_best['menus'], global_best['evaluation']
+
+
+def build_set_reason(profile, set_evaluation):
+    """セット選定理由のサマリー文を生成"""
+    target = profile['targetTotals']
+    actual = set_evaluation['totals']
+    ratios_target = profile['targetPfcRatio']
+    ratios_actual = set_evaluation['ratios']
+
+    def pct_diff(a, b):
+        if b <= 0:
+            return 0.0
+        return abs(a - b) / b * 100
+
+    return (
+        f"過去{profile['daysUsed']}日平均（{profile['avgMenuCount']:.1f}品）に合わせ、"
+        f"E/P/F/C/V合計を近づけるように選定。"
+        f"E差{pct_diff(actual['エネルギー'], target['エネルギー']):.1f}%・"
+        f"P差{pct_diff(actual['たんぱく質'], target['たんぱく質']):.1f}%・"
+        f"V差{pct_diff(actual['野菜重量'], target['野菜重量']):.1f}%、"
+        f"PFC比は目標({ratios_target['p']:.2f}/{ratios_target['f']:.2f}/{ratios_target['c']:.2f})"
+        f"に対し実績({ratios_actual['p']:.2f}/{ratios_actual['f']:.2f}/{ratios_actual['c']:.2f})。"
+    )
+
+
+def generate_ai_selections_for_date(recommender, date_str, menus_data, output_dir=None, profile=None):
     """指定日付のAI推薦結果を生成"""
     print(f"\n=== {date_str} の推薦を生成中 ===")
     
@@ -153,11 +384,14 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
             feature_names = ['feature_' + str(i) for i in range(len(feature_list))]
         reasons = get_feature_reasons(all_features, feature_names)
         
+        nutrition_totals = _extract_nutrition_totals(nutrition)
+
         menu_scores.append({
             'name': menu_name,
             'score': float(score),
             'reasons': reasons,
-            'nutrition': nutrition
+            'nutrition': nutrition,
+            'nutritionTotals': nutrition_totals
         })
     
     # スコア順にソート
@@ -167,13 +401,19 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
     for rank, menu in enumerate(menu_scores, 1):
         menu['rank'] = rank
     
-    # TOP 3のみ選択（または上位30%）
-    top_n = min(3, max(1, len(menu_scores) // 3))
-    selected_menus = menu_scores[:top_n]
-    
-    print(f"  ✓ {len(menus)}メニュー中、TOP{top_n}を選択")
+    # セット最適化（過去傾向プロファイルがない場合はフォールバック）
+    if profile:
+        selected_menus, set_evaluation = select_best_menu_set(menu_scores, profile, recommender)
+    else:
+        fallback_n = min(3, max(1, len(menu_scores) // 3))
+        selected_menus = menu_scores[:fallback_n]
+        set_evaluation = None
+
+    print(f"  ✓ {len(menus)}メニュー中、{len(selected_menus)}品のセットを選択")
     for menu in selected_menus:
         print(f"    {menu['rank']}位: {menu['name']} (スコア: {menu['score']:.3f})")
+
+    set_reason = build_set_reason(profile, set_evaluation) if (profile and set_evaluation) else None
     
     # JSON出力データ
     claude_feature_count = len(CLAUDE_FEATURE_NAMES) if CLAUDE_AVAILABLE else 0
@@ -204,6 +444,13 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
             'trainingDays': 15,
             'accuracy': 0.9995,
             'useClaude': use_claude,
+            'selectionMode': 'set-optimization' if profile else 'top-score-fallback',
+            'set_reason': set_reason,
+            'setOptimization': {
+                'enabled': bool(profile),
+                'targetProfile': profile,
+                'evaluation': set_evaluation,
+            },
             'features': {
                 'total': len(recommender.feature_names) if hasattr(recommender, 'feature_names') else 258,
                 'nutrition': 13,
@@ -275,6 +522,17 @@ def main():
     except Exception as e:
         print(f"❌ Supabase接続失敗: {e}")
         return
+
+    print("\n📊 過去の選択傾向を集計中...")
+    historical_profile = build_historical_set_profile(loader)
+    if historical_profile:
+        print(
+            "✓ セット目標を作成: "
+            f"{historical_profile['daysUsed']}日, "
+            f"平均{historical_profile['avgMenuCount']:.1f}品"
+        )
+    else:
+        print("⚠️  学習履歴が不足しているため、従来の上位スコア方式で生成します")
     
     # モデル読み込み
     print("\n学習済みモデルを読み込み中...")
@@ -311,7 +569,7 @@ def main():
         
         # AI推薦生成（ファイル出力なし）
         result = generate_ai_selections_for_date(
-            recommender, date_str, menus_data
+            recommender, date_str, menus_data, profile=historical_profile
         )
         
         if result:

@@ -140,13 +140,14 @@ async function selectTab(page, tabText) {
  */
 async function selectDate(page, dateLabel) {
   // ステップ 1: ボタンが存在することを確認
-  await page.waitForSelector('.weeks-day-btn button.after-btn', { timeout: 5000 });
+  // after-btn は未来日付のみに付くクラスのため、当日を含めるには button のみで検索
+  await page.waitForSelector('.weeks-day-btn button', { timeout: 5000 });
   console.log(`🔍 日付選択開始: "${dateLabel}"`);
 
   // ステップ 2: 現在選択されている日付を確認
   // 理由: 既に選択されていればスキップして効率化
   const currentSelectedDate = await page.evaluate(() => {
-    const selectedButton = document.querySelector('.weeks-day-btn button.after-btn.selected');
+    const selectedButton = document.querySelector('.weeks-day-btn button.selected');
     return selectedButton ? selectedButton.textContent.trim() : null;
   });
 
@@ -158,8 +159,8 @@ async function selectDate(page, dateLabel) {
   // ステップ 3: スクロール＆クリック処理をすべて evaluate 内で実行
   // 参照: SCRAPER_REBUILD_PLAN.md の「保持すべき機能」
   const selected = await page.evaluate((label) => {
-    // 最初に見える範囲のボタンを取得
-    let btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
+    // after-btn に限定せず全ボタン（当日含む）を取得
+    let btns = [...document.querySelectorAll('.weeks-day-btn button')];
     const availableDates = btns.map(b => b.textContent.trim());
 
     let target = btns.find(btn => btn.textContent.trim() === label);
@@ -171,7 +172,7 @@ async function selectDate(page, dateLabel) {
       if (container) {
         container.scrollLeft += 200;
       }
-      btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
+      btns = [...document.querySelectorAll('.weeks-day-btn button')];
       target = btns.find(btn => btn.textContent.trim() === label);
     }
 
@@ -433,9 +434,10 @@ async function getAvailableSiteDates() {
     await selectTab(page, '今週');
 
     // 日付ボタンからテキストを取得
-    await page.waitForSelector('.weeks-day-btn button.after-btn', { timeout: 5000 });
+    // after-btn は未来日付のみに付くクラスのため、当日を含めるには button のみで検索
+    await page.waitForSelector('.weeks-day-btn button', { timeout: 5000 });
     const dates = await page.evaluate(() => {
-      const btns = [...document.querySelectorAll('.weeks-day-btn button.after-btn')];
+      const btns = [...document.querySelectorAll('.weeks-day-btn button')];
       return btns.map(b => b.textContent.trim());
     });
 

@@ -126,9 +126,26 @@ async function prescrapMultipleDays(maxDays = 5) {
   console.log('🌐 サイトから利用可能な日付を取得中...');
   const allSiteDates = await getAvailableSiteDates();
 
-  // 平日のみフィルタ（土日を除外）
+  // 今日の月/日を取得
+  const now = new Date();
+  const todayMonth = now.getMonth() + 1;
+  const todayDay = now.getDate();
+
+  // 平日かつ今日以降のみフィルタ
   const weekdayLabels = allSiteDates.filter(label => {
-    return !label.includes('(土)') && !label.includes('(日)');
+    if (label.includes('(土)') || label.includes('(日)')) return false;
+    // "4/13(月)" 形式をパース
+    const m = label.match(/^(\d{1,2})\/(\d{1,2})/);
+    if (!m) return false;
+    const month = parseInt(m[1], 10);
+    const day = parseInt(m[2], 10);
+    // 月が小さければ翌年扱い（12月→1月などの年またぎ対応）
+    if (month !== todayMonth) {
+      // 月差が6超なら年またぎと判断（1月 vs 12月 など）
+      const diff = month - todayMonth;
+      return diff > 0 ? true : diff < -6;
+    }
+    return day >= todayDay;
   });
 
   // 指定日数分に制限

@@ -2142,6 +2142,7 @@ class MenuOptimizationApp {
         date: data.date,
         dateLabel: data.date_label,
         generatedAt: data.generated_at,
+        set_reason: data.model_info?.set_reason || null,
         recommendations: (data.selected_menus || []).map(menu => ({
           name: menu.name,
           score: menu.score,

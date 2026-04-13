@@ -9,6 +9,7 @@
     "scrape:10": "node prescrap.js 10",
     "scrape:20": "node prescrap.js 20",
     "scrape:upload": "node scrape-and-upload.js",
+    "upload": "node upload-to-supabase.js",
     "ml:dry-run": ".venv/bin/python3 ml/update_weekly.py --dry-run",
     "ml:analyze": ".venv/bin/python3 ml/update_weekly.py --skip-retrain",
     "ml:retrain": ".venv/bin/python3 ml/menu_recommender.py",
