@@ -27,6 +27,7 @@ from datetime import datetime
 import numpy as np
 
 TARGET_NUTRITION_KEYS = ['エネルギー', 'たんぱく質', '脂質', '炭水化物', '野菜重量']
+COUNT_ERROR_WEIGHT = 0.3
 
 # menu_recommender.pyを直接実行できるようにする
 # （pickleがクラス定義を見つけられるようにするため）
@@ -222,7 +223,7 @@ def _score_set(candidate_set, profile, recommender):
     total_error = (
         nutrition_error * 0.55
         + ratio_error * 2.0
-        + count_error * 0.6
+        + count_error * COUNT_ERROR_WEIGHT
         + avg_item_quality_error * 0.35
         - cooc_bonus
     )
@@ -405,7 +406,7 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
     if profile:
         selected_menus, set_evaluation = select_best_menu_set(menu_scores, profile, recommender)
     else:
-        fallback_n = min(3, max(1, len(menu_scores) // 3))
+        fallback_n = max(1, len(menu_scores) // 3)
         selected_menus = menu_scores[:fallback_n]
         set_evaluation = None
 

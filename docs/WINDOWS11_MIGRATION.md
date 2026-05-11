@@ -36,6 +36,38 @@ npm run setup:win11
 - Node依存インストール（`npm ci`）
 - Playwright Chromium インストール
 
+## 初回チェックコマンド（最短版）
+
+Win11 側で clone 直後に、以下を上から順に実行してください。
+
+```powershell
+# 1) リポジトリ取得
+git clone https://github.com/1onotakanori-art/kyowa-menu-optimizer.git
+cd kyowa-menu-optimizer
+
+# 2) 依存セットアップ
+npm run setup:win11
+
+# 3) 実行環境の即時確認
+node -v
+npm -v
+.\.venv\Scripts\python.exe --version
+
+# 4) 週次パイプラインの手動確認
+npm run weekly
+
+# 5) 自動実行登録
+npm run task:register:win11
+
+# 6) タスク登録状態の確認
+schtasks /Query /TN KyowaMenuWeekly /V /FO LIST
+```
+
+補足:
+
+- `npm run weekly` の前に `SUPABASE_SERVICE_KEY`（必要なら `ANTHROPIC_API_KEY`）を設定してください。
+- まずは手動で 1 回成功させてから、Task Scheduler の常時運用に移行するのが安全です。
+
 ## 3. 環境変数の設定
 
 最低限、以下を Windows 側で設定してください（ユーザー環境変数 or タスク側で指定）。
