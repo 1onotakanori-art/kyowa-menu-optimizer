@@ -69,3 +69,9 @@ This is a **Playwright-based web scraper + Express API** that automatically fetc
 - Nutrition values are parsed as floats if possible; non-numeric values stored as strings
 - Browser memory: Each `fetchMenus()` call creates a new browser instance; reuse via module export is preferred
 - Timeouts tuned for typical network conditions; may need adjustment for slow/flaky connections
+
+## Windows 11 Migration Notes
+- Current operation is supported on Windows 11 with the same commands (`npm run weekly`, `npm run ml:*`)
+- Python execution is abstracted by `scripts/run-python.js` (do not reintroduce `.venv/bin/python3` hardcoding)
+- Setup and scheduling on Win11 are documented in `docs/WINDOWS11_MIGRATION.md`
+- When working in a Win11 clone, read `docs/WINDOWS11_MIGRATION.md` first and preserve current flow (scrape → upload → ML weekly)

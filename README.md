@@ -34,6 +34,20 @@ GitHub Pages で自動デプロイ（1-2分）
 https://1onotakanori-art.github.io/kyowa-menu-optimizer/
 ```
 
+## 🪟 Windows 11 移行（現状維持）
+
+Win11 常時起動PCへそのまま移行する場合は、以下を実行してください。
+
+```powershell
+git clone https://github.com/1onotakanori-art/kyowa-menu-optimizer.git
+cd kyowa-menu-optimizer
+npm run setup:win11
+npm run weekly
+npm run task:register:win11
+```
+
+詳細手順は **[docs/WINDOWS11_MIGRATION.md](docs/WINDOWS11_MIGRATION.md)** を参照してください。
+
 ## 📋 セットアップ手順
 
 ### 1. リポジトリのクローン
@@ -158,11 +172,15 @@ npm run scrape:20
 | `npm run ml:regen` | 全日付の AI 推薦を再生成して Supabase に反映 |
 | `npm run ml:regen-only` | Claude 解析・再学習をスキップし推薦のみ再生成 |
 | `npm run ml:weekly` | 新規 Claude 解析 → 再学習 → 推薦生成（週次フル更新） |
+| `npm run sync` | ローカルの `menus/` をアップロードし、AI 推薦を全日付で再生成して Supabase に反映 |
 | `npm run weekly` | スクレイプ→アップロード→週次 ML フル更新（一括実行） |
 
 ```bash
 # 毎週の標準ワークフロー
 npm run weekly
+
+# ローカルにあるメニュー/学習成果を Supabase に同期
+npm run sync
 
 # 事前に処理内容とコストを確認したい場合
 npm run ml:dry-run
