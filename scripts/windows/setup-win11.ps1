@@ -28,7 +28,7 @@ Require-Command npm
 
 if (-not $SkipVenv) {
   if (-not (Test-Path '.venv\Scripts\python.exe')) {
-    Write-Host 'Python venv を作成します (.venv)...'
+    Write-Host 'Creating Python venv (.venv)...'
     if (Get-Command py -ErrorAction SilentlyContinue) {
       & py -3 -m venv .venv
     }
@@ -36,7 +36,7 @@ if (-not $SkipVenv) {
       & python -m venv .venv
     }
     else {
-      throw 'Python が見つかりません。Python 3.10+ をインストールしてください。'
+      throw 'Python was not found. Install Python 3.10+ and try again.'
     }
   }
 
@@ -46,7 +46,7 @@ if (-not $SkipVenv) {
   & $pythonExe -m pip install -r requirements.txt
 }
 
-Write-Host 'Node 依存関係をインストールします...'
+Write-Host 'Installing Node dependencies...'
 if (Test-Path 'package-lock.json') {
   & npm ci
 }
@@ -55,13 +55,13 @@ else {
 }
 
 if (-not $SkipPlaywright) {
-  Write-Host 'Playwright Chromium をインストールします...'
+  Write-Host 'Installing Playwright Chromium...'
   & npx playwright install chromium
 }
 
 Write-Host ''
-Write-Host '✅ セットアップ完了'
-Write-Host '次の手順:'
-Write-Host '  1) PowerShellで環境変数（SUPABASE_SERVICE_KEY等）を設定'
-Write-Host '  2) npm run weekly を手動実行して動作確認'
-Write-Host '  3) scripts/windows/register-tasks.ps1 で自動実行を登録'
+Write-Host '[OK] Setup completed'
+Write-Host 'Next steps:'
+Write-Host '  1) Set env vars in PowerShell (SUPABASE_SERVICE_KEY, etc.)'
+Write-Host '  2) Run npm run weekly for a manual check'
+Write-Host '  3) Register automation via scripts/windows/register-tasks.ps1'
