@@ -101,28 +101,42 @@ npm run weekly
 npm run task:register:win11
 ```
 
-デフォルト設定:
+デフォルト設定（3タスク）:
 
-- タスク名: `KyowaMenuWeekly`
-- 実行日: 月曜
-- 実行時刻: 05:00
+- `KyowaMenuScrapeWeekly`（毎週）: 月曜 05:00
+  - `npm run scrape:upload` 実行後、続けて `npm run ml:regen`
+- `KyowaMenuClaudeAnalyzeBiweekly`（隔週）: 月曜 06:00
+  - `npm run ml:analyze`（新規メニューのみ Claude 解析）
+- `KyowaMenuModelRetrainWeekly`（毎週）: 月曜 07:00
+  - `npm run ml:retrain`（管理人選択メニューを使った再学習）
 
 カスタム時刻で登録する場合:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/windows/register-tasks.ps1 -TaskName KyowaMenuWeekly -Day MON -StartTime 06:30
+powershell -ExecutionPolicy Bypass -File scripts/windows/register-tasks.ps1 -Day MON -ScrapeStartTime 05:30 -ClaudeStartTime 06:30 -RetrainStartTime 07:30
+```
+
+管理者権限で登録したい場合（Run Level を最高にする）:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/windows/register-tasks.ps1 -HighestPrivileges
 ```
 
 ## 6. 運用確認
 
 ```powershell
-schtasks /Query /TN KyowaMenuWeekly /V /FO LIST
-schtasks /Run /TN KyowaMenuWeekly
+schtasks /Query /TN KyowaMenuScrapeWeekly /V /FO LIST
+schtasks /Query /TN KyowaMenuClaudeAnalyzeBiweekly /V /FO LIST
+schtasks /Query /TN KyowaMenuModelRetrainWeekly /V /FO LIST
+
+schtasks /Run /TN KyowaMenuScrapeWeekly
 ```
 
 ログ:
 
-- `logs/weekly-task.log`
+- `logs/weekly-scrape-and-regen.log`
+- `logs/biweekly-claude-analyze.log`
+- `logs/weekly-model-retrain.log`
 
 ## 実装上の移行ポイント
 
