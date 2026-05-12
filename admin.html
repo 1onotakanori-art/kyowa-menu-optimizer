@@ -306,6 +306,29 @@
     .star:active {
       transform: scale(1.3);
     }
+
+    .existing-record-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #fff3cd;
+      border: 1.5px solid #ffc107;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #856404;
+    }
+
+    .existing-record-banner .banner-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .existing-record-banner .banner-text {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
@@ -325,6 +348,7 @@
           <button id="load-menus-button" class="load-button">メニュー読込</button>
         </div>
         <div id="load-status" class="hidden"></div>
+        <div id="existing-record-banner" class="hidden"></div>
       </div>
 
       <!-- メニュー選択 -->

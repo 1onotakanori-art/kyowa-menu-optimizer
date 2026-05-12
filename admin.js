@@ -68,6 +68,7 @@ class AdminApp {
     this.currentDate = date;
     this.selectedMenus.clear(); // 前回の選択をクリア
     this.menuRatings = {}; // 前回の評価をクリア
+    this.hideExistingRecordBanner(); // 既存登録バナーをリセット
     this.showLoadStatus('メニュー読込中...', 'info');
     
     try {
@@ -261,6 +262,28 @@ class AdminApp {
   }
 
   /**
+   * 既存登録バナーを表示
+   */
+  showExistingRecordBanner(count) {
+    const banner = document.getElementById('existing-record-banner');
+    banner.className = 'existing-record-banner';
+    banner.innerHTML = `
+      <span class="banner-icon">⚠️</span>
+      <span class="banner-text">この日付はすでに <strong>${count}件</strong> のメニューが登録されています。前回の選択を復元しました。</span>
+    `;
+    banner.classList.remove('hidden');
+  }
+
+  /**
+   * 既存登録バナーを非表示
+   */
+  hideExistingRecordBanner() {
+    const banner = document.getElementById('existing-record-banner');
+    banner.classList.add('hidden');
+    banner.innerHTML = '';
+  }
+
+  /**
    * 既存の履歴を読込（ある場合）
    */
   async loadExistingHistory(date) {
@@ -285,6 +308,7 @@ class AdminApp {
           this.renderMenuSelection();
           this.updateSelectionCount();
           this.updateNutritionSummary();
+          this.showExistingRecordBanner(menuNames.length);
           this.showLoadStatus(`既存の記録を読み込みました（${menuNames.length}件）`, 'info');
           return;
         }
@@ -312,6 +336,7 @@ class AdminApp {
           this.renderMenuSelection();
           this.updateSelectionCount();
           this.updateNutritionSummary();
+          this.showExistingRecordBanner(menuNames.length);
           this.showLoadStatus('既存の記録を読み込みました（ローカル）', 'info');
         }
       }
