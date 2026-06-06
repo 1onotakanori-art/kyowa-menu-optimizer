@@ -30,3 +30,6 @@ __pycache__/
 # Build outputs
 dist/
 build/
+
+# Runtime logs
+logs/
