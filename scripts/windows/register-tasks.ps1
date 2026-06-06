@@ -1,6 +1,6 @@
 param(
   [string]$TaskPrefix = 'KyowaMenu',
-  [string]$Day = 'MON',
+  [string]$Day = 'SUN',
   [string]$PrepareStartTime = '06:00',
   [string]$FinishStartTime = '08:00',
   [switch]$HighestPrivileges
