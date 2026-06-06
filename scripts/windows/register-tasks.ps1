@@ -1,9 +1,8 @@
 param(
   [string]$TaskPrefix = 'KyowaMenu',
   [string]$Day = 'MON',
-  [string]$ScrapeStartTime = '05:00',
-  [string]$ClaudeStartTime = '06:00',
-  [string]$RetrainStartTime = '07:00',
+  [string]$PrepareStartTime = '06:00',
+  [string]$FinishStartTime = '08:00',
   [switch]$HighestPrivileges
 )
 
@@ -11,13 +10,11 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
-$scrapeRunner = Resolve-Path (Join-Path $PSScriptRoot 'run-scrape-and-regen.ps1')
-$claudeRunner = Resolve-Path (Join-Path $PSScriptRoot 'run-claude-analyze.ps1')
-$retrainRunner = Resolve-Path (Join-Path $PSScriptRoot 'run-model-retrain.ps1')
+$prepareRunner = Resolve-Path (Join-Path $PSScriptRoot 'run-scrape-and-regen.ps1')
+$finishRunner  = Resolve-Path (Join-Path $PSScriptRoot 'run-claude-analyze.ps1')
 
-$taskScrape = "${TaskPrefix}ScrapeWeekly"
-$taskClaude = "${TaskPrefix}ClaudeAnalyzeBiweekly"
-$taskRetrain = "${TaskPrefix}ModelRetrainWeekly"
+$taskPrepare = "${TaskPrefix}WeeklyPrepare"
+$taskFinish  = "${TaskPrefix}WeeklyFinish"
 
 function New-TaskCommand {
   param(
@@ -41,31 +38,36 @@ function Invoke-Schtasks {
   }
 }
 
-$scrapeCommand = New-TaskCommand -RunnerPath $scrapeRunner.Path
-$claudeCommand = New-TaskCommand -RunnerPath $claudeRunner.Path
-$retrainCommand = New-TaskCommand -RunnerPath $retrainRunner.Path
+$prepareCommand = New-TaskCommand -RunnerPath $prepareRunner.Path
+$finishCommand  = New-TaskCommand -RunnerPath $finishRunner.Path
 
-Write-Host 'Registering scheduled jobs in Task Scheduler...'
+Write-Host 'Registering Cowork workflow tasks in Task Scheduler...'
 
-# Backward compatibility cleanup for old single-task setup.
-cmd.exe /c "schtasks /Delete /TN KyowaMenuWeekly /F >nul 2>&1" | Out-Null
+# 旧タスクのクリーンアップ
+foreach ($old in @('KyowaMenuWeekly','KyowaMenuScrapeWeekly','KyowaMenuClaudeAnalyzeBiweekly','KyowaMenuModelRetrainWeekly')) {
+  cmd.exe /c "schtasks /Delete /TN $old /F >nul 2>&1" | Out-Null
+}
 
 $runLevel = if ($HighestPrivileges) { 'HIGHEST' } else { 'LIMITED' }
 
-Invoke-Schtasks -Arguments @('/Create', '/TN', $taskScrape, '/SC', 'WEEKLY', '/MO', '1', '/D', $Day, '/ST', $ScrapeStartTime, '/TR', $scrapeCommand, '/RL', $runLevel, '/F')
-Invoke-Schtasks -Arguments @('/Create', '/TN', $taskClaude, '/SC', 'WEEKLY', '/MO', '2', '/D', $Day, '/ST', $ClaudeStartTime, '/TR', $claudeCommand, '/RL', $runLevel, '/F')
-Invoke-Schtasks -Arguments @('/Create', '/TN', $taskRetrain, '/SC', 'WEEKLY', '/MO', '1', '/D', $Day, '/ST', $RetrainStartTime, '/TR', $retrainCommand, '/RL', $runLevel, '/F')
+# Step 1: スクレイプ + Supabase アップロード + pending_menus.md 生成
+Invoke-Schtasks -Arguments @('/Create', '/TN', $taskPrepare, '/SC', 'WEEKLY', '/MO', '1', '/D', $Day, '/ST', $PrepareStartTime, '/TR', $prepareCommand, '/RL', $runLevel, '/F')
 
+# Step 3: Cowork 出力インポート + 再学習 + AI 推薦再生成
+# (Step 2 は Claude Desktop Cowork タスクで別途スケジュール)
+Invoke-Schtasks -Arguments @('/Create', '/TN', $taskFinish,  '/SC', 'WEEKLY', '/MO', '1', '/D', $Day, '/ST', $FinishStartTime,  '/TR', $finishCommand,  '/RL', $runLevel, '/F')
+
+Write-Host ''
 Write-Host '[OK] Registration complete'
-Write-Host "Task (weekly):   $taskScrape @ $Day $ScrapeStartTime"
-Write-Host "Task (biweekly): $taskClaude @ $Day $ClaudeStartTime"
-Write-Host "Task (weekly):   $taskRetrain @ $Day $RetrainStartTime"
+Write-Host "  Task (Step1 - Prepare): $taskPrepare @ $Day $PrepareStartTime"
+Write-Host "  Task (Step3 - Finish):  $taskFinish  @ $Day $FinishStartTime"
+Write-Host ''
+Write-Host '*** Step 2 (Claude Desktop Cowork) must be scheduled separately ***'
+Write-Host "    Recommended: $Day 07:00 (between Prepare and Finish)"
 Write-Host ''
 Write-Host 'Verification commands:'
-Write-Host "  schtasks /Query /TN $taskScrape /V /FO LIST"
-Write-Host "  schtasks /Query /TN $taskClaude /V /FO LIST"
-Write-Host "  schtasks /Query /TN $taskRetrain /V /FO LIST"
+Write-Host "  schtasks /Query /TN $taskPrepare /V /FO LIST"
+Write-Host "  schtasks /Query /TN $taskFinish  /V /FO LIST"
 Write-Host 'Manual run:'
-Write-Host "  schtasks /Run /TN $taskScrape"
-Write-Host "  schtasks /Run /TN $taskClaude"
-Write-Host "  schtasks /Run /TN $taskRetrain"
+Write-Host "  schtasks /Run /TN $taskPrepare"
+Write-Host "  schtasks /Run /TN $taskFinish"

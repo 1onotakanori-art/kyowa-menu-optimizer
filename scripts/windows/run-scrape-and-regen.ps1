@@ -8,23 +8,19 @@ $logDir = Join-Path $repoRoot 'logs'
 if (-not (Test-Path $logDir)) {
   New-Item -ItemType Directory -Path $logDir | Out-Null
 }
-$logPath = Join-Path $logDir 'weekly-scrape-and-regen.log'
+$logPath = Join-Path $logDir 'weekly-prepare.log'
 
 Start-Transcript -Path $logPath -Append | Out-Null
 try {
-  Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Scrape + AI regeneration start"
+  Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Weekly prepare start (scrape + upload + generate Cowork input)"
 
-  & npm run scrape:upload
+  & npm run weekly:prepare
   if ($LASTEXITCODE -ne 0) {
-    throw "scrape:upload failed with exit code: $LASTEXITCODE"
+    throw "weekly:prepare failed with exit code: $LASTEXITCODE"
   }
 
-  & npm run ml:regen
-  if ($LASTEXITCODE -ne 0) {
-    throw "ml:regen failed with exit code: $LASTEXITCODE"
-  }
-
-  Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Scrape + AI regeneration done"
+  Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Weekly prepare done"
+  Write-Host "  -> Claude Desktop Cowork task will run next (scheduled separately)"
 }
 finally {
   Stop-Transcript | Out-Null

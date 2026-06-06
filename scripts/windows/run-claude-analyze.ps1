@@ -8,18 +8,18 @@ $logDir = Join-Path $repoRoot 'logs'
 if (-not (Test-Path $logDir)) {
   New-Item -ItemType Directory -Path $logDir | Out-Null
 }
-$logPath = Join-Path $logDir 'biweekly-claude-analyze.log'
+$logPath = Join-Path $logDir 'weekly-finish.log'
 
 Start-Transcript -Path $logPath -Append | Out-Null
 try {
-  Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Biweekly Claude analyze start"
+  Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Weekly finish start (import Cowork output + retrain + regen)"
 
-  & npm run ml:analyze
+  & npm run weekly:finish
   if ($LASTEXITCODE -ne 0) {
-    throw "ml:analyze failed with exit code: $LASTEXITCODE"
+    throw "weekly:finish failed with exit code: $LASTEXITCODE"
   }
 
-  Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Biweekly Claude analyze done"
+  Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Weekly finish done"
 }
 finally {
   Stop-Transcript | Out-Null

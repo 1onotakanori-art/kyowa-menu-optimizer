@@ -117,6 +117,13 @@ def main():
     print("📥 Claude 解析結果のインポート")
     print("=" * 60)
 
+    # NO_PENDING_MENUS チェック：新規メニューがなければスキップ
+    if STATUS_FILE.exists():
+        status_text = STATUS_FILE.read_text(encoding="utf-8")
+        if "NO_PENDING_MENUS" in status_text:
+            print("✅ 新規メニューなし（NO_PENDING_MENUS）。インポートをスキップします。")
+            sys.exit(0)
+
     # 出力ファイルの存在確認
     if not OUTPUT_FILE.exists():
         print(f"❌ 出力ファイルが見つかりません:")
