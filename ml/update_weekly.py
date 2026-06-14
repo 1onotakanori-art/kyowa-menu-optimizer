@@ -170,7 +170,11 @@ def step_regen(menu_files: list):
     """Step: 指定日付のAI推薦を再生成してSupabaseに保存"""
     from menu_recommender import MenuRecommender, MenuFeatureExtractor  # noqa: F401 (pickle needs this)
     from supabase_data_loader import SupabaseDataLoader
-    from generate_ai_selections import generate_ai_selections_for_date, upload_to_supabase
+    from generate_ai_selections import (
+        generate_ai_selections_for_date,
+        upload_to_supabase,
+        build_historical_set_profile,
+    )
 
     model_path = ML_DIR / "model" / "menu_recommender.pkl"
     if not model_path.exists():
@@ -186,6 +190,21 @@ def step_regen(menu_files: list):
         print(f"❌ Supabase接続失敗: {e}")
         return
 
+    # 過去の選択履歴から「あなたが普段選ぶセットの形」を学習する。
+    # これを渡さないと len//3 のフォールバックになり、品数が多すぎる推薦になる。
+    claude_cache = None
+    if recommender.feature_extractor.claude_analyzer:
+        claude_cache = recommender.feature_extractor.claude_analyzer.cache
+    profile = build_historical_set_profile(loader, claude_cache=claude_cache)
+    if profile:
+        print(
+            f"📊 セット目標: {profile['daysUsed']}日, "
+            f"平均{profile['avgMenuCount']:.1f}品 "
+            f"(品数{profile['countMin']}〜{profile['countMax']})"
+        )
+    else:
+        print("⚠️  学習履歴が不足しているため、上位スコア方式で生成します")
+
     generated = 0
     uploaded = 0
     for menu_file in menu_files:
@@ -193,7 +212,9 @@ def step_regen(menu_files: list):
         with open(menu_file, "r", encoding="utf-8") as f:
             menus_data = json.load(f)
 
-        result = generate_ai_selections_for_date(recommender, date_str, menus_data)
+        result = generate_ai_selections_for_date(
+            recommender, date_str, menus_data, profile=profile
+        )
         if result:
             generated += 1
             if upload_to_supabase(loader, result):

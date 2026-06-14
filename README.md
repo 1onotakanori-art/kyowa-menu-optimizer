@@ -364,6 +364,54 @@ MIT License
    git push（weekly コマンドに含まれる）
 ```
 
+### 🍱 AI推薦は「1食のセット」を提案します
+
+AI推薦は単品の寄せ集めではなく、**食事として成立する1セット**を提案します。
+過去の選択履歴から「あなたが普段選ぶセットの形」を学習し、それに近づけます。
+
+- **役割構成を学習** — 各メニューを 主食/主菜/副菜/汁物/デザート に自動分類し、
+  あなたが普段選ぶ役割バランス（例：主菜1＋副菜1＋主食）に合わせる。
+  主菜2品・主食2品のような「セットとして不自然」な組み合わせを抑制。
+- **好みを反映** — Claude嗜好プロファイル（好む調理法・食材・ジャンル）を
+  セット選定スコアに直接加点。
+- **重複を回避** — 「唐揚げ＋唐揚げミニ」のような同一系統の重複を抑制。
+- **品数はあなたの実績レンジ** — 固定数ではなく、過去に実際に選んだ品数の
+  分布（10〜90パーセンタイル）に収める。
+- **カロリー・PFC・量を目標に** — E/P/F/C/V 合計と PFC バランスを過去平均に近づける。
+
+> 関連コード: `ml/generate_ai_selections.py`（`classify_meal_role` / `_score_set` /
+> `select_best_menu_set` / `build_historical_set_profile`）。
+> 週次パスは `ml/update_weekly.py` の `step_regen` がプロファイルを構築して使用。
+
+### 💬 セット解説（Cowork・任意の追加ステップ）
+
+推薦セットに **Claude が一文の「ひとこと解説」** を付けられます。
+既存のメニュー評価 Cowork（`pending_menus.md`）とは **完全に別の独立したフロー**で、
+セット生成後に実行します。フロントの AI タブにセット解説として表示されます。
+
+```
+（前提）AI推薦セットが生成済み（npm run weekly / ml:regen の後）
+   ↓
+1. npm run set:prepare
+     生成済みセットを Obsidian の input/pending_sets.md に書き出し
+     （各日のセット内容＋あなたの嗜好サマリ付き）
+   ↓
+2. Claude Desktop で「Kyowa セット解説」タスクを実行
+     pending_sets.md を読み、各日付に一文の解説を作成
+     → output/set_commentary.json に保存
+   ↓
+3. npm run set:finish
+     解説を Supabase の ai_selections.set_comment に反映
+     （AI推薦の再生成では上書きされない専用カラム）
+```
+
+- **一度だけ DB 準備が必要**: Supabase の SQL Editor で
+  `ALTER TABLE ai_selections ADD COLUMN IF NOT EXISTS set_comment TEXT;`
+  を実行（`docs/AI_SELECTIONS_TABLE.sql` に記載）。
+- 対象範囲は `npm run set:prepare -- --limit 14` / `--dates 2026-06-08 ...` /
+  `--all`（解説未設定の全件）で調整可能。
+- 関連コード: `ml/generate_set_commentary_input.py` / `ml/import_set_commentary.py`。
+
 **個別実行:**
 ```bash
 npm run ml:dry-run    # 事前コスト確認

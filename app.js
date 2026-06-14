@@ -2142,11 +2142,14 @@ class MenuOptimizationApp {
         date: data.date,
         dateLabel: data.date_label,
         generatedAt: data.generated_at,
+        set_comment: data.set_comment || null,
         set_reason: data.model_info?.set_reason || null,
         recommendations: (data.selected_menus || []).map(menu => ({
           name: menu.name,
           score: menu.score,
           rank: menu.rank,
+          role: menu.role || null,
+          roleLabel: menu.roleLabel || '',
           reasons: menu.reasons || [],
           nutrition: menu.nutrition ? {
             energy: menu.nutrition['エネルギー'] || 0,
@@ -2280,6 +2283,24 @@ class MenuOptimizationApp {
     summaryContainer.appendChild(summaryContent);
     grid.appendChild(summaryContainer);
     
+    // ========== セット解説（Coworkで付与した一文） ==========
+    if (aiData.set_comment) {
+      const commentContainer = document.createElement('div');
+      commentContainer.className = 'ai-set-comment-container';
+
+      const commentTitle = document.createElement('div');
+      commentTitle.className = 'ai-set-comment-title';
+      commentTitle.innerHTML = '💬 ひとこと解説';
+
+      const commentText = document.createElement('div');
+      commentText.className = 'ai-set-comment-text';
+      commentText.textContent = aiData.set_comment;
+
+      commentContainer.appendChild(commentTitle);
+      commentContainer.appendChild(commentText);
+      grid.appendChild(commentContainer);
+    }
+
     // ========== セット選定理由 ==========
     if (aiData.set_reason) {
       const reasonContainer = document.createElement('div');
@@ -2311,9 +2332,16 @@ class MenuOptimizationApp {
       
       const name = document.createElement('div');
       name.className = 'menu-list-item-name';
-      name.textContent = recommendation.name || '（名前なし）';
+      // 役割ラベル（主食/主菜/副菜/汁物/デザート）を先頭にバッジ表示
+      if (recommendation.roleLabel) {
+        const roleBadge = document.createElement('span');
+        roleBadge.className = `ai-role-badge ai-role-${recommendation.role || 'side'}`;
+        roleBadge.textContent = recommendation.roleLabel;
+        name.appendChild(roleBadge);
+      }
+      name.appendChild(document.createTextNode(recommendation.name || '（名前なし）'));
       details.appendChild(name);
-      
+
       // スコア情報を表示
       const scoreDiv = document.createElement('div');
       scoreDiv.className = 'ai-score-badge';

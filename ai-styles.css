@@ -41,6 +41,30 @@
   border: 1px solid rgba(52, 199, 89, 0.2);
 }
 
+/* Coworkで付与した「ひとこと解説」 */
+.ai-set-comment-container {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.08), rgba(88, 86, 214, 0.08));
+  border-left: 4px solid #007AFF;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(0, 122, 255, 0.2);
+}
+
+.ai-set-comment-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.ai-set-comment-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
 .ai-set-reason-title {
   font-size: 14px;
   font-weight: 700;
@@ -88,6 +112,25 @@
   margin-top: 4px;
 
 }
+
+/* 食事内の役割バッジ（主食/主菜/副菜/汁物/デザート） */
+.ai-role-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+  margin-right: 6px;
+  vertical-align: middle;
+  color: #fff;
+  background: #8e8e93;
+}
+.ai-role-staple { background: #c8772e; }   /* 主食 */
+.ai-role-main   { background: #d0453b; }   /* 主菜 */
+.ai-role-side   { background: #2e9e57; }   /* 副菜 */
+.ai-role-soup   { background: #3a7bbf; }   /* 汁物 */
+.ai-role-dessert{ background: #b15bbf; }   /* デザート */
 
 .ai-reasons-badge {
   font-size: 12px;

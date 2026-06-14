@@ -21,13 +21,69 @@ AI推薦メニューを全日付分生成し、Supabaseに保存する
 
 import json
 import os
+import re
 import sys
+from collections import Counter
 from pathlib import Path
 from datetime import datetime
 import numpy as np
 
 TARGET_NUTRITION_KEYS = ['エネルギー', 'たんぱく質', '脂質', '炭水化物', '野菜重量']
 COUNT_ERROR_WEIGHT = 0.3
+
+# --- セット構成（あなたが実際に選ぶセットの形を学習して反映する） ---
+# 各メニューを「食事の中での役割」に分類する。固定の定食ルールを押し付けるのではなく、
+# 過去の選択履歴から役割バランス・品数・好みを学習し、それに近いまとまりを生成する。
+MEAL_ROLES = ['staple', 'main', 'side', 'soup', 'dessert']
+MEAL_ROLE_LABELS = {
+    'staple': '主食',
+    'main': '主菜',
+    'side': '副菜',
+    'soup': '汁物',
+    'dessert': 'デザート',
+}
+MAIN_PROTEINS = {'鶏', '豚', '牛', '魚介', '卵'}
+SIDE_PROTEINS = {'大豆', '野菜中心'}
+
+# スコアリングの重み
+PREFERENCE_WEIGHT = 2.5   # 好み一致への報酬（中立0.5からの差分に対して）
+ROLE_ERROR_WEIGHT = 0.9   # 役割構成が普段のセットからズレることへのペナルティ
+REDUNDANCY_BASE = 0.6     # 同一系統メニューの重複ペナルティ
+
+
+def _normalize_base_name(name):
+    """サイズ違い等を吸収した基底名（重複検出用）"""
+    base = (name or '').strip()
+    base = re.sub(r'(ミニ|ハーフ|大盛り?|小盛り?|（大）|（小）|\(大\)|\(小\)|大盛|小盛)$', '', base)
+    return base.strip()
+
+
+def classify_meal_role(menu_name, claude_cache=None):
+    """メニューを食事内の役割に分類: staple/main/side/soup/dessert
+
+    メニュー名と（あれば）Claude解析キャッシュの main_protein を併用して判定する。
+    """
+    name = menu_name or ''
+
+    if re.search(r'プリン|ケーキ|ヨーグルト|デザート|フルーツ|ゼリー|杏仁|シャーベット|アイス|バナナ', name):
+        return 'dessert'
+    if re.search(r'味噌汁|みそ汁|豚汁|けんちん|スープ|吸い物|お吸い物', name):
+        return 'soup'
+    if re.search(r'ライス|ご飯|ごはん|丼|炒飯|チャーハン|カレー|ラーメン|うどん|そば|蕎麦|パスタ|スパゲ|パエリア|ピラフ|焼きそば|麺', name):
+        return 'staple'
+
+    if claude_cache and name in claude_cache:
+        mp = (claude_cache.get(name) or {}).get('main_protein')
+        if mp in MAIN_PROTEINS:
+            return 'main'
+        if mp in SIDE_PROTEINS:
+            return 'side'
+
+    if re.search(r'サラダ|お浸し|おひたし|和え|小鉢|煮浸し|きんぴら|酢の物|冷奴|温野菜|ナムル|ひじき|切干|浅漬|漬物|お新香|めかぶ|もずく|納豆|おかか|白和え', name):
+        return 'side'
+    if re.search(r'肉|チキン|ポーク|ビーフ|鶏|豚|牛|ハンバーグ|カツ|唐揚|竜田|魚|サーモン|鯖|鮭|さば|あじ|鰯|エビ|海老|イカ|白身|フライ|天ぷら|ステーキ|グリル|ソテー|焼き|フリッター|餃子|シュウマイ|春巻|回鍋肉|麻婆', name):
+        return 'main'
+    return 'side'
 
 # menu_recommender.pyを直接実行できるようにする
 # （pickleがクラス定義を見つけられるようにするため）
@@ -121,8 +177,12 @@ def _calc_pfc_ratios(nutrition_totals):
     }
 
 
-def build_historical_set_profile(loader, limit=120):
-    """過去の選択履歴から、セット単位の目標プロファイルを作る"""
+def build_historical_set_profile(loader, claude_cache=None, limit=120):
+    """過去の選択履歴から、セット単位の目標プロファイルを作る
+
+    栄養合計・PFC比に加えて、ユーザーが実際に選ぶセットの「形」
+    （役割構成・品数レンジ）を学習する。
+    """
     training_data = loader.get_training_data(limit=limit)
     if not training_data:
         return None
@@ -130,6 +190,7 @@ def build_historical_set_profile(loader, limit=120):
     daily_totals = []
     daily_ratios = []
     daily_counts = []
+    daily_role_counts = []
 
     for day_data in training_data:
         selected = [m for m in day_data.get('allMenus', []) if m.get('selected')]
@@ -142,9 +203,14 @@ def build_historical_set_profile(loader, limit=120):
             for key in TARGET_NUTRITION_KEYS:
                 totals[key] += menu_totals[key]
 
+        role_counter = Counter(
+            classify_meal_role(menu.get('name', ''), claude_cache) for menu in selected
+        )
+
         daily_totals.append(totals)
         daily_ratios.append(_calc_pfc_ratios(totals))
         daily_counts.append(len(selected))
+        daily_role_counts.append({r: role_counter.get(r, 0) for r in MEAL_ROLES})
 
     if not daily_totals:
         return None
@@ -159,23 +225,48 @@ def build_historical_set_profile(loader, limit=120):
     }
     avg_count = float(np.mean(daily_counts))
 
+    # 役割構成の平均（=普段のセットの形）
+    target_role_counts = {
+        r: float(np.mean([d[r] for d in daily_role_counts]))
+        for r in MEAL_ROLES
+    }
+
+    # 実際に選んでいる品数のレンジ（外れ値を避けるため10〜90パーセンタイル）
+    count_min = max(1, int(round(np.percentile(daily_counts, 10))))
+    count_max = max(count_min, int(round(np.percentile(daily_counts, 90))))
+    median_count = float(np.median(daily_counts))
+
     return {
         'daysUsed': len(daily_totals),
         'avgMenuCount': avg_count,
+        'medianMenuCount': median_count,
+        'countMin': count_min,
+        'countMax': count_max,
         'targetTotals': avg_totals,
         'targetPfcRatio': avg_ratios,
+        'targetRoleCounts': target_role_counts,
     }
 
 
 def _score_set(candidate_set, profile, recommender):
-    """候補セットの適合度（低いほど良い）"""
+    """候補セットの適合度（低いほど良い）
+
+    栄養合計・PFC比に加えて、(1) あなたの好み一致、(2) 普段のセットの役割構成、
+    (3) 同一系統メニューの重複回避 を考慮する。
+    """
     totals = {k: 0.0 for k in TARGET_NUTRITION_KEYS}
     names = []
     scores = []
+    prefs = []
+    roles = []
+    base_names = []
 
     for menu in candidate_set:
         names.append(menu['name'])
         scores.append(menu['score'])
+        prefs.append(menu.get('preference', 0.5))
+        roles.append(menu.get('role', 'side'))
+        base_names.append(menu.get('baseName') or menu['name'])
         for key in TARGET_NUTRITION_KEYS:
             totals[key] += menu['nutritionTotals'][key]
 
@@ -184,7 +275,7 @@ def _score_set(candidate_set, profile, recommender):
     target_ratios = profile['targetPfcRatio']
     target_count = max(profile['avgMenuCount'], 1.0)
 
-    # 合計栄養の誤差（相対誤差）
+    # 合計栄養の誤差（相対誤差）— カロリーや量(野菜重量)を目標に近づける
     nutrition_error = 0.0
     nutrition_weights = {
         'エネルギー': 1.0,
@@ -207,10 +298,32 @@ def _score_set(candidate_set, profile, recommender):
     # 品数誤差
     count_error = abs(len(candidate_set) - target_count) / target_count
 
+    # 役割構成誤差（普段あなたが選ぶセットの形にどれだけ近いか）
+    role_counter = Counter(roles)
+    target_role_counts = profile.get('targetRoleCounts', {})
+    role_error = 0.0
+    for r in MEAL_ROLES:
+        role_error += abs(role_counter.get(r, 0) - target_role_counts.get(r, 0.0))
+    role_error /= target_count
+
+    # 好み（高いほど良い → 中立0.5からの差分を報酬に）
+    preference_avg = float(np.mean(prefs)) if prefs else 0.5
+
     # メニュー単体スコアの高さ（高いほど良いので 1-score を誤差扱い）
     avg_item_quality_error = 1.0 - float(np.mean(scores)) if scores else 1.0
 
-    # 共起ボーナス（誤差から減点）
+    # 重複ペナルティ（同一系統が重なり「セットとして不自然」になるのを防ぐ）
+    redundancy = 0.0
+    base_dups = len(base_names) - len(set(base_names))
+    redundancy += base_dups * REDUNDANCY_BASE
+    # 主菜・主食が普段の枠を超えて重複した場合のペナルティ
+    for r in ('main', 'staple'):
+        allowed = max(1, int(round(target_role_counts.get(r, 1.0))))
+        excess = role_counter.get(r, 0) - allowed
+        if excess > 0:
+            redundancy += excess * 0.45
+
+    # 共起ボーナス（誤差から減点）— 実際に一緒に選ばれた組み合わせを優遇
     cooc_sum = 0.0
     if len(names) >= 2:
         for i in range(len(names)):
@@ -223,9 +336,12 @@ def _score_set(candidate_set, profile, recommender):
     total_error = (
         nutrition_error * 0.55
         + ratio_error * 2.0
+        + role_error * ROLE_ERROR_WEIGHT
         + count_error * COUNT_ERROR_WEIGHT
-        + avg_item_quality_error * 0.35
+        + avg_item_quality_error * 0.30
+        + redundancy
         - cooc_bonus
+        - (preference_avg - 0.5) * PREFERENCE_WEIGHT
     )
 
     return {
@@ -234,6 +350,9 @@ def _score_set(candidate_set, profile, recommender):
         'ratios': ratios,
         'count': len(candidate_set),
         'cooccurrenceBonus': float(cooc_bonus),
+        'preferenceAvg': float(preference_avg),
+        'roleCounts': {r: role_counter.get(r, 0) for r in MEAL_ROLES},
+        'redundancy': float(redundancy),
     }
 
 
@@ -242,14 +361,20 @@ def select_best_menu_set(menu_scores, profile, recommender):
     if not menu_scores:
         return [], None
 
-    # 探索対象を上位候補に絞る（計算量を制御）
-    candidate_pool_size = min(max(12, int(profile['avgMenuCount'] * 5)), len(menu_scores), 24)
-    candidates = menu_scores[:candidate_pool_size]
+    # 探索対象を上位候補に絞る（計算量を制御）。
+    # モデルスコアだけでなく「好み」もプールに反映させるため、ブレンド順で上位を採用。
+    ranked_for_pool = sorted(
+        menu_scores,
+        key=lambda m: m['score'] + 0.4 * (m.get('preference', 0.5) - 0.5),
+        reverse=True,
+    )
+    candidate_pool_size = min(max(14, int(profile['avgMenuCount'] * 6)), len(ranked_for_pool), 28)
+    candidates = ranked_for_pool[:candidate_pool_size]
 
-    # 目標品数の近傍を探索
+    # 実際に選んでいる品数レンジを探索（外れ値を避けた10〜90%tile）
     target_count = int(round(profile['avgMenuCount']))
-    min_count = max(1, target_count - 2)
-    max_count = min(len(candidates), target_count + 2)
+    min_count = max(1, profile.get('countMin', target_count - 1))
+    max_count = min(len(candidates), profile.get('countMax', target_count + 1))
     if min_count > max_count:
         min_count = max_count
 
@@ -304,12 +429,24 @@ def build_set_reason(profile, set_evaluation):
             return 0.0
         return abs(a - b) / b * 100
 
+    # 役割構成（普段のセットの形）を文章化
+    role_counts = set_evaluation.get('roleCounts', {})
+    role_parts = [
+        f"{MEAL_ROLE_LABELS[r]}{role_counts[r]}"
+        for r in MEAL_ROLES
+        if role_counts.get(r)
+    ]
+    role_text = '・'.join(role_parts) if role_parts else 'なし'
+
+    pref_pct = set_evaluation.get('preferenceAvg', 0.5) * 100
+
     return (
-        f"過去{profile['daysUsed']}日平均（{profile['avgMenuCount']:.1f}品）に合わせ、"
-        f"E/P/F/C/V合計を近づけるように選定。"
-        f"E差{pct_diff(actual['エネルギー'], target['エネルギー']):.1f}%・"
-        f"P差{pct_diff(actual['たんぱく質'], target['たんぱく質']):.1f}%・"
-        f"V差{pct_diff(actual['野菜重量'], target['野菜重量']):.1f}%、"
+        f"過去{profile['daysUsed']}日のあなたの選び方を学習し、"
+        f"普段のセットの形（{role_text}）と好み（一致度{pref_pct:.0f}%）に近づけて選定。"
+        f"E/P/F/C/V合計は "
+        f"E差{pct_diff(actual['エネルギー'], target['エネルギー']):.0f}%・"
+        f"P差{pct_diff(actual['たんぱく質'], target['たんぱく質']):.0f}%・"
+        f"V差{pct_diff(actual['野菜重量'], target['野菜重量']):.0f}%、"
         f"PFC比は目標({ratios_target['p']:.2f}/{ratios_target['f']:.2f}/{ratios_target['c']:.2f})"
         f"に対し実績({ratios_actual['p']:.2f}/{ratios_actual['f']:.2f}/{ratios_actual['c']:.2f})。"
     )
@@ -332,7 +469,12 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
     use_claude = recommender.feature_extractor.use_claude
     if use_claude and recommender.feature_extractor.claude_analyzer:
         recommender.feature_extractor.claude_analyzer.analyze_menus(menus)
-    
+
+    # Claude解析キャッシュ（役割分類に使用）
+    claude_cache = None
+    if recommender.feature_extractor.claude_analyzer:
+        claude_cache = recommender.feature_extractor.claude_analyzer.cache
+
     # 各メニューの推薦スコアを計算
     menu_scores = []
     for menu in menus:
@@ -356,10 +498,12 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
         feature_list.extend(text_features)
         feature_list.extend([int(v) for v in category_features.values()])
         
+        # 好みスコア（Claude嗜好プロファイル由来。未使用時は中立0.5）
+        preference_score = recommender.feature_extractor.get_preference_score(menu_name)
+
         # Claude特徴量（学習時にClaude特徴量を使用していた場合のみ追加）
         if use_claude:
             claude_features = recommender.feature_extractor.extract_claude_features(menu_name)
-            preference_score = recommender.feature_extractor.get_preference_score(menu_name)
             feature_list.extend(claude_features)
             feature_list.append(preference_score)
         
@@ -392,7 +536,10 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
             'score': float(score),
             'reasons': reasons,
             'nutrition': nutrition,
-            'nutritionTotals': nutrition_totals
+            'nutritionTotals': nutrition_totals,
+            'preference': float(preference_score),
+            'role': classify_meal_role(menu_name, claude_cache),
+            'baseName': _normalize_base_name(menu_name),
         })
     
     # スコア順にソート
@@ -406,9 +553,17 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
     if profile:
         selected_menus, set_evaluation = select_best_menu_set(menu_scores, profile, recommender)
     else:
-        fallback_n = max(1, len(menu_scores) // 3)
+        # 履歴が無い場合の控えめなフォールバック（品数過多を避ける）
+        fallback_n = min(3, len(menu_scores))
         selected_menus = menu_scores[:fallback_n]
         set_evaluation = None
+
+    # 食事としての並び順に整える（主食→主菜→副菜→汁物→デザート）
+    role_order = {r: i for i, r in enumerate(MEAL_ROLES)}
+    selected_menus = sorted(
+        selected_menus,
+        key=lambda m: (role_order.get(m.get('role', 'side'), 99), m['rank']),
+    )
 
     print(f"  ✓ {len(menus)}メニュー中、{len(selected_menus)}品のセットを選択")
     for menu in selected_menus:
@@ -428,7 +583,9 @@ def generate_ai_selections_for_date(recommender, date_str, menus_data, output_di
                 'score': menu['score'],
                 'rank': menu['rank'],
                 'reasons': menu['reasons'],
-                'nutrition': menu['nutrition']
+                'nutrition': menu['nutrition'],
+                'role': menu.get('role', 'side'),
+                'roleLabel': MEAL_ROLE_LABELS.get(menu.get('role', 'side'), ''),
             }
             for menu in selected_menus
         ],
@@ -524,20 +681,9 @@ def main():
         print(f"❌ Supabase接続失敗: {e}")
         return
 
-    print("\n📊 過去の選択傾向を集計中...")
-    historical_profile = build_historical_set_profile(loader)
-    if historical_profile:
-        print(
-            "✓ セット目標を作成: "
-            f"{historical_profile['daysUsed']}日, "
-            f"平均{historical_profile['avgMenuCount']:.1f}品"
-        )
-    else:
-        print("⚠️  学習履歴が不足しているため、従来の上位スコア方式で生成します")
-    
     # モデル読み込み
     print("\n学習済みモデルを読み込み中...")
-    
+
     model_path = Path(__file__).parent / 'model' / 'menu_recommender.pkl'
     if model_path.exists():
         recommender = MenuRecommender.load_model(str(model_path))
@@ -551,7 +697,30 @@ def main():
         print("\n  学習データはSupabaseから自動取得されます。")
         print("  事前にadmin.htmlで食事記録を保存してください。")
         return
-    
+
+    # Claude解析キャッシュ（役割分類に使用）
+    claude_cache = None
+    if recommender.feature_extractor.claude_analyzer:
+        claude_cache = recommender.feature_extractor.claude_analyzer.cache
+
+    print("\n📊 過去の選択傾向を集計中...")
+    historical_profile = build_historical_set_profile(loader, claude_cache=claude_cache)
+    if historical_profile:
+        role_summary = '・'.join(
+            f"{MEAL_ROLE_LABELS[r]}{historical_profile['targetRoleCounts'][r]:.1f}"
+            for r in MEAL_ROLES
+            if historical_profile['targetRoleCounts'][r] >= 0.3
+        )
+        print(
+            "✓ セット目標を作成: "
+            f"{historical_profile['daysUsed']}日, "
+            f"平均{historical_profile['avgMenuCount']:.1f}品 "
+            f"(品数{historical_profile['countMin']}〜{historical_profile['countMax']}), "
+            f"普段の形: {role_summary or 'なし'}"
+        )
+    else:
+        print("⚠️  学習履歴が不足しているため、従来の上位スコア方式で生成します")
+
     # メニューファイル一覧を取得
     menu_files = sorted(menus_dir.glob('menus_*.json'))
     print(f"\n✓ {len(menu_files)}日分のメニューデータを検出")
