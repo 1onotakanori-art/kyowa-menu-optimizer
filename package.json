@@ -21,7 +21,7 @@
     "ml:import": "npm run py -- ml/import_claude_output.py",
     "sync": "npm run upload && npm run ml:regen",
     "weekly": "npm run scrape:upload && npm run ml:weekly",
-    "weekly:prepare": "npm run scrape && npm run upload && npm run ml:prepare",
+    "weekly:prepare": "npm run scrape:10 && npm run upload && npm run ml:prepare",
     "weekly:finish": "npm run ml:import && npm run ml:retrain && npm run ml:regen-only",
     "setup:win11": "powershell -ExecutionPolicy Bypass -File scripts/windows/setup-win11.ps1",
     "task:register:win11": "powershell -ExecutionPolicy Bypass -File scripts/windows/register-tasks.ps1"
