@@ -19,6 +19,8 @@
     "ml:weekly": "npm run py -- ml/update_weekly.py",
     "ml:prepare": "npm run py -- ml/generate_claude_input.py",
     "ml:import": "npm run py -- ml/import_claude_output.py",
+    "set:prepare": "npm run py -- ml/generate_set_commentary_input.py",
+    "set:finish": "npm run py -- ml/import_set_commentary.py",
     "sync": "npm run upload && npm run ml:regen",
     "weekly": "npm run scrape:upload && npm run ml:weekly",
     "weekly:prepare": "npm run scrape:10 && npm run upload && npm run ml:prepare",

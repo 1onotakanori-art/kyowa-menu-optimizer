@@ -9,9 +9,14 @@ CREATE TABLE IF NOT EXISTS ai_selections (
   selected_menus JSONB NOT NULL DEFAULT '[]',
   all_menus_with_scores JSONB NOT NULL DEFAULT '[]',
   model_info JSONB NOT NULL DEFAULT '{}',
+  set_comment TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 既存テーブルに後から列を足す場合（Cowork セット解説機能）:
+--   推薦セットへの「一文の解説」を保存する列。AI推薦の再生成では上書きされない。
+ALTER TABLE ai_selections ADD COLUMN IF NOT EXISTS set_comment TEXT;
 
 -- インデックスの作成（検索高速化）
 CREATE INDEX IF NOT EXISTS idx_ai_selections_date ON ai_selections(date);
