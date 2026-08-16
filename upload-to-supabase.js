@@ -26,9 +26,16 @@ if (!SUPABASE_SERVICE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 const MENUS_DIR = path.join(__dirname, 'menus');
+const UPLOAD_RETRIES = 3;
+const UPLOAD_RETRY_DELAY_MS = 5000;
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 /**
  * 1日分のメニューを Supabase へアップサート
+ * 起動直後のDNS未確立などによる一時的な fetch failed に備えてリトライする。
  * @param {string} date - "2026-04-14" 形式
  * @param {Array} menus - [{name, nutrition}] 配列
  * @returns {Promise<number>} アップロード件数
@@ -40,12 +47,22 @@ async function uploadToSupabase(date, menus) {
     nutrition: menu.nutrition,
   }));
 
-  const { error } = await supabase
-    .from('menus')
-    .upsert(rows, { onConflict: 'date,menu_name' });
+  let lastError;
+  for (let attempt = 1; attempt <= UPLOAD_RETRIES; attempt++) {
+    const { error } = await supabase
+      .from('menus')
+      .upsert(rows, { onConflict: 'date,menu_name' });
 
-  if (error) throw new Error(`Supabase upsert エラー: ${error.message}`);
-  return rows.length;
+    if (!error) return rows.length;
+
+    lastError = error;
+    if (attempt < UPLOAD_RETRIES) {
+      console.warn(`⚠️  ${date}: upsert失敗 (試行${attempt}/${UPLOAD_RETRIES}) - ${error.message}. リトライします...`);
+      await sleep(UPLOAD_RETRY_DELAY_MS);
+    }
+  }
+
+  throw new Error(`Supabase upsert エラー: ${lastError.message}`);
 }
 
 /**

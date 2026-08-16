@@ -3,6 +3,7 @@ Set-StrictMode -Version Latest
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
 Set-Location $repoRoot
+. (Join-Path $PSScriptRoot 'wait-for-network.ps1')
 
 $logDir = Join-Path $repoRoot 'logs'
 if (-not (Test-Path $logDir)) {
@@ -13,6 +14,7 @@ $logPath = Join-Path $logDir 'weekly-prepare.log'
 Start-Transcript -Path $logPath -Append | Out-Null
 try {
   Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Weekly prepare start (scrape + upload + generate Cowork input)"
+  Wait-ForNetwork
 
   & npm run weekly:prepare
   if ($LASTEXITCODE -ne 0) {
