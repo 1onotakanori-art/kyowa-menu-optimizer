@@ -1,0 +1,39 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Daily at 10:17 JST. The offset avoids an exact seven-day inactivity boundary.
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Query Supabase
+        env:
+          SUPABASE_URL: https://zzleqjendqkoizbdvblw.supabase.co
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          test -n "$SUPABASE_SERVICE_KEY" || {
+            echo "SUPABASE_SERVICE_KEY repository secret is not configured."
+            exit 1
+          }
+
+          status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+            --connect-timeout 15 --max-time 30 \
+            --header "apikey: $SUPABASE_SERVICE_KEY" \
+            --header "Authorization: Bearer $SUPABASE_SERVICE_KEY" \
+            "$SUPABASE_URL/rest/v1/menus?select=date&limit=1")
+
+          test "$status" = '200' || {
+            echo "Supabase keep-alive request failed with HTTP $status."
+            exit 1
+          }
+
+          echo "Supabase keep-alive request succeeded."
