@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Query Supabase
+      - name: Record database activity
         env:
           SUPABASE_URL: https://zzleqjendqkoizbdvblw.supabase.co
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
@@ -25,15 +25,24 @@ jobs:
             exit 1
           }
 
-          status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+          timestamp=$(date --utc +'%Y-%m-%dT%H:%M:%SZ')
+          response=$(curl --fail-with-body --silent --show-error \
+            --request POST \
             --connect-timeout 15 --max-time 30 \
             --header "apikey: $SUPABASE_SERVICE_KEY" \
             --header "Authorization: Bearer $SUPABASE_SERVICE_KEY" \
-            "$SUPABASE_URL/rest/v1/menus?select=date&limit=1")
+            --header "Content-Type: application/json" \
+            --header "Prefer: resolution=merge-duplicates,return=representation" \
+            --data "{\"id\":1,\"last_seen_at\":\"$timestamp\"}" \
+            "$SUPABASE_URL/rest/v1/project_keepalive?on_conflict=id")
 
-          test "$status" = '200' || {
-            echo "Supabase keep-alive request failed with HTTP $status."
-            exit 1
-          }
+          echo "$response" | python3 -c '
+          import json
+          import sys
 
-          echo "Supabase keep-alive request succeeded."
+          rows = json.load(sys.stdin)
+          assert len(rows) == 1 and rows[0]["id"] == 1
+          assert isinstance(rows[0].get("last_seen_at"), str)
+          '
+
+          echo "Supabase keep-alive database write succeeded."
