@@ -12,5 +12,10 @@ ALTER TABLE project_keepalive ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE project_keepalive FROM anon, authenticated;
 GRANT ALL ON TABLE project_keepalive TO service_role;
 
+INSERT INTO project_keepalive (id, last_seen_at)
+VALUES (1, NOW())
+ON CONFLICT (id) DO UPDATE
+SET last_seen_at = EXCLUDED.last_seen_at;
+
 -- 確認用クエリ
 SELECT id, last_seen_at FROM project_keepalive;
