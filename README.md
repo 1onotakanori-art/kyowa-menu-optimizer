@@ -1,6 +1,6 @@
 # 🍽️ Kyowa Menu Optimizer
 
-協和食堂のメニューから栄養目標に最適なメニュー組み合わせを自動提案するWebアプリケーション。
+共和食堂のメニューから栄養目標に最適なメニュー組み合わせを自動提案するWebアプリケーション。
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub-Pages-blue)](https://1onotakanori-art.github.io/kyowa-menu-optimizer/)
 

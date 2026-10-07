@@ -77,6 +77,17 @@ body {
   opacity: 0.9;
 }
 
+.header-notify-link {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  color: white;
+  font-size: 13px;
+  text-decoration: none;
+}
+
 /* ========================================
    タブナビゲーション
    ======================================== */

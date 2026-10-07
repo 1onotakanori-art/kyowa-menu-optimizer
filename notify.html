@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>🔔 メニュー通知設定</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      height: auto;
+      min-height: 100%;
+      -webkit-user-select: auto;
+      user-select: auto;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .header a {
+      color: white;
+    }
+
+    .header-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .header-nav .user-email {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: 0.9;
+    }
+
+    .link-button {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      color: white;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .notify-content {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .section-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 20px 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-note {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .message-info {
+      background: #E8F2FF;
+      color: #0051D5;
+    }
+
+    .message-error {
+      background: #FFEBEA;
+      color: #C4281C;
+    }
+
+    .message-warning {
+      background: #FFF4E5;
+      color: #8A5300;
+    }
+
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border: 1px solid var(--medium-gray);
+      border-radius: 999px;
+      font-size: 14px;
+      cursor: pointer;
+      background: white;
+    }
+
+    .chip input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .chip:has(input:checked) {
+      background: #E8F2FF;
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      cursor: pointer;
+    }
+
+    .switch-row input {
+      width: 20px;
+      height: 20px;
+    }
+
+    .small-button {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--medium-gray);
+      background: var(--light-gray);
+      color: var(--primary-color);
+      white-space: nowrap;
+    }
+
+    .small-button.primary {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+
+    .small-button.danger {
+      color: var(--danger-color);
+    }
+
+    .rule-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .rule-item {
+      border: 1px solid var(--medium-gray);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .rule-item.disabled {
+      opacity: 0.55;
+    }
+
+    .rule-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rule-head input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .rule-name {
+      font-weight: 700;
+      font-size: 15px;
+      flex: 1;
+      word-break: break-all;
+    }
+
+    .rule-summary {
+      font-size: 13px;
+      color: #555;
+      margin: 6px 0 0 30px;
+      line-height: 1.6;
+    }
+
+    .rule-hits {
+      font-size: 12px;
+      color: var(--success-color);
+      margin: 4px 0 0 30px;
+    }
+
+    .rule-hits.none {
+      color: var(--text-secondary);
+    }
+
+    .rule-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+      padding: 16px 0;
+    }
+
+    .editor-section {
+      border-top: 1px solid var(--light-gray);
+      padding-top: 14px;
+      margin-top: 14px;
+    }
+
+    .editor-section h3 {
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .editor-section .hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .name-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 8px;
+    }
+
+    .nutrition-grid {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .nutrition-grid .form-input {
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    .nutrition-grid .unit {
+      color: var(--text-secondary);
+      font-size: 12px;
+      min-width: 28px;
+    }
+
+    .preview-box {
+      background: var(--light-gray);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .preview-box h4 {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .preview-date {
+      font-weight: 700;
+    }
+
+    .editor-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .history-table td {
+      padding: 6px 4px;
+      border-bottom: 1px solid var(--light-gray);
+      vertical-align: top;
+    }
+
+    @media (max-width: 480px) {
+      .name-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>🔔 メニュー通知</h1>
+    <p class="subtitle">条件に合うメニューがある日の朝にメールでお知らせ</p>
+    <div class="header-nav">
+      <a href="./">← メニュー最適化へ</a>
+      <span id="user-email" class="user-email hidden"></span>
+      <button id="logout-button" class="link-button hidden" type="button">ログアウト</button>
+    </div>
+  </header>
+
+  <main class="notify-content">
+    <div id="global-message" class="message hidden"></div>
+
+    <!-- 読み込み中 -->
+    <section id="loading-view" class="section-card">
+      <p class="empty-state">読み込み中...</p>
+    </section>
+
+    <!-- ログイン -->
+    <section id="login-view" class="section-card hidden">
+      <h2 class="section-title">ログイン / 新規登録</h2>
+      <p class="section-note">
+        メールアドレスを入力すると、ログイン用のリンクが届きます。
+        初めての方はそのまま登録されます（パスワードは不要です）。
+      </p>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">メールアドレス</label>
+          <input id="login-email" class="form-input" type="email" autocomplete="email" required placeholder="you@example.com">
+        </div>
+        <button id="login-button" class="button button-primary" type="submit">ログインリンクを送る</button>
+      </form>
+      <div id="login-sent" class="message message-info hidden" style="margin-top: 12px;"></div>
+    </section>
+
+    <!-- ログイン後 -->
+    <div id="app-view" class="hidden">
+      <!-- 通知設定 -->
+      <section class="section-card">
+        <h2 class="section-title">通知設定</h2>
+        <label class="switch-row">
+          <input id="email-enabled" type="checkbox">
+          通知メールを受け取る
+        </label>
+        <div class="form-group">
+          <label>通知する曜日</label>
+          <div id="weekday-chips" class="chip-group"></div>
+        </div>
+        <p class="section-note">
+          毎朝7時ごろ、その日のメニューに条件に合うものがあればメールします。
+          該当がない日や、食堂が休み（メニューがない日）は送信しません。
+        </p>
+        <button id="save-profile-button" class="small-button primary" type="button">設定を保存</button>
+      </section>
+
+      <!-- ルール一覧 -->
+      <section id="rules-section" class="section-card">
+        <h2 class="section-title">
+          通知ルール
+          <button id="new-rule-button" class="small-button primary" type="button">＋ 追加</button>
+        </h2>
+        <p class="section-note">
+          ルールのどれか1つにでも合うメニューがあれば通知します。
+        </p>
+        <div id="rule-list" class="rule-list"></div>
+      </section>
+
+      <!-- ルール編集 -->
+      <section id="editor-section" class="section-card hidden">
+        <h2 id="editor-title" class="section-title">ルールを追加</h2>
+        <form id="rule-form" novalidate>
+          <div class="form-group">
+            <label for="rule-name">ルール名</label>
+            <input id="rule-name" class="form-input" type="text" maxlength="50" required placeholder="例: カレーの日">
+          </div>
+
+          <div class="editor-section">
+            <h3>メニュー名</h3>
+            <p class="hint">特定のメニュー、またはキーワードを含むメニューに絞ります。表記ゆれ（ｶﾀｶﾅ/ひらがな等）は区別しません。</p>
+            <div class="name-row">
+              <select id="name-mode" class="form-input">
+                <option value="none">指定しない</option>
+                <option value="equals">メニュー名が一致</option>
+                <option value="contains">キーワードを含む</option>
+              </select>
+              <input id="name-text" class="form-input" type="text" list="menu-name-list" placeholder="">
+            </div>
+            <datalist id="menu-name-list"></datalist>
+            <div class="form-group" style="margin-top: 10px;">
+              <label for="exclude-text">含まないキーワード（任意）</label>
+              <input id="exclude-text" class="form-input" type="text" placeholder="例: ミニ 小">
+              <small>複数指定は空白・カンマで区切ります。どれかを含むメニューは除外します。</small>
+            </div>
+          </div>
+
+          <div class="editor-section">
+            <h3>栄養値（任意）</h3>
+            <p class="hint">入力した欄だけ条件になります（以上・以下は境界を含みます）。</p>
+            <div id="nutrition-grid" class="nutrition-grid"></div>
+          </div>
+
+          <div class="editor-section">
+            <h3>アレルゲン（任意）</h3>
+            <p class="hint">チェックした食材を使っていないメニューだけに絞ります。</p>
+            <div id="allergen-chips" class="chip-group"></div>
+          </div>
+
+          <div class="editor-section">
+            <h3>プレビュー</h3>
+            <div id="rule-errors" class="message message-error hidden"></div>
+            <div id="rule-preview" class="preview-box"></div>
+          </div>
+
+          <div class="editor-actions">
+            <button id="cancel-rule-button" class="button button-secondary" type="button">キャンセル</button>
+            <button id="save-rule-button" class="button button-primary" type="submit">保存</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 送信履歴 -->
+      <section class="section-card">
+        <h2 class="section-title">最近の通知</h2>
+        <div id="history"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="notify/notify.js"></script>
+</body>
+</html>
