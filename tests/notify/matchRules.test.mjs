@@ -7,6 +7,7 @@ import {
   validateConditions,
   matchMenu,
   evaluateRules,
+  describeConditions,
 } from '../../supabase/functions/_shared/matchRules.js';
 
 const menus0821 = JSON.parse(
@@ -132,6 +133,30 @@ test('evaluateRules: 実データ（8/21）でヒットしたルールだけを�
     assert.ok(menu.nutrition['たんぱく質'] >= 16);
     assert.equal(menu.nutrition['海老'], '－');
   }
+});
+
+test('describeConditions: 条件を日本語の説明に変換する', () => {
+  assert.deepEqual(
+    describeConditions({
+      all: [
+        { field: 'name', op: 'equals', value: 'モチコチキン' },
+        { field: 'name', op: 'contains_any', value: ['カレー', '唐揚げ'] },
+        { field: 'name', op: 'not_contains_any', value: ['ミニ'] },
+        { field: 'たんぱく質', op: '>=', value: 20 },
+        { field: 'エネルギー', op: '<=', value: 600 },
+        { field: 'allergen', op: 'excludes', value: ['海老', 'カニ'] },
+      ],
+    }),
+    [
+      'メニュー名が「モチコチキン」',
+      '「カレー」「唐揚げ」のいずれかを含む',
+      '「ミニ」を含まない',
+      'たんぱく質 20g以上',
+      'エネルギー 600kcal以下',
+      '海老・カニを使っていない',
+    ]
+  );
+  assert.deepEqual(describeConditions(null), []);
 });
 
 test('evaluateRules: ヒットなしなら空配列', () => {

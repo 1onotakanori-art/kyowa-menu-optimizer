@@ -38,6 +38,16 @@ export const ALLERGEN_FIELDS = Object.freeze([
   '豚肉',
 ]);
 
+export const NUTRITION_UNITS = Object.freeze({
+  エネルギー: 'kcal',
+  たんぱく質: 'g',
+  脂質: 'g',
+  炭水化物: 'g',
+  飽和脂肪酸: 'g',
+  食塩相当量: 'g',
+  野菜重量: 'g',
+});
+
 /** メニューデータで「含まない」を表す値。これ以外（◯ や未知の値）は安全側に倒して「含む」とみなす */
 const ALLERGEN_FREE = '－';
 
@@ -168,6 +178,27 @@ function matchCondition(menu, { field, op, value }) {
 export function matchMenu(menu, conditions) {
   if (!validateConditions(conditions).ok) return false;
   return conditions.all.every(cond => matchCondition(menu, cond));
+}
+
+/**
+ * 条件を人が読める文に変換する（設定画面の一覧・通知メール本文用）
+ * @param {{ all: object[] }} conditions
+ * @returns {string[]} 条件ごとの説明文
+ */
+export function describeConditions(conditions) {
+  const quote = words => words.map(w => `「${w}」`).join('');
+  return (conditions?.all ?? []).map(({ field, op, value }) => {
+    if (field === 'name') {
+      if (op === 'equals') return `メニュー名が「${value}」`;
+      if (op === 'contains_any') return `${quote(value)}のいずれかを含む`;
+      if (op === 'not_contains_any') return `${quote(value)}を含まない`;
+    }
+    if (NUTRITION_FIELDS.includes(field)) {
+      return `${field} ${value}${NUTRITION_UNITS[field]}${op === '>=' ? '以上' : '以下'}`;
+    }
+    if (field === 'allergen') return `${value.join('・')}を使っていない`;
+    return '不明な条件';
+  });
 }
 
 /**
