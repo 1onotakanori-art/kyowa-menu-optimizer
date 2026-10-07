@@ -1,6 +1,6 @@
 # 📧 ユーザー登録 & 朝のメニュー通知メール — 実装計画
 
-> ステータス: **計画段階（未実装）**
+> ステータス: **実装中** — Phase 0（Gmail SMTP 設定）・Phase 1（DB）・Phase 2（判定ロジック）完了
 > 目的: ユーザーが登録した条件（特定メニュー / 特定ワード / 栄養・アレルゲン条件）に当日のメニューが該当した場合、その日の朝にメールで知らせる。
 
 ---
@@ -27,7 +27,7 @@
 | 条件・送信履歴の保存 | **Supabase Postgres + RLS** | 既存DBをそのまま使える。`auth.uid()` でユーザーごとにデータを分離できる |
 | 判定と送信処理 | **Supabase Edge Function（Deno / TypeScript）** | service_role キーをブラウザに出さずに全ユーザー分を処理できる |
 | 朝の定時実行 | **pg_cron + pg_net**（Edge Function を呼ぶ） | 時刻の精度が高い。GitHub Actions の cron は数十分遅れたりスキップされたりすることがある |
-| メール送信 | **Resend**（無料枠: 3,000通/月・100通/日） | API がシンプルでバッチ送信にも対応。Auth 用の SMTP としても使える |
+| メール送信 | **Gmail SMTP**（専用アカウント `kyowa.menu.notify@gmail.com` + アプリパスワード、ポート465） | 独自ドメイン不要・費用0円。1日約500通まで。Auth のログインメールも同じ SMTP で送る |
 | 設定UI | 既存と同じく素の HTML/JS（新ページ `notify.html`） | ビルド工程なし。今のコードベースに合わせる |
 | テスト | `node:test`（Node 標準） | 依存を増やさずに判定ロジックの単体テストが書ける |
 
@@ -37,7 +37,8 @@
 |---|---|
 | GitHub Actions の cron + Node スクリプト（nodemailer / Resend） | Node で統一できるのは利点。ただし cron が 5〜30分以上遅れることがあり、「朝」の保証が弱い。**フォールバックとしては有効** |
 | Win11 常時起動PCのタスクスケジューラ | 既存の仕組みに乗れるが、PC停止がそのまま単一障害点になる。非推奨 |
-| SendGrid / AWS SES | SES は安いが初期設定（サンドボックス解除）が重い。規模が小さいうちは Resend が手軽 |
+| 独自ドメイン + Resend | 届きやすさ・送信状況の可視化で優れるが、ドメイン代と DNS 設定が必要。**利用者が増えたら移行先にする**（`MAIL_PROVIDER` で切り替え） |
+| SendGrid / AWS SES | SES は安いが初期設定（サンドボックス解除）が重い |
 | Gmail SMTP | 送信制限・到達率・規約の面で本番用途には不向き |
 
 ---
@@ -57,7 +58,7 @@ pg_cron ──(pg_net HTTP POST)──> Edge Function `send-daily-digest`
     1. menus から当日分を取得（0件なら休業日として終了）
     2. 有効なユーザーとルールを取得
     3. matchRules.js で判定（Edge Function と同じ共通モジュール）
-    4. ヒットしたユーザーごとに1通にまとめて Resend のバッチAPIで送信
+    4. ヒットしたユーザーごとに1通にまとめて Gmail SMTP（465番ポート）で送信
     5. notification_deliveries に記録（二重送信の防止）
 ```
 
@@ -104,7 +105,7 @@ create table notification_deliveries (
   menu_date    date not null,
   status       text not null,                -- sent / skipped / failed
   matched      jsonb,                        -- ヒットしたルールとメニュー
-  provider_id  text,                         -- Resend の message id
+  provider_id  text,                         -- 送信サービスの message id
   error        text,
   created_at   timestamptz default now(),
   unique (user_id, menu_date)                -- 同じ日に2通送らない
@@ -158,9 +159,9 @@ UI には3種類のテンプレートを出しますが、内部ではすべて�
 
 | Phase | 内容 | 成果物 |
 |---|---|---|
-| 0. 準備 | Resend アカウントを作り、送信ドメインを認証（SPF / DKIM）。Supabase で pg_cron と pg_net を有効化。Auth の SMTP を Resend に切り替え | 設定手順書 |
-| 1. DB | 上記3テーブル、RLS、profiles 自動作成の trigger | `supabase/migrations/*.sql` |
-| 2. 判定ロジック | `matchRules.js`（正規化を含む）と単体テスト。過去の `menus/*.json` を使ったテストも作る | `_shared/matchRules.js`, `tests/` |
+| 0. 準備 ✅ | 通知専用 Gmail アカウント作成・アプリパスワード発行、Supabase Auth の SMTP を Gmail に切り替え（送信テスト済み） | — |
+| 1. DB ✅ | 上記3テーブル、RLS、profiles 自動作成の trigger（本番適用・RLS 検証済み） | `supabase/migrations/20261007120000_create_notification_tables.sql` |
+| 2. 判定ロジック ✅ | `matchRules.js`（正規化を含む）と単体テスト（`npm test`）。実データ `menus/*.json` を使ったテストを含む | `supabase/functions/_shared/matchRules.js`, `tests/notify/` |
 | 3. 認証とUI | `notify.html`: ログイン、ルールの一覧・作成・編集・削除、テンプレート3種、直近2週間のヒット数プレビュー | `notify.html`, `notify.js` |
 | 4. 送信 | Edge Function `send-daily-digest`（`?dry_run=1` と `?date=` で過去日の再現に対応）、メールテンプレート、配信停止用 Function | `supabase/functions/*` |
 | 5. スケジュール・運用 | pg_cron の登録、失敗時に管理者へ通知、`notification_deliveries` による監視 | migration, ドキュメント |
@@ -174,8 +175,9 @@ UI には3種類のテンプレートを出しますが、内部ではすべて�
 
 | リスク | 対策 |
 |---|---|
-| Supabase 標準の SMTP は1時間あたり数通までしか送れず、登録メールが届かない | Phase 0 で Auth の SMTP を Resend に切り替える |
-| Resend は独自ドメインを認証しないと自分宛てにしか送れない | 送信ドメインが必要（持っていない場合は取得するか、当面は自分宛てのみで運用） |
+| Supabase 標準の SMTP は1時間あたり数通までしか送れず、登録メールが届かない | Phase 0 で Auth の SMTP を Gmail に切り替え済み |
+| Gmail の送信上限（1日約500通）・自動送信によるアカウントロック・アプリパスワード廃止の可能性 | 専用アカウントで運用し、送信部分を差し替え可能にしておく（独自ドメイン + Resend へ移行可能） |
+| Edge Function は 25 / 587 番ポートへの接続が禁止されている | Gmail SMTP は 465 番（SSL）を使う |
 | スクレイピングが失敗して当日データがない | 0件ならスキップし、平日なのに0件のときは管理者にアラートを送る |
 | 二重送信（リトライ、cron の重複起動） | `unique(user_id, menu_date)` で送信前に行を確保する |
 | service_role キーの漏えい | Edge Function の Secrets にだけ置き、フロントでは anon キーと RLS を使う |
@@ -194,6 +196,6 @@ UI には3種類のテンプレートを出しますが、内部ではすべて�
 ## 9. 着手前に決めたいこと
 
 1. **利用者の範囲**: 自分だけ / 社内の同僚 / 一般公開 → 登録制限（メールドメインの許可リストなど）の要否が変わる
-2. **送信ドメイン**: 独自ドメインを持っているか（Resend で本運用するには必須）
+2. ~~**送信ドメイン**~~: Gmail（`kyowa.menu.notify@gmail.com`）で決定
 3. **送信時刻**: 07:00 JST でよいか（ユーザーごとに時刻を選べるようにするか）
 4. **ヒットがない日**: 送らない（推奨）か、「該当なし」を送るか
