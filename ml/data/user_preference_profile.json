@@ -103,30 +103,9 @@
     ]
   },
   "claude_analysis": {
-    "taste_preference": "淡白で上品な味わいを好み、濃厚なソースや過度な辛さは避ける傾向。焼き物や煮物の素材の味を活かした調理法を好む。",
-    "nutrition_tendency": "タンパク質摂取を重視し、特に蒸し鶏やサラダなど低脂肪で栄養バランスの取れたメニューを繰り返し選択。カロリー管理意識が高い。",
-    "preferred_cooking_methods": [
-      "焼き物",
-      "煮物",
-      "蒸し物"
-    ],
-    "preferred_proteins": [
-      "魚介",
-      "鶏",
-      "大豆"
-    ],
-    "preferred_cuisines": [
-      "和食",
-      "中華",
-      "洋食"
-    ],
-    "avoidance_patterns": [
-      "揚げ物の多用",
-      "カレー類",
-      "ビッグサイズメニュー"
-    ],
-    "set_combination_tendency": "ご飯（S）と小鉢（蒸し鶏&ブロッコリー）の低カロリーセットを定期的に選択。栄養バランスとカロリー管理を両立させるペアリング重視。",
-    "health_consciousness": 0.85,
-    "adventurousness": 0.45
+    "error": "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011Cem89YVBtK3U8mP7kQreD'}",
+    "taste_preference": "分析失敗",
+    "health_consciousness": 0.5,
+    "adventurousness": 0.5
   }
 }

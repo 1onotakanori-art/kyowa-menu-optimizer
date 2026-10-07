@@ -1,0 +1,48 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Daily at 10:17 JST. The offset avoids an exact seven-day inactivity boundary.
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Record database activity
+        env:
+          SUPABASE_URL: https://zzleqjendqkoizbdvblw.supabase.co
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          test -n "$SUPABASE_SERVICE_KEY" || {
+            echo "SUPABASE_SERVICE_KEY repository secret is not configured."
+            exit 1
+          }
+
+          timestamp=$(date --utc +'%Y-%m-%dT%H:%M:%SZ')
+          response=$(curl --fail-with-body --silent --show-error \
+            --request POST \
+            --connect-timeout 15 --max-time 30 \
+            --header "apikey: $SUPABASE_SERVICE_KEY" \
+            --header "Authorization: Bearer $SUPABASE_SERVICE_KEY" \
+            --header "Content-Type: application/json" \
+            --header "Prefer: resolution=merge-duplicates,return=representation" \
+            --data "{\"id\":1,\"last_seen_at\":\"$timestamp\"}" \
+            "$SUPABASE_URL/rest/v1/project_keepalive?on_conflict=id")
+
+          echo "$response" | python3 -c '
+          import json
+          import sys
+
+          rows = json.load(sys.stdin)
+          assert len(rows) == 1 and rows[0]["id"] == 1
+          assert isinstance(rows[0].get("last_seen_at"), str)
+          '
+
+          echo "Supabase keep-alive database write succeeded."
