@@ -1,6 +1,6 @@
 # 📧 ユーザー登録 & 朝のメニュー通知メール — 実装計画
 
-> ステータス: **実装中** — Phase 0（Gmail SMTP 設定）・Phase 1（DB）・Phase 2（判定ロジック）完了
+> ステータス: **実装中** — Phase 0（Gmail SMTP 設定）・Phase 1（DB）・Phase 2（判定ロジック）・Phase 3（設定画面）完了
 > 目的: ユーザーが登録した条件（特定メニュー / 特定ワード / 栄養・アレルゲン条件）に当日のメニューが該当した場合、その日の朝にメールで知らせる。
 
 ---
@@ -39,7 +39,7 @@
 | Win11 常時起動PCのタスクスケジューラ | 既存の仕組みに乗れるが、PC停止がそのまま単一障害点になる。非推奨 |
 | 独自ドメイン + Resend | 届きやすさ・送信状況の可視化で優れるが、ドメイン代と DNS 設定が必要。**利用者が増えたら移行先にする**（`MAIL_PROVIDER` で切り替え） |
 | SendGrid / AWS SES | SES は安いが初期設定（サンドボックス解除）が重い |
-| Gmail SMTP | 送信制限・到達率・規約の面で本番用途には不向き |
+| Firebase Authentication | Google ログインの設定は簡単だが、Supabase との JWT 連携・DB スキーマの作り直し・Blaze プランが必要になるため不採用 |
 
 ---
 
@@ -147,7 +147,7 @@ UI には3種類のテンプレートを出しますが、内部ではすべて�
 ## 5. メール仕様
 
 - **送信時刻**: 平日 07:00 JST（pg_cron では `0 22 * * 0-4` UTC）。当日の `menus` が0件なら送らない（祝日・休業日の自動スキップ）
-- **件名例**: `【協和食堂】今日は「カレーの日」に該当するメニューがあります（3件）`
+- **件名例**: `【共和食堂】今日は「カレーの日」に該当するメニューがあります（3件）`
 - **本文**: ルールごとにヒットしたメニュー名と主要栄養値（E/P/F/C）を並べ、アプリへのリンク（`index.html?date=YYYY-MM-DD`）を付ける
 - **まとめ方**: 1ユーザーにつき1日1通（複数ルールのヒットも1通にまとめる）
 - **配信停止**: 本文に `unsubscribe_token` 付きの配信停止リンクを入れ、`List-Unsubscribe` と `List-Unsubscribe-Post` ヘッダ（ワンクリック停止）も付ける
@@ -162,7 +162,7 @@ UI には3種類のテンプレートを出しますが、内部ではすべて�
 | 0. 準備 ✅ | 通知専用 Gmail アカウント作成・アプリパスワード発行、Supabase Auth の SMTP を Gmail に切り替え（送信テスト済み） | — |
 | 1. DB ✅ | 上記3テーブル、RLS、profiles 自動作成の trigger（本番適用・RLS 検証済み） | `supabase/migrations/20261007120000_create_notification_tables.sql` |
 | 2. 判定ロジック ✅ | `matchRules.js`（正規化を含む）と単体テスト（`npm test`）。実データ `menus/*.json` を使ったテストを含む | `supabase/functions/_shared/matchRules.js`, `tests/notify/` |
-| 3. 認証とUI | `notify.html`: ログイン、ルールの一覧・作成・編集・削除、テンプレート3種、直近2週間のヒット数プレビュー | `notify.html`, `notify.js` |
+| 3. 認証とUI ✅ | `notify.html`: マジックリンクでのログイン、通知設定、ルールの一覧・作成・編集・削除、直近メニューでの該当プレビュー | `notify.html`, `notify/notify.js`, `notify/ruleForm.js` |
 | 4. 送信 | Edge Function `send-daily-digest`（`?dry_run=1` と `?date=` で過去日の再現に対応）、メールテンプレート、配信停止用 Function | `supabase/functions/*` |
 | 5. スケジュール・運用 | pg_cron の登録、失敗時に管理者へ通知、`notification_deliveries` による監視 | migration, ドキュメント |
 | 6. 段階リリース | まず自分だけに dry-run → 自分宛てに本送信 → 他ユーザーへ公開 | — |
