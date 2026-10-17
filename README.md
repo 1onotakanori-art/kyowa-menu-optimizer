@@ -255,18 +255,13 @@ MIT License
 - 複数日分のメニューをスクレイピング
 - `docs/menus/` に JSON ファイルを出力
 - `docs/available-dates.json` を生成
-- GitHub Actions で実行
+- Windows タスクスケジューラ（`npm run weekly:prepare`）から実行（[docs/WINDOWS11_MIGRATION.md](docs/WINDOWS11_MIGRATION.md)）
 
 ### docs/app.js
 - **フロントエンドのみで動作**
 - `docs/menus/` から JSON を読み込み
 - JavaScript で最適化アルゴリズムを実行
 - サーバー側 API 不要
-
-### .github/workflows/scrape.yml
-- GitHub Actions ワークフロー設定
-- 毎週日曜日 21:00 に自動実行
-- npm install → prescrap.js → git push
 
 ## 💡 機能詳細
 
@@ -296,12 +291,11 @@ MIT License
 
 | イベント | タイミング | 実行内容 |
 |---------|-----------|--------|
-| 定期実行 | 毎週日曜 21:00 | スクレイピング → JSON 生成 |
-| 手動実行 | GitHub Actions から | スクレイピング → JSON 生成 |
+| 定期実行 | 毎週日曜 6:00（Windows タスク `KyowaMenuWeeklyPrepare`） | スクレイピング → JSON 生成 → Supabase アップロード |
+| 手動実行 | `npm run weekly:prepare` | 同上 |
 
 ## 🔐 セキュリティ
 
-- GitHub Actions のランナーは隔離された環境で実行
 - 認証情報不要（公開サイト）
 - Playwright は安全な環境で実行
 - GitHub の規約に準拠
@@ -309,12 +303,11 @@ MIT License
 ## 📝 トラブルシューティング
 
 **Q. メニューが表示されない**
-- A. 手動で GitHub Actions を実行してください
-- Actions タブ → "🔄 Weekly Menu Scrape" → "Run workflow"
+- A. ローカルで `npm run weekly:prepare` を実行してください
 
 **Q. 日付がない**
 - A. prescrap.js が実行されていません
-- GitHub Actions のログを確認してください
+- `logs/weekly-prepare.log` を確認してください
 
 **Q. サイトにアクセスできない**
 - A. GitHub Pages が有効になっているか確認
@@ -324,8 +317,8 @@ MIT License
 
 問題が発生した場合：
 1. GitHub Issues で報告
-2. GitHub Actions のログを確認
-3. `.github/workflows/scrape.yml` の設定を確認
+2. `logs/weekly-prepare.log` を確認
+3. タスクスケジューラの `KyowaMenuWeeklyPrepare` の実行結果を確認
 
 ## 📄 ライセンス
 

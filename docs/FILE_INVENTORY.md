@@ -53,7 +53,6 @@
 | `prescrap.js` | メインのスクレイピング実行スクリプト（`npm run scrape`） | 🟢 必須 |
 | `scrape-and-upload.js` | スクレイプ → Git連携アップロード | 🟢 必須 |
 | `scheduler.js` | node-cron による週次自動スクレイピング | 🟢 必須 |
-| `.github/workflows/scrape.yml` | GitHub Actions による週次自動スクレイピング | 🟢 必須 |
 
 ---
 
