@@ -103,7 +103,7 @@
     ]
   },
   "claude_analysis": {
-    "error": "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011Cem89YVBtK3U8mP7kQreD'}",
+    "error": "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011Cg8e9LTw1TapJB7jFaDdq'}",
     "taste_preference": "分析失敗",
     "health_consciousness": 0.5,
     "adventurousness": 0.5
