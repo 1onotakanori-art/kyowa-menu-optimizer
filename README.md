@@ -291,8 +291,11 @@ MIT License
 
 | イベント | タイミング | 実行内容 |
 |---------|-----------|--------|
-| 定期実行 | 毎週日曜 6:00（Windows タスク `KyowaMenuWeeklyPrepare`） | スクレイピング → JSON 生成 → Supabase アップロード |
+| 定期実行 | 毎週日曜 6:00（Windows タスク `KyowaMenuWeeklyPrepare`） | スクレイピング → JSON 生成 → Supabase アップロード → `menus/` を main に push |
 | 手動実行 | `npm run weekly:prepare` | 同上 |
+
+`menus/` の push（`npm run menus:push`）は、チェックアウトが main ブランチのときだけ、`menus/` 配下の変更だけをコミットします。
+menus/ 以外の未 push コミットがある場合や push に失敗した場合は、警告を出して見送ります（週次処理は止めず、次回に再試行）。
 
 ## 🔐 セキュリティ
 
