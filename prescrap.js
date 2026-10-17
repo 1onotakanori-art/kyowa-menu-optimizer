@@ -196,6 +196,11 @@ async function prescrapMultipleDays(maxDays = 5) {
   console.log(`   成功日付数: ${scrapedDates.length}/${targetDates.length}`);
   console.log(`   保存日付: ${scrapedDates.join(', ')}`);
   console.log('='.repeat(60));
+
+  // 対象日があるのに1日も取れなかった場合は失敗扱い（CI やタスクが成功と誤認しないように）
+  if (targetDates.length > 0 && scrapedDates.length === 0) {
+    throw new Error(`全 ${targetDates.length} 日のスクレイプに失敗しました`);
+  }
 }
 
 // 実行

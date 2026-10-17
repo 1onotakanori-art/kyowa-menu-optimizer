@@ -80,14 +80,6 @@ export SUPABASE_SERVICE_KEY="your-service-role-key-here"
 source ~/.zshrc
 ```
 
-#### GitHub Actions（自動スクレイピング用）
-
-1. GitHub リポジトリの **Settings** → **Secrets and variables** → **Actions** に移動
-2. 「New repository secret」をクリック
-3. 以下を設定：
-   - Name: `SUPABASE_SERVICE_KEY`
-   - Secret: サービスロールキーをペースト
-
 ### 5. コード内のキーを更新
 
 #### `app.js` の匿名キーを更新（7-9行目）
@@ -161,9 +153,9 @@ node prescrap.js
 - `SUPABASE_SERVICE_KEY` が設定されている場合：ローカル保存 + Supabase アップロード
 - 設定されていない場合：ローカル保存のみ
 
-### GitHub Actions での自動スクレイピング
+### 週次の自動スクレイピング
 
-`.github/workflows/scrape.yml` に `SUPABASE_SERVICE_KEY` シークレットが設定されていれば、GitHub Actions実行時に自動的にSupabaseへアップロードされます。
+Windows タスクスケジューラ（`KyowaMenuWeeklyPrepare`）が `npm run weekly:prepare` を実行し、ローカル保存と Supabase アップロードを行います（[WINDOWS11_MIGRATION.md](WINDOWS11_MIGRATION.md)）。
 
 ## 🔐 セキュリティのベストプラクティス
 
