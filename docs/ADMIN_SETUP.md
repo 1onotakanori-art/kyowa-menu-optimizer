@@ -35,7 +35,7 @@ Supabase への保存に失敗した場合は「ローカル保存成功、Supab
 
 ## アクセス制限
 
-`meal_history` の参照・追加・更新は、DB の RLS で管理者（`app_metadata.role = 'admin'`）だけに許可しています。削除は service_role だけです。
+マイグレーション適用後は、`meal_history` の参照・追加・更新を DB の RLS で管理者（`app_metadata.role = 'admin'`）だけに許可します。削除は service_role だけです。
 ポリシーは [supabase/migrations/20261019120000_tighten_ai_selections_meal_history_rls.sql](../supabase/migrations/20261019120000_tighten_ai_selections_meal_history_rls.sql)、経緯と適用手順は [RLS_REVIEW.md](RLS_REVIEW.md) にあります。
 
 ## 記録したあと

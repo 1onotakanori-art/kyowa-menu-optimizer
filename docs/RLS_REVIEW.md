@@ -23,8 +23,8 @@
 
 ### SQL ファイルとのずれ
 
-- `ai_selections`: `docs/AI_SELECTIONS_TABLE.sql` と一致。
-- `meal_history`: `docs/MEAL_HISTORY_TABLE.sql` とは別物。
+- `ai_selections`: `supabase/schema/ai_selections.sql` と一致。
+- `meal_history`: `supabase/schema/meal_history.sql` とは別物。
   - ポリシーが `FOR ALL` 1 本ではなく SELECT / INSERT / UPDATE の 3 本 + service_role 用。anon の DELETE は RLS で通らない（UPDATE で中身は消せる）。
   - `id` は BIGSERIAL ではなく `uuid default gen_random_uuid()`。`user_name`・`day_of_week`・`timestamp` は NULL 可。
   - 更新時刻トリガーの関数は `update_meal_history_updated_at` ではなく `update_updated_at`。
@@ -44,7 +44,7 @@
 | `admin.js` | meal_history | select | anon |
 
 ML の Python は共通の `SupabaseDataLoader` を使っているので、キーの切り替えはこの 1 か所で済む。
-`prescrap.js` / `upload-to-supabase.js`（menus テーブル）はすでに `SUPABASE_SERVICE_KEY` を使っている。
+`scripts/prescrap.js` / `scripts/upload-to-supabase.js`（menus テーブル）はすでに `SUPABASE_SERVICE_KEY` を使っている。
 
 ## 3. 新しいポリシー
 
@@ -97,12 +97,12 @@ ML の Python は共通の `SupabaseDataLoader` を使っているので、キ�
 
 ### 戻し方
 
-マイグレーションの前の状態に戻すなら、`docs/AI_SELECTIONS_TABLE.sql` / 本書 1 章の表にあるポリシーを作り直し、
+マイグレーションの前の状態に戻すなら、`supabase/schema/ai_selections.sql` / 本書 1 章の表にあるポリシーを作り直し、
 `grant all on public.ai_selections, public.meal_history to anon, authenticated;` を実行する。
 
 ## 5. 今回のスコープ外（気づいたこと）
 
-- `docs/AI_SELECTIONS_TABLE.sql` / `docs/MEAL_HISTORY_TABLE.sql` はテーブル定義の元として本番とずれている。
+- `supabase/schema/ai_selections.sql` / `supabase/schema/meal_history.sql` はテーブル定義の元として本番とずれている。
   Vercel 移行の際にベースラインのマイグレーションとして取り込み直すとよい。
 - Auth の「漏えいパスワード保護」が無効（Security Advisor の WARN）。パスワードを使っていないので影響は小さい。
 - `admin.js` は anon キーを直書きしている。anon キーは公開前提なので問題ではないが、Vercel 移行時に環境変数へまとめるとよい。

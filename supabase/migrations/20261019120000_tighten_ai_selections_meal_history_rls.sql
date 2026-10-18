@@ -45,7 +45,7 @@ grant select on public.ai_selections to anon, authenticated;
 
 -- ---------------------------------------------------------------------------
 -- meal_history
---   本番 DB のポリシー名は docs/MEAL_HISTORY_TABLE.sql と異なっていたため、両方の名前を消す
+--   本番 DB のポリシー名は supabase/schema/meal_history.sql と異なっていたため、両方の名前を消す
 -- ---------------------------------------------------------------------------
 drop policy if exists "Allow anonymous insert/update" on public.meal_history;
 drop policy if exists "Allow anonymous read access" on public.meal_history;
