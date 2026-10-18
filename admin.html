@@ -332,11 +332,29 @@
   </style>
 </head>
 <body>
+  <!-- ログイン画面（Supabase Auth。管理者だけが meal_history を読み書きできる） -->
+  <div id="login-screen" class="app-container hidden">
+    <div class="admin-header">
+      <h1 style="font-size: 20px; margin: 0;">🍽️ 食事記録管理</h1>
+    </div>
+    <div class="admin-content">
+      <div class="section-card">
+        <div class="section-title">🔐 ログイン</div>
+        <form id="login-form" class="date-selector">
+          <input type="email" id="login-email" class="form-input" placeholder="管理者のメールアドレス" autocomplete="email" required>
+          <button type="submit" id="login-button" class="load-button">ログインリンクを送る</button>
+        </form>
+        <div id="login-status" class="hidden"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- メイン画面 -->
-  <div id="main-screen" class="app-container">
+  <div id="main-screen" class="app-container hidden">
     <!-- ヘッダー -->
     <div class="admin-header">
       <h1 style="font-size: 20px; margin: 0;">🍽️ 食事記録管理</h1>
+      <button id="logout-button" class="load-button" type="button">ログアウト</button>
     </div>
 
     <div class="admin-content">

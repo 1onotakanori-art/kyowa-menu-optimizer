@@ -7,6 +7,10 @@ Supabaseデータローダー - 学習データを直接Supabaseから取得
 - 機械学習モデルの学習に必要な形式に変換
 - ローカルファイルなしで直接DBから読み取り
 
+環境変数 SUPABASE_SERVICE_KEY（service_role キー）が必要。
+meal_history の参照と ai_selections への書き込みは service_role にだけ許可している
+（supabase/migrations/20261019120000_tighten_ai_selections_meal_history_rls.sql）。
+
 使用例:
     from supabase_data_loader import SupabaseDataLoader
     
@@ -29,14 +33,17 @@ except ImportError:
 class SupabaseDataLoader:
     """Supabaseから学習データを取得するクラス"""
     
-    # Supabase接続情報（GitHub Pages と同じ設定）
     SUPABASE_URL = "https://zzleqjendqkoizbdvblw.supabase.co"
-    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6bGVxamVuZHFrb2l6YmR2Ymx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjA0ODYsImV4cCI6MjA5MDAzNjQ4Nn0.OwuE6oJYLuA9nzEm-lAKq6BNc-J9RWv1ylZ9cH34vY8"
     
     def __init__(self):
         """Supabaseクライアントを初期化"""
+        service_key = os.environ.get("SUPABASE_SERVICE_KEY")
+        if not service_key:
+            print("❌ SUPABASE_SERVICE_KEY が設定されていません")
+            print("   PowerShell: $env:SUPABASE_SERVICE_KEY = \"<service_role キー>\"")
+            raise RuntimeError("SUPABASE_SERVICE_KEY が設定されていません")
         try:
-            self.client: Client = create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
+            self.client: Client = create_client(self.SUPABASE_URL, service_key)
             print("✅ Supabaseクライアント初期化完了")
         except Exception as e:
             print(f"❌ Supabase接続エラー: {e}")
