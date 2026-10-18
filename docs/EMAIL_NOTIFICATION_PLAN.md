@@ -1,6 +1,6 @@
 # 📧 ユーザー登録 & 朝のメニュー通知メール — 実装計画
 
-> ステータス: **実装中** — Phase 0（Gmail SMTP 設定）・Phase 1（DB）・Phase 2（判定ロジック）・Phase 3（設定画面）完了
+> ステータス: **実装中** — Phase 0（Gmail SMTP 設定）・Phase 1（DB）・Phase 2（判定ロジック）・Phase 3（設定画面）完了。Phase 4（送信処理）・Phase 5（定時実行）完了。2026-10-18 に本人宛ての実送信を確認し、毎朝 7:00 JST の cron を有効化
 > 目的: ユーザーが登録した条件（特定メニュー / 特定ワード / 栄養・アレルゲン条件）に当日のメニューが該当した場合、その日の朝にメールで知らせる。
 
 ---
@@ -27,7 +27,7 @@
 | 条件・送信履歴の保存 | **Supabase Postgres + RLS** | 既存DBをそのまま使える。`auth.uid()` でユーザーごとにデータを分離できる |
 | 判定と送信処理 | **Supabase Edge Function（Deno / TypeScript）** | service_role キーをブラウザに出さずに全ユーザー分を処理できる |
 | 朝の定時実行 | **pg_cron + pg_net**（Edge Function を呼ぶ） | 時刻の精度が高い。GitHub Actions の cron は数十分遅れたりスキップされたりすることがある |
-| メール送信 | **Gmail SMTP**（専用アカウント `kyowa.menu.notify@gmail.com` + アプリパスワード、ポート465） | 独自ドメイン不要・費用0円。1日約500通まで。Auth のログインメールも同じ SMTP で送る |
+| メール送信 | **Gmail SMTP**（専用アカウント `kyowa.menu.shokudo@gmail.com` + アプリパスワード、ポート465） | 独自ドメイン不要・費用0円。1日約500通まで。Auth のログインメールも同じ SMTP で送る |
 | 設定UI | 既存と同じく素の HTML/JS（新ページ `notify.html`） | ビルド工程なし。今のコードベースに合わせる |
 | テスト | `node:test`（Node 標準） | 依存を増やさずに判定ロジックの単体テストが書ける |
 
@@ -159,12 +159,12 @@ UI には3種類のテンプレートを出しますが、内部ではすべて�
 
 | Phase | 内容 | 成果物 |
 |---|---|---|
-| 0. 準備 ✅ | 通知専用 Gmail アカウント作成・アプリパスワード発行、Supabase Auth の SMTP を Gmail に切り替え（送信テスト済み） | — |
+| 0. 準備 ✅ | 通知専用 Gmail アカウント（`kyowa.menu.shokudo@gmail.com`。最初のアカウントは作成当日に Google に無効化された）・アプリパスワード発行、Supabase Auth の SMTP を Gmail に切り替え | — |
 | 1. DB ✅ | 上記3テーブル、RLS、profiles 自動作成の trigger（本番適用・RLS 検証済み） | `supabase/migrations/20261007120000_create_notification_tables.sql` |
 | 2. 判定ロジック ✅ | `matchRules.js`（正規化を含む）と単体テスト（`npm test`）。実データ `menus/*.json` を使ったテストを含む | `supabase/functions/_shared/matchRules.js`, `tests/notify/` |
 | 3. 認証とUI ✅ | `notify.html`: マジックリンクでのログイン、通知設定、ルールの一覧・作成・編集・削除、直近メニューでの該当プレビュー | `notify.html`, `notify/notify.js`, `notify/ruleForm.js` |
-| 4. 送信 | Edge Function `send-daily-digest`（`?dry_run=1` と `?date=` で過去日の再現に対応）、メールテンプレート、配信停止用 Function | `supabase/functions/*` |
-| 5. スケジュール・運用 | pg_cron の登録、失敗時に管理者へ通知、`notification_deliveries` による監視 | migration, ドキュメント |
+| 4. 送信 ✅ | Edge Function `send-daily-digest`（POST JSON の `dry_run` / `date` / `only_email` に対応）、メール本文（`_shared/digestEmail.js`）、配信停止（Edge Function `unsubscribe` + `unsubscribe.html`） | `supabase/functions/*`, `unsubscribe.html` |
+| 5. スケジュール・運用 ✅ | pg_cron で毎日 22:00 UTC（7:00 JST）に実行。合言葉は Vault の `notify_cron_secret`、照合は `verify_notify_cron_secret()` | `supabase/migrations/20261017120000_*.sql`, `20261018120000_*.sql` |
 | 6. 段階リリース | まず自分だけに dry-run → 自分宛てに本送信 → 他ユーザーへ公開 | — |
 
 各フェーズは独立してレビューできる大きさに分け、1フェーズを1PRにする想定です。
@@ -196,6 +196,6 @@ UI には3種類のテンプレートを出しますが、内部ではすべて�
 ## 9. 着手前に決めたいこと
 
 1. **利用者の範囲**: 自分だけ / 社内の同僚 / 一般公開 → 登録制限（メールドメインの許可リストなど）の要否が変わる
-2. ~~**送信ドメイン**~~: Gmail（`kyowa.menu.notify@gmail.com`）で決定
+2. ~~**送信ドメイン**~~: Gmail（`kyowa.menu.shokudo@gmail.com`）で決定
 3. **送信時刻**: 07:00 JST でよいか（ユーザーごとに時刻を選べるようにするか）
 4. **ヒットがない日**: 送らない（推奨）か、「該当なし」を送るか
