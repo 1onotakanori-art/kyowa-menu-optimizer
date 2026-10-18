@@ -222,4 +222,33 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 - 通知メール本文（HTML メール）の見た目の変更。メールでは React のアイコンが使えないため
 - ML パイプラインと週次処理の変更（フェーズ0のモデル保存先の修正を除く）
 - Supabase のテーブル構成の変更
-- `ai_selections` と `meal_history` の RLS の見直し。今は anon キーで誰でも書き込める設定（`FOR ALL USING (true)`）になっている。移行とは別に対応する
+- `ai_selections` と `meal_history` の RLS の見直し。今は anon キーで誰でも書き込める設定（`FOR ALL USING (true)`）になっている。移行とは別に対応する（[PR #12](https://github.com/1onotakanori-art/kyowa-menu-optimizer/pull/12)。10章）
+
+---
+
+## 10. マージの進め方
+
+並行して進んでいる PR と、このあとのフェーズの PR を、次の順で main に入れる。
+
+| 順 | PR | 前提・やること |
+|---|---|---|
+| 1 | **フェーズ0（リポジトリ整理・モデル保存先の修正）** | DB に関係なく、単独でマージできる。先に入れて、ほかの PR はこの上に載せ直す |
+| 2 | **[PR #12](https://github.com/1onotakanori-art/kyowa-menu-optimizer/pull/12)（RLS の見直し）** | フェーズ0のマージ後に main へ rebase する（`docs/*.sql` の移動と `docs/ADMIN_SETUP.md` の書き直しが重なる）。本番への反映は下の順で行う |
+| 3 | **フェーズ1〜** | PR #12 のマージ後に main から切る。フェーズ4で `admin` を作り直すときは、PR #12 で入るメールリンクのログインと管理者の判定を引き継ぐ |
+
+### PR #12 を本番に反映する順番
+
+PR #12 のコードは、管理者の権限（`app_metadata.role = 'admin'`）がないアカウントには管理画面を表示しない。そのため、**権限の付与をコードのマージより先に**行う。
+
+1. Supabase の Redirect URLs に `admin.html` の URL が含まれているか確認する
+2. 管理者にするアカウントに `role = 'admin'` を付ける（`docs/RLS_REVIEW.md` の SQL）。今のポリシーのままでも害はない
+3. PR #12 をマージし、`admin.html` でログインして記録の読み込みと保存ができることを確認する
+4. 週次処理を動かす PC に `SUPABASE_SERVICE_KEY` があることを確認する（スクレイピングですでに必要なので、設定済みのはず）
+5. マイグレーションを適用し、`docs/RLS_REVIEW.md` の確認項目を一通り見る
+
+### 週次処理との関係
+
+- 週次処理（毎週日曜 6:00 / 8:00）は main のチェックアウトで動く。`npm run menus:push` が `git pull --rebase --autostash` を行うので、マージした内容は次の週次処理の途中から自動で反映される
+- フェーズ0で npm のスクリプトの中身（実行するファイルの場所）は変わるが、スクリプト名は変えていないので、タスクスケジューラの設定はそのままでよい
+- マージは週次処理と重ならない時間（日曜の朝を避ける）に行う
+
