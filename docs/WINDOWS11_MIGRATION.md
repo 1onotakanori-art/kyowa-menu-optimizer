@@ -146,13 +146,13 @@ schtasks /Run /TN KyowaMenuScrapeWeekly
   - macOS/Linux: `.venv/bin/python3`（または `.venv/bin/python`）
 - そのため、既存の `npm run ml:*` / `npm run weekly` は OS を問わず同一コマンドで運用可能
 
-## Copilot 向け指示（Win11 clone 側）
+## AI アシスタント向け指示（Win11 clone 側）
 
-Windows 側で GitHub Copilot に作業継続させるときは、最初に以下を渡してください。
+Windows 側で AI アシスタントに作業を続けさせるときは、最初に以下を渡してください。
 
 ```text
 このリポジトリは docs/WINDOWS11_MIGRATION.md の手順で Win11 移行済みです。
-まず docs/WINDOWS11_MIGRATION.md と .github/copilot-instructions.md を読んで、
+まず docs/WINDOWS11_MIGRATION.md と CLAUDE.md を読んで、
 現状の運用（npm run weekly + Task Scheduler）を崩さない範囲でセットアップ確認を進めてください。
 ```
 

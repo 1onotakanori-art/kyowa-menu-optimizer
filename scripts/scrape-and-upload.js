@@ -8,11 +8,11 @@
  * - 更新されたデータのみを Git にコミット・プッシュ
  * 
  * 実行方法:
- *   node scrape-and-upload.js [日数]
+ *   node scripts/scrape-and-upload.js [日数]
  * 
  * 例:
- *   node scrape-and-upload.js      # デフォルト5日分
- *   node scrape-and-upload.js 10   # 10日分
+ *   node scripts/scrape-and-upload.js      # デフォルト5日分
+ *   node scripts/scrape-and-upload.js 10   # 10日分
  * 
  * 前提条件:
  *   - kyowa-menu-history リポジトリへのアクセス権限（SSH key設定済み）
@@ -26,14 +26,14 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { fetchMenus } = require('./src/scraper/fetchMenus');
-const { toDateLabel, getNearestWeekday } = require('./src/utils/date');
+const { fetchMenus } = require('../src/scraper/fetchMenus');
+const { toDateLabel, getNearestWeekday } = require('../src/utils/date');
 
 // kyowa-menu-history リポジトリのパス（並列リポジトリ）
-const HISTORY_REPO_DIR = path.join(__dirname, '..', 'kyowa-menu-history');
+const HISTORY_REPO_DIR = path.join(__dirname, '..', '..', 'kyowa-menu-history');
 
 // 出力ディレクトリ
-const OUTPUT_DIR = path.join(__dirname, 'menus');
+const OUTPUT_DIR = path.join(__dirname, '..', 'menus');
 
 /**
  * ディレクトリが存在しない場合は作成

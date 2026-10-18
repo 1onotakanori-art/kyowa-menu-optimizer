@@ -13,7 +13,7 @@ pending_sets.md を Claude Desktop が解説し、output/set_commentary.json に
   ]
 
 更新先: ai_selections.set_comment（再生成しても消えない専用カラム）
-        ※ 事前に docs/AI_SELECTIONS_TABLE.sql の ALTER 文を実行しておくこと。
+        ※ 事前に supabase/schema/ai_selections.sql の ALTER 文を実行しておくこと。
 
 使い方:
     python ml/import_set_commentary.py
@@ -169,7 +169,7 @@ def main():
             if "set_comment" in msg and "column" in msg.lower():
                 print(
                     "     → ai_selections に set_comment カラムが無い可能性があります。\n"
-                    "       docs/AI_SELECTIONS_TABLE.sql の ALTER 文を実行してください:\n"
+                    "       supabase/schema/ai_selections.sql の ALTER 文を実行してください:\n"
                     "       ALTER TABLE ai_selections ADD COLUMN IF NOT EXISTS set_comment TEXT;"
                 )
             errors += 1

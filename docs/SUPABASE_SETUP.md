@@ -26,7 +26,7 @@ Supabase連携により、以下が可能になります：
 
 ### 2. データベーステーブルの作成
 
-Supabase ダッシュボードの **SQL Editor** で以下のSQLを実行：
+Supabase ダッシュボードの **SQL Editor** で以下のSQLを実行します。`ai_selections`・`meal_history`・`project_keepalive` の定義は [supabase/schema/](../supabase/schema/) に、通知機能のテーブルは [supabase/migrations/](../supabase/migrations/) にあります。
 
 ```sql
 -- メニューテーブルの作成
@@ -93,7 +93,8 @@ const _supabaseClient = window.supabase.createClient(
 
 #### 確認：以下のファイルにはProject URLがハードコードされています
 
-- `prescrap.js` (19行目)
+- `scripts/prescrap.js`（19行目）
+- `scripts/upload-to-supabase.js`（18行目）
 
 必要に応じて、あなたのSupabase Project URLに変更してください。
 
@@ -105,11 +106,10 @@ npm install
 
 ### 7. 初期データのアップロード
 
-`prescrap.js` を実行すると、スクレイピングと同時に Supabase へのアップロードも行われます：
+`npm run scrape`（`scripts/prescrap.js`）を実行すると、スクレイピングと同時に Supabase へのアップロードも行われます：
 
 ```bash
 npm run scrape
-```
 ```
 
 ## ✅ 動作確認
@@ -142,12 +142,6 @@ console.log('エラー:', error);
 ```bash
 # 環境変数が設定されていれば自動的にSupabaseにアップロード
 npm run scrape
-```
-
-または
-
-```bash
-node prescrap.js
 ```
 
 - `SUPABASE_SERVICE_KEY` が設定されている場合：ローカル保存 + Supabase アップロード

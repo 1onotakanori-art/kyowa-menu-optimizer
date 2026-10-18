@@ -5,11 +5,11 @@
   "main": "scrape.js",
   "scripts": {
     "test": "node --test \"tests/**/*.test.mjs\"",
-    "scrape": "node prescrap.js",
-    "scrape:10": "node prescrap.js 10",
-    "scrape:20": "node prescrap.js 20",
-    "scrape:upload": "node scrape-and-upload.js",
-    "upload": "node upload-to-supabase.js",
+    "scrape": "node scripts/prescrap.js",
+    "scrape:10": "node scripts/prescrap.js 10",
+    "scrape:20": "node scripts/prescrap.js 20",
+    "scrape:upload": "node scripts/scrape-and-upload.js",
+    "upload": "node scripts/upload-to-supabase.js",
     "menus:push": "node scripts/push-menus.js",
     "py": "node scripts/run-python.js",
     "ml:dry-run": "npm run py -- ml/update_weekly.py --dry-run",
@@ -35,8 +35,6 @@
   "type": "commonjs",
   "dependencies": {
     "@supabase/supabase-js": "^2.100.1",
-    "express": "^4.18.2",
-    "node-cron": "^3.0.2",
     "playwright": "^1.57.0"
   }
 }
