@@ -10,7 +10,7 @@ AI推薦メニューを全日付分生成し、Supabaseに保存する
 5. GitHub Pages → Supabaseから直接読み取り表示
 
 事前準備:
-- Supaaseの ai_selections テーブルを作成（docs/AI_SELECTIONS_TABLE.sql）
+- Supaaseの ai_selections テーブルを作成（supabase/schema/ai_selections.sql）
 - モデルを学習: python ml/menu_recommender.py
 
 使用手順:

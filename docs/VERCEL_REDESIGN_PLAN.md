@@ -1,6 +1,6 @@
 # Vercel 移行 & 画面リデザイン — 実装計画
 
-> ステータス: **方針決定済み・未着手**（2026-10-18 に技術スタック・ドメイン・ダッシュボード・デザインの方向性を決定）。フェーズ0（リポジトリ整理）から進める
+> ステータス: **フェーズ0完了**（2026-10-18 に方針を決定し、リポジトリ整理とモデル保存先の修正を実施）。次はフェーズ1（土台づくり）
 > 目的: ホスティングを GitHub Pages から Vercel に移す。あわせて画面を洗練されたデザインに作り直し、絵文字をやめて Lucide のアイコンに置き換える。散らかったリポジトリも整理する。
 
 ---
@@ -147,7 +147,8 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | `docs/*.sql`（`AI_SELECTIONS_TABLE.sql` など3つ） | `supabase/schema/` へ移動 | Supabase のテーブル定義を1か所にまとめる |
 | `package.json` の `express`、`node-cron` | 依存から削除 | `express` はどこからも使われていない。`node-cron` は `scheduler.js` だけが使っていた |
 | ルートの `model/` | `ml/model/` に一本化（下記の不具合を直す） | 同じモデルファイルが2か所にある |
-| `README.md`、`docs/QUICK_START.md`、`docs/ADMIN_SETUP.md`、`docs/AI_QUICK_START.md` | 現状に合わせて更新 | 移動・削除したファイルや GitHub トークンなど古い記載が残っている |
+| `README.md`、`docs/ADMIN_SETUP.md`、`docs/AI_QUICK_START.md`、`docs/SUPABASE_SETUP.md`、`docs/WINDOWS11_MIGRATION.md` | 現状に合わせて更新 | 移動・削除したファイルや GitHub トークンなど古い記載が残っている |
+| `docs/QUICK_START.md` | 削除（README に統合） | スクレイピングの手順だけで、README と重複していた |
 
 #### 整理中に見つけた不具合: 再学習したモデルが使われていない
 
@@ -172,7 +173,7 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 
 | フェーズ | 内容 | 完了の目安 |
 |---|---|---|
-| **0. リポジトリ整理** | 6章の「フェーズ0で行うこと」。モデル保存先の不具合も直す | ルートが6章の形に近づき、`npm test` と週次処理のスクリプト（`npm run ml:dry-run`）が通る |
+| **0. リポジトリ整理**（完了） | 6章の「フェーズ0で行うこと」。モデル保存先の不具合も直す | ルートが6章の形に近づき、`npm test` と週次処理のスクリプト（`npm run ml:dry-run`）が通る |
 | **1. 土台づくり** | `web/` に Vite + React + TS の雛形、Tailwind、デザイントークン（ライト/ダーク）、テーマ切り替え。共通のレイアウト（ヘッダー、モバイルの下部タブバー）。`vercel.json` を追加 | Vercel のプレビューデプロイで、ライト/ダークを切り替えられる空のページが表示される |
 | **2. ロジックの切り出し** | `app.js` の最適化（貪欲法、距離スコア）、栄養の集計、日付変換を純粋な TS モジュールに分ける。`src/optimizer/optimizeMenus.js` との違いを確認して1つにまとめる。`notify/ruleForm.js` は `web/` へ移し、テストの import 先を直す | 切り出したモジュールに単体テストがあり、既存テストも通る |
 | **3. メイン画面の作り直し** | 設定・メニュー・結果・AI の4タブ | 今の画面でできる操作がすべて新しい画面でできる |

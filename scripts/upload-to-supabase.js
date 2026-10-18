@@ -3,9 +3,9 @@
  * ローカルメニューデータを Supabase へアップロード
  *
  * 使用方法:
- *   node upload-to-supabase.js              # menus/ 内の全ファイルをアップロード
- *   node upload-to-supabase.js 2026-04-14   # 指定日のみ
- *   node upload-to-supabase.js 2026-04-13 2026-04-14  # 複数日指定
+ *   node scripts/upload-to-supabase.js              # menus/ 内の全ファイルをアップロード
+ *   node scripts/upload-to-supabase.js 2026-04-14   # 指定日のみ
+ *   node scripts/upload-to-supabase.js 2026-04-13 2026-04-14  # 複数日指定
  *
  * 前提条件:
  *   SUPABASE_SERVICE_KEY 環境変数が設定されていること
@@ -25,7 +25,7 @@ if (!SUPABASE_SERVICE_KEY) {
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-const MENUS_DIR = path.join(__dirname, 'menus');
+const MENUS_DIR = path.join(__dirname, '..', 'menus');
 const UPLOAD_RETRIES = 3;
 const UPLOAD_RETRY_DELAY_MS = 5000;
 

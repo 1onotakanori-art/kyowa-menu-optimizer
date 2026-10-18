@@ -6,13 +6,13 @@
  * menus/ ディレクトリに出力
  * 
  * 実行方法:
- *   node prescrap_v2.js          # デフォルト: 5日分
- *   node prescrap_v2.js 3        # 3日分
+ *   node scripts/prescrap.js          # デフォルト: 5日分
+ *   node scripts/prescrap.js 3        # 3日分
  */
 
 const fs = require('fs');
 const path = require('path');
-const { fetchMenus, getAvailableSiteDates } = require('./src/scraper/fetchMenus');
+const { fetchMenus, getAvailableSiteDates } = require('../src/scraper/fetchMenus');
 const { createClient } = require('@supabase/supabase-js');
 
 // Supabase クライアント（SERVICE_KEY があればアップロード、なければローカル保存のみ）
@@ -21,7 +21,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const supabase = SUPABASE_SERVICE_KEY ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY) : null;
 
 // 出力ディレクトリ
-const OUTPUT_DIR = path.join(__dirname, 'menus');
+const OUTPUT_DIR = path.join(__dirname, '..', 'menus');
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
