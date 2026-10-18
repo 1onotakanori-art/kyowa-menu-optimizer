@@ -1,4 +1,6 @@
 -- AI推薦メニューテーブルの作成
+-- 注意: RLS ポリシーは supabase/migrations/20261019120000_tighten_ai_selections_meal_history_rls.sql で
+--       置き換え済み（書き込みは service_role のみ）。下の anon 書き込みポリシーは作らないこと。
 -- Supabaseダッシュボードの SQL Editor で実行してください
 
 CREATE TABLE IF NOT EXISTS ai_selections (

@@ -581,8 +581,75 @@ class AdminApp {
   }
 }
 
+/**
+ * ログイン（Supabase Auth のメールリンク）
+ *
+ * meal_history は app_metadata.role = 'admin' のユーザーだけが読み書きできる
+ * （supabase/migrations/20261019120000_tighten_ai_selections_meal_history_rls.sql）。
+ */
+let adminApp = null;
+
+function isAdminSession(session) {
+  return session?.user?.app_metadata?.role === 'admin';
+}
+
+function showLoginStatus(message, type) {
+  const statusEl = document.getElementById('login-status');
+  statusEl.className = `status-message status-${type}`;
+  statusEl.textContent = message;
+  statusEl.classList.remove('hidden');
+}
+
+async function handleLogin(event) {
+  event.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) return;
+
+  const button = document.getElementById('login-button');
+  button.disabled = true;
+  try {
+    const { error } = await _adminSupabaseClient.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: location.origin + location.pathname,
+        // 管理画面からはアカウントを作らない
+        shouldCreateUser: false,
+      },
+    });
+    if (error) throw error;
+    showLoginStatus(`${email} にログイン用のメールを送りました。メール内のリンクを開いてください。`, 'info');
+  } catch (error) {
+    showLoginStatus(`メールを送信できませんでした: ${error.message}`, 'error');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function onSessionChanged(session) {
+  const isAdmin = isAdminSession(session);
+  document.getElementById('login-screen').classList.toggle('hidden', isAdmin);
+  document.getElementById('main-screen').classList.toggle('hidden', !isAdmin);
+
+  if (session && !isAdmin) {
+    showLoginStatus('このアカウントには管理者の権限がありません。', 'error');
+  }
+  if (isAdmin && !adminApp) {
+    adminApp = new AdminApp();
+  }
+}
+
 // アプリ初期化
 document.addEventListener('DOMContentLoaded', () => {
   console.log('管理者ページ初期化...');
-  new AdminApp();
+  document.getElementById('login-form').addEventListener('submit', handleLogin);
+  document.getElementById('logout-button').addEventListener('click', async () => {
+    await _adminSupabaseClient.auth.signOut();
+    location.reload();
+  });
+
+  // INITIAL_SESSION を含め、ログイン状態の変化はすべてここで受ける
+  _adminSupabaseClient.auth.onAuthStateChange((_event, session) => {
+    // コールバック内で Supabase を await するとデッドロックするため、処理を後回しにする
+    setTimeout(() => onSessionChanged(session), 0);
+  });
 });

@@ -1,4 +1,6 @@
 -- 食事履歴テーブルの作成
+-- 注意: RLS ポリシーは supabase/migrations/20261019120000_tighten_ai_selections_meal_history_rls.sql で
+--       置き換え済み（参照・書き込みとも管理者のみ）。下の anon 書き込みポリシーは作らないこと。
 -- Supabaseダッシュボードの SQL Editor で実行してください
 
 CREATE TABLE IF NOT EXISTS meal_history (

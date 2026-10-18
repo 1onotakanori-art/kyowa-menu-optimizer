@@ -4,6 +4,17 @@
 
 URL: https://1onotakanori-art.github.io/kyowa-menu-optimizer/admin.html
 
+## ログイン
+
+Supabase Auth のメールリンクでログインします（パスワードはありません）。
+
+1. 管理者のメールアドレスを入力して「ログインリンクを送る」を押す
+2. 届いたメールのリンクを開くと、記録の画面が表示される
+
+- `app_metadata.role = 'admin'` のユーザーだけが記録の画面を使えます。それ以外のアカウントでは「管理者の権限がありません」と表示されます
+- 管理画面からはアカウントを作りません（既存のユーザーだけがログインできます）
+- 管理者の指定方法と、Redirect URLs の設定: [RLS_REVIEW.md](RLS_REVIEW.md) の 4 章
+
 ## 使い方
 
 1. 日付を選ぶ（初期値は今日）
@@ -22,9 +33,10 @@ URL: https://1onotakanori-art.github.io/kyowa-menu-optimizer/admin.html
 
 Supabase への保存に失敗した場合は「ローカル保存成功、Supabase保存失敗」と表示されます。localStorage には残っているので、通信が戻ってから保存し直してください。
 
-## 注意: アクセス制限がない
+## アクセス制限
 
-今の管理画面にはログインがなく、URL を知っていれば誰でも開けます。`meal_history` も anon キーで書き込める設定です。見直しは [VERCEL_REDESIGN_PLAN.md](VERCEL_REDESIGN_PLAN.md) の「スコープ外」に挙げた RLS の見直しで扱います。
+マイグレーション適用後は、`meal_history` の参照・追加・更新を DB の RLS で管理者（`app_metadata.role = 'admin'`）だけに許可します。削除は service_role だけです。
+ポリシーは [supabase/migrations/20261019120000_tighten_ai_selections_meal_history_rls.sql](../supabase/migrations/20261019120000_tighten_ai_selections_meal_history_rls.sql)、経緯と適用手順は [RLS_REVIEW.md](RLS_REVIEW.md) にあります。
 
 ## 記録したあと
 
