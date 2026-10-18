@@ -20,7 +20,11 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, roc_auc_score
 import warnings
+from pathlib import Path
 warnings.filterwarnings('ignore')
+
+# 学習済みモデルの置き場所（実行時のカレントディレクトリに関係なく ml/model/ に固定）
+MODEL_DIR = Path(__file__).resolve().parent / 'model'
 
 # Supabaseデータローダーをインポート
 try:
@@ -582,7 +586,7 @@ class MenuRecommender:
         results.sort(key=lambda x: -x['score'])
         return results
     
-    def save_model(self, path='model'):
+    def save_model(self, path=MODEL_DIR):
         """モデルを保存"""
         import pickle
         import os
@@ -613,7 +617,7 @@ class MenuRecommender:
         print(f"\n✅ モデルを保存しました: {path}/menu_recommender.pkl")
     
     @classmethod
-    def load_model(cls, path='model/menu_recommender.pkl'):
+    def load_model(cls, path=MODEL_DIR / 'menu_recommender.pkl'):
         """モデルを読み込み"""
         import pickle
 
