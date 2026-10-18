@@ -66,18 +66,17 @@ ML の Python は共通の `SupabaseDataLoader` を使っているので、キ�
 - `admin.html` / `admin.js`: Supabase Auth のメールリンクでログインする画面を追加。管理者でなければメイン画面を出さない。
   管理画面からはアカウントを作らない（`shouldCreateUser: false`）。
 
-どちらも、マイグレーション適用前にリリースしても動く（service_role はいまも全権限があり、ログインしても anon 用のポリシーは残っているため）。
+マイグレーション適用前にリリースしても、service_role はいまも全権限があり、anon 用のポリシーも残っているので ML 側は動く。
+ただし admin.js は `role = 'admin'` のないアカウントにはメイン画面を出さないので、**管理者の指定は PR のマージより前に済ませる**。
 
 ## 4. 適用手順（本番）
 
-順番が大事。コードを先に、マイグレーションを後に。
+順番が大事。権限の付与 → コード → マイグレーションの順。
+今のポリシーのままなら、権限を先に付けても害はない。
 
-1. この PR をマージし、GitHub Pages に admin のログインが出ることを確認する。
-2. ML を動かす PC で `SUPABASE_SERVICE_KEY` が設定されていることを確認する（`npm run weekly` ではすでに必要）。
-   `npm run ml:regen` などを 1 回動かし、ai_selections に保存できることを確かめる。
-3. Supabase の Authentication → URL Configuration の Redirect URLs に admin.html の URL が含まれているか確認する
+1. Supabase の Authentication → URL Configuration の Redirect URLs に admin.html の URL が含まれているか確認する
    （例: `https://1onotakanori-art.github.io/kyowa-menu-optimizer/**`）。含まれていないとメールのリンクがトップに飛ぶ。
-4. 管理者にするユーザーを指定する（SQL Editor）。
+2. 管理者にするユーザーを指定する（SQL Editor）。
 
    ```sql
    update auth.users
@@ -85,11 +84,14 @@ ML の Python は共通の `SupabaseDataLoader` を使っているので、キ�
     where email = '<管理者のメールアドレス>';
    ```
 
+3. この PR をマージし、GitHub Pages の admin.html にログインして、記録の読み込みと保存ができることを確認する。
+4. ML を動かす PC で `SUPABASE_SERVICE_KEY` が設定されていることを確認する（`npm run weekly` ではすでに必要）。
+   `npm run ml:regen` などを 1 回動かし、ai_selections に保存できることを確かめる。
 5. マイグレーションを適用する。
 6. 確認する。
    - トップページで AI 推薦が表示される（anon の SELECT）。
    - anon キーで ai_selections に upsert / delete すると失敗する。meal_history の select は 0 件になる。
-   - admin.html にログインし直して（`app_metadata` は新しいトークンから反映される）、記録の読み込みと保存ができる。
+   - admin.html で記録の読み込みと保存ができる（`app_metadata` は新しいトークンから反映されるので、手順 3 より前にログインしていたら入り直す）。
    - `npm run ml:regen` が ai_selections に保存できる。学習データを meal_history から読める。
    - Security Advisor を見直す。
 
