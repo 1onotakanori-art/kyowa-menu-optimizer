@@ -1,5 +1,7 @@
 # 📧 ユーザー登録 & 朝のメニュー通知メール — 実装計画
 
+> 2026-10 の Vercel 移行で、`notify.html` / `unsubscribe.html` などの画面は `web/`（`/notify`、`/unsubscribe`）に作り直した。この文書の画面まわりの記述は当時のもの（[VERCEL_REDESIGN_PLAN.md](VERCEL_REDESIGN_PLAN.md)）
+
 > ステータス: **実装中** — Phase 0（Gmail SMTP 設定）・Phase 1（DB）・Phase 2（判定ロジック）・Phase 3（設定画面）完了。Phase 4（送信処理）・Phase 5（定時実行）完了。2026-10-18 に本人宛ての実送信を確認し、毎朝 7:00 JST の cron を有効化
 > 目的: ユーザーが登録した条件（特定メニュー / 特定ワード / 栄養・アレルゲン条件）に当日のメニューが該当した場合、その日の朝にメールで知らせる。
 

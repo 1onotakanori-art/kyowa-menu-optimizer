@@ -14,7 +14,7 @@ AI推薦メニューを全日付分生成し、Supabaseに保存する
 - モデルを学習: python ml/menu_recommender.py
 
 使用手順:
-1. 学習データをSupabaseに追加（admin.htmlで食事記録を保存）
+1. 学習データをSupabaseに追加（管理画面 /admin で食事記録を保存）
 2. モデルを学習: python ml/menu_recommender.py
 3. AI推薦を生成・Supabaseに保存: python ml/generate_ai_selections.py
 """
@@ -695,7 +695,7 @@ def main():
         print("✗ モデルが見つかりません。先に学習を実行してください。")
         print("  実行コマンド: python ml/menu_recommender.py")
         print("\n  学習データはSupabaseから自動取得されます。")
-        print("  事前にadmin.htmlで食事記録を保存してください。")
+        print("  事前に管理画面（/admin）で食事記録を保存してください。")
         return
 
     # Claude解析キャッシュ（役割分類に使用）

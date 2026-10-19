@@ -27,7 +27,7 @@ npm run py -- ml/supabase_data_loader.py
 
 ## 手動で反映する手順
 
-1. **食事記録を保存する**: `admin.html` で食べたメニューを記録する（[ADMIN_SETUP.md](ADMIN_SETUP.md)）
+1. **食事記録を保存する**: 管理画面（`/admin`）で食べたメニューを記録する（[ADMIN_SETUP.md](ADMIN_SETUP.md)）
 2. **モデルを再学習する**:
    ```bash
    npm run ml:retrain
@@ -44,7 +44,7 @@ npm run py -- ml/supabase_data_loader.py
 ## データの流れ
 
 ```
-admin.html ──保存──> Supabase meal_history
+管理画面（/admin）──保存──> Supabase meal_history
                           │
                           ▼
               ml/menu_recommender.py（学習） ──> ml/model/menu_recommender.pkl
@@ -53,7 +53,7 @@ admin.html ──保存──> Supabase meal_history
               ml/generate_ai_selections.py（推奨の作成。メニューは menus/ から読む）
                           │
                           ▼
-                 Supabase ai_selections ──> AI タブ（app.js）
+                 Supabase ai_selections ──> AI タブ・ダッシュボード（web/）
 ```
 
 ## トラブルシューティング
@@ -61,7 +61,7 @@ admin.html ──保存──> Supabase meal_history
 | 症状 | 確認すること |
 |---|---|
 | 「supabase-py パッケージがインストールされていません」 | `pip install -r requirements.txt` を実行する |
-| 「Supabaseにデータがありません」 | `admin.html` で食事記録を保存したか、Supabase の `meal_history` に行があるか。最低3日分は必要 |
+| 「Supabaseにデータがありません」 | 管理画面（`/admin`）で食事記録を保存したか、Supabase の `meal_history` に行があるか。最低3日分は必要 |
 | 「モデルが見つかりません」 | `npm run ml:retrain` でモデルを作る |
 | 「メニューファイルが見つかりません」 | `menus/menus_YYYY-MM-DD.json` があるか。なければ `npm run scrape` |
 | AI タブに何も出ない | Supabase の `ai_selections` にその日付の行があるか。なければ `npm run ml:regen` |

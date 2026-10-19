@@ -82,14 +82,9 @@ source ~/.zshrc
 
 ### 5. コード内のキーを更新
 
-#### `app.js` の匿名キーを更新（7-9行目）
+#### フロントエンド（`web/`）の接続先
 
-```javascript
-const _supabaseClient = window.supabase.createClient(
-  'https://YOUR_PROJECT_URL.supabase.co',  // ← あなたのProject URL
-  'YOUR_ANON_KEY'  // ← あなたのanon public key
-);
-```
+`web/src/lib/supabase.ts` に Project URL と anon public key の初期値があります。別のプロジェクトにつなぐときは、Vercel の環境変数 `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` を設定してください（ローカルでは `web/.env.local` に書けます）。
 
 #### 確認：以下のファイルにはProject URLがハードコードされています
 
@@ -116,24 +111,13 @@ npm run scrape
 
 ### フロントエンドの確認
 
-1. ブラウザで `index.html` を開く（ローカル、またはGitHub Pages）
+1. `npm --prefix web run dev` で開発サーバーを起動し、http://localhost:5173 を開く（または本番の https://kyowa-menu-optimizer.vercel.app）
 2. 日付セレクターにメニュー日付が表示されることを確認
 3. 日付を選択してメニューが読み込まれることを確認
 
 ### デバッグ方法
 
-ブラウザの開発者ツール（F12）のコンソールで以下を実行：
-
-```javascript
-// Supabase接続テスト
-const { data, error } = await _supabaseClient
-  .from('menus')
-  .select('date')
-  .limit(5);
-
-console.log('データ:', data);
-console.log('エラー:', error);
-```
+ブラウザの開発者ツール（F12）の「ネットワーク」で、`/rest/v1/menus` へのリクエストの応答を確認します。画面にも、読み込めなかったときはエラーの内容が表示されます。
 
 ## 🔄 日常運用
 
@@ -156,7 +140,7 @@ Windows タスクスケジューラ（`KyowaMenuWeeklyPrepare`）が `npm run we
 ### ✅ 推奨
 
 - サービスロールキーは環境変数で管理
-- app.js の匿名キーは公開OK（読み取り専用ポリシー設定済み）
+- フロントエンドの匿名キーは公開前提（書き込みは RLS で管理者・本人・service_role だけに絞っている）
 
 ### ❌ 禁止
 
@@ -182,18 +166,10 @@ export SUPABASE_SERVICE_KEY="your-service-role-key"
 2. サービスロールキーが正しいか確認
 3. Supabase ダッシュボードの **Table Editor** でデータを確認
 
-### エラー: `window.supabase is not defined`
-
-`index.html` に Supabase CDN が追加されているか確認：
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-```
-
 ### フロントエンドでデータが読み込めない
 
 1. ブラウザのコンソールでエラーを確認
-2. `app.js` の Supabase URL と匿名キーが正しいか確認
+2. `web/src/lib/supabase.ts`（または Vercel の環境変数）の Supabase URL と匿名キーが正しいか確認
 3. Supabase ダッシュボードで RLS ポリシーが設定されているか確認
 
 ## 📚 関連ドキュメント

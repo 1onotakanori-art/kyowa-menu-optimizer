@@ -1,8 +1,8 @@
-# 食事記録の管理画面（admin.html）
+# 食事記録の管理画面（/admin）
 
 実際に食べたメニューを記録する画面です。記録は AI 推奨の学習データ（Supabase の `meal_history`）になります。
 
-URL: https://kyowa-menu-optimizer.vercel.app/admin（旧 URL の admin.html も移行期間中は使えます）
+URL: https://kyowa-menu-optimizer.vercel.app/admin（コードは `web/src/pages/admin.tsx`）
 
 ## ログイン
 
