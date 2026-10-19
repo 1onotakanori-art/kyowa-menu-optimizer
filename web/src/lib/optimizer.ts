@@ -187,3 +187,16 @@ export function fixedOnlyResult(menus: readonly Menu[], targets: Targets, fixedN
     targets,
   );
 }
+
+export type TargetStatus = 'good' | 'over' | 'under';
+
+/**
+ * 目標に対する状態。距離と同じ許容幅で判定する（許容幅の内側、または気にしない側にずれていれば good）。
+ * 例: エネルギー 650 なら 520〜715 が good。たんぱく質は多いぶんには good。
+ */
+export function targetStatus(key: TargetKey, target: number, actual: number): TargetStatus {
+  const rule = DISTANCE_RULES[key];
+  const diff = actual - target;
+  if (diff >= 0) return rule.ignoreOver || diff <= target * rule.overTol ? 'good' : 'over';
+  return rule.ignoreUnder || -diff <= target * rule.underTol ? 'good' : 'under';
+}

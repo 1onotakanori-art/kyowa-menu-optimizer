@@ -88,3 +88,15 @@ test('optimizeMenus: 実際のメニューで、上限・固定・除外を守�
     assert.ok(result.distance <= fixedOnlyResult(menus, targets, fixedNames).distance, file);
   }
 });
+
+test('targetStatus: 距離と同じ許容幅で、目標どおり・多い・少ないを決める', async () => {
+  const { targetStatus } = await import('../../web/src/lib/optimizer.ts');
+  assert.equal(targetStatus('エネルギー', 650, 715), 'good');
+  assert.equal(targetStatus('エネルギー', 650, 716), 'over');
+  assert.equal(targetStatus('エネルギー', 650, 520), 'good');
+  assert.equal(targetStatus('エネルギー', 650, 519), 'under');
+  assert.equal(targetStatus('たんぱく質', 30, 90), 'good');
+  assert.equal(targetStatus('たんぱく質', 30, 26), 'under');
+  assert.equal(targetStatus('脂質', 25, 0), 'good');
+  assert.equal(targetStatus('脂質', 25, 28), 'over');
+});
