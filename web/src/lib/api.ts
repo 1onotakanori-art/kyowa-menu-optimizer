@@ -39,3 +39,10 @@ export async function fetchAISelection(date: ISODate): Promise<AISelection | nul
   if (error) throw new Error(`AI 推奨を読み込めませんでした: ${error.message}`);
   return data ? mapAISelectionRow(data) : null;
 }
+
+/** ダッシュボード用: すべての日の AI 推奨（セットのメニューだけ） */
+export async function fetchAllAISelections(): Promise<AISelection[]> {
+  const { data, error } = await supabase.from('ai_selections').select('date, selected_menus').order('date', { ascending: true });
+  if (error) throw new Error(`AI 推奨を読み込めませんでした: ${error.message}`);
+  return (data ?? []).map(mapAISelectionRow);
+}
