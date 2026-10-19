@@ -13,7 +13,7 @@ import {
   describeConditions,
   evaluateRules,
 } from '../supabase/functions/_shared/matchRules.js';
-import { emptyForm, formToConditions, conditionsToForm } from './ruleForm.js';
+import { emptyForm, formToConditions, conditionsToForm } from '../web/src/lib/ruleForm.js';
 
 const SUPABASE_URL = 'https://zzleqjendqkoizbdvblw.supabase.co';
 const SUPABASE_ANON_KEY =
