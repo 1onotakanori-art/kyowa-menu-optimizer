@@ -6,7 +6,9 @@ import {
   describe as describeStats,
   filterByPeriod,
   histogram,
+  menuValues,
   pfcRatio,
+  setValues,
   summarize,
   topMenus,
 } from '../../web/src/lib/dashboard.ts';
@@ -43,9 +45,10 @@ test('dailyMeanScores / topMenus: 日ごとの平均、回数の多い順（同�
   assert.deepEqual(topMenus(days, 2), [{ name: 'カレー', count: 2 }, { name: 'サラダ', count: 2 }]);
 });
 
-test('pfcRatio: カロリー換算で、3つの合計が 100%', () => {
-  const r = pfcRatio([{ date: 'x', menus: [menu('a', 0, 0, 25, 0, 75)] }]);
-  assert.deepEqual(r, { protein: 25, fat: 0, carbs: 75 });
+test('pfcRatio: グラム数の割合で、3つの合計が 100%', () => {
+  // P 20g・F 20g・C 60g → 20% / 20% / 60%（カロリー換算ではない）
+  const r = pfcRatio([{ date: 'x', menus: [menu('a', 0, 0, 10, 15, 30), menu('b', 0, 0, 10, 5, 30)] }]);
+  assert.deepEqual(r, { protein: 20, fat: 20, carbs: 60 });
   const all = pfcRatio(days);
   assert.ok(Math.abs(all.protein + all.fat + all.carbs - 100) < 1e-9);
   assert.equal(pfcRatio([]), null);
@@ -60,4 +63,17 @@ test('histogram / describe: 空の階級も残す。統計は最小・平均・�
   assert.deepEqual(histogram([], 5), []);
   assert.deepEqual(describeStats([2, 4, 4, 4, 5, 5, 7, 9]), { min: 2, mean: 5, max: 9, std: 2 });
   assert.equal(describeStats([]), null);
+});
+
+test('setValues / menuValues: セットごとは品数・平均スコア・合計、1品ごとは各メニューの値', () => {
+  const picked = filterByPeriod(days, 'all', '2026-10-20');
+  const perSet = setValues(picked);
+  assert.deepEqual(perSet.count, [1, 2, 2]);
+  assert.deepEqual(perSet.energy, [700, 800, 400]);
+  assert.deepEqual(perSet.protein, [20, 25, 30]);
+  assert.deepEqual(perSet.score.map((v) => Math.round(v)), [20, 20, 30]);
+  assert.deepEqual(perSet.vegetable, [0, 0, 0]);
+  const perMenu = menuValues(picked);
+  assert.deepEqual(perMenu.energy, [700, 700, 100, 300, 100]);
+  assert.equal('count' in perMenu, false);
 });

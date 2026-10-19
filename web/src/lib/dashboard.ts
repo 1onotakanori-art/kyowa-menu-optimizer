@@ -78,14 +78,14 @@ export function dailyMeanScores(days: readonly DaySelection[]): { date: ISODate;
 }
 
 /**
- * PFC 比（カロリーで見た割合、%）。たんぱく質・炭水化物は 4kcal/g、脂質は 9kcal/g で換算し、
- * 3つの合計を 100% とする（旧ダッシュボードはエネルギーの値で割っていたので、合計が 100% にならなかった）
+ * PFC 比（重さで見た割合、%）。推奨したメニューのたんぱく質・脂質・炭水化物のグラム数を合計し、3つの合計を 100% とする
  */
 export function pfcRatio(days: readonly DaySelection[]): { protein: number; fat: number; carbs: number } | null {
   const menus = days.flatMap((d) => d.menus);
-  const protein = menus.reduce((s, m) => s + num(m.nutrition['たんぱく質']) * 4, 0);
-  const fat = menus.reduce((s, m) => s + num(m.nutrition['脂質']) * 9, 0);
-  const carbs = menus.reduce((s, m) => s + num(m.nutrition['炭水化物']) * 4, 0);
+  const grams = (key: string) => menus.reduce((s, m) => s + num(m.nutrition[key]), 0);
+  const protein = grams('たんぱく質');
+  const fat = grams('脂質');
+  const carbs = grams('炭水化物');
   const total = protein + fat + carbs;
   if (total <= 0) return null;
   return { protein: (protein / total) * 100, fat: (fat / total) * 100, carbs: (carbs / total) * 100 };
@@ -116,14 +116,33 @@ export function histogram(values: readonly number[], size: number): Bin[] {
   return bins;
 }
 
-/** メニュー単位の値（分布と統計表に使う） */
-export function menuValues(days: readonly DaySelection[]) {
+const NUTRIENT_KEYS = {
+  energy: 'エネルギー',
+  protein: 'たんぱく質',
+  fat: '脂質',
+  carbs: '炭水化物',
+  vegetable: '野菜重量',
+} as const;
+
+export type ValueKey = 'count' | 'score' | keyof typeof NUTRIENT_KEYS;
+
+/** メニュー1品ごとの値（分布と統計表に使う） */
+export function menuValues(days: readonly DaySelection[]): Record<Exclude<ValueKey, 'count'>, number[]> {
   const menus = days.flatMap((d) => d.menus);
+  const values = Object.fromEntries(
+    Object.entries(NUTRIENT_KEYS).map(([id, key]) => [id, menus.map((m) => num(m.nutrition[key]))]),
+  ) as Record<keyof typeof NUTRIENT_KEYS, number[]>;
+  return { score: menus.map((m) => num(m.score) * 100), ...values };
+}
+
+/** 1セット（1日）ごとの値。品数、スコアはセット内の平均、栄養値はセットの合計 */
+export function setValues(days: readonly DaySelection[]): Record<ValueKey, number[]> {
+  const values = Object.fromEntries(
+    Object.entries(NUTRIENT_KEYS).map(([id, key]) => [id, days.map((d) => d.menus.reduce((sum, m) => sum + num(m.nutrition[key]), 0))]),
+  ) as Record<keyof typeof NUTRIENT_KEYS, number[]>;
   return {
-    score: menus.map((m) => num(m.score) * 100),
-    energy: menus.map((m) => num(m.nutrition['エネルギー'])),
-    protein: menus.map((m) => num(m.nutrition['たんぱく質'])),
-    fat: menus.map((m) => num(m.nutrition['脂質'])),
-    carbs: menus.map((m) => num(m.nutrition['炭水化物'])),
+    count: days.map((d) => d.menus.length),
+    score: days.map((d) => mean(d.menus.map((m) => num(m.score) * 100))),
+    ...values,
   };
 }

@@ -15,10 +15,13 @@ import {
   histogram,
   menuValues,
   pfcRatio,
+  setValues,
   summarize,
   topMenus,
   type DaySelection,
   type Period,
+  type Stats,
+  type ValueKey,
 } from '../lib/dashboard.ts';
 import { formatDateLabel, todayInTokyo } from '../lib/date.ts';
 import { roundTenth } from '../lib/nutrition.ts';
@@ -32,13 +35,24 @@ const DISTRIBUTIONS: { id: Distribution; label: string; unit: string; size: numb
   { id: 'protein', label: 'たんぱく質', unit: 'g', size: 5 },
 ];
 
-const STAT_ROWS: { key: keyof ReturnType<typeof menuValues>; label: string; unit: string }[] = [
-  { key: 'score', label: 'スコア', unit: '%' },
+const NUTRIENT_ROWS: { key: ValueKey; label: string; unit: string }[] = [
   { key: 'energy', label: 'エネルギー', unit: 'kcal' },
   { key: 'protein', label: 'たんぱく質', unit: 'g' },
   { key: 'fat', label: '脂質', unit: 'g' },
   { key: 'carbs', label: '炭水化物', unit: 'g' },
+  { key: 'vegetable', label: '野菜重量', unit: 'g' },
 ];
+
+/** 1セットあたり: 品数・セット内の平均スコア・セットの合計 */
+const SET_ROWS: { key: ValueKey; label: string; unit: string }[] = [
+  { key: 'count', label: '品数', unit: '品' },
+  { key: 'score', label: 'スコア', unit: '%' },
+  ...NUTRIENT_ROWS,
+];
+
+const MENU_ROWS: { key: ValueKey; label: string; unit: string }[] = [{ key: 'score', label: 'スコア', unit: '%' }, ...NUTRIENT_ROWS];
+
+type StatRow = { key: ValueKey; label: string; unit: string; stats: Stats | null };
 
 function DashboardPage() {
   const data = useAsync(fetchAllAISelections, []);
@@ -95,13 +109,15 @@ function Dashboard({ days: allDays }: { days: DaySelection[] }) {
   const days = useMemo(() => filterByPeriod(allDays, period, today), [allDays, period, today]);
   const view = useMemo(() => {
     const values = menuValues(days);
+    const perSet = setValues(days);
     return {
       summary: summarize(days),
       trend: dailyMeanScores(days),
       pfc: pfcRatio(days),
       top: topMenus(days),
       values,
-      stats: STAT_ROWS.map((row) => ({ ...row, stats: describe(values[row.key]) })),
+      menuStats: MENU_ROWS.map((row) => ({ ...row, stats: describe(values[row.key as Exclude<ValueKey, 'count'>]) })),
+      setStats: SET_ROWS.map((row) => ({ ...row, stats: describe(perSet[row.key]) })),
     };
   }, [days]);
 
@@ -138,7 +154,7 @@ function Dashboard({ days: allDays }: { days: DaySelection[] }) {
           {view.pfc && (
             <ChartCard
               title="PFC 比"
-              caption="推奨したメニューのたんぱく質・脂質・炭水化物を、カロリーに換算した割合"
+              caption="推奨したメニューのたんぱく質・脂質・炭水化物の、重さ（g）の割合"
               table={{
                 head: ['項目', '割合（%）'],
                 rows: [
@@ -169,43 +185,56 @@ function Dashboard({ days: allDays }: { days: DaySelection[] }) {
             <HistogramChart bins={bins} unit={dist.unit} label={(b) => `${b.from}〜${b.to}`} />
           </ChartCard>
 
-          <section className="rounded-xl border border-border bg-surface p-4">
-            <h2 className="mb-2 text-sm font-semibold">メニュー1品ごとの統計</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm tabular-nums">
-                <thead className="text-xs text-fg-muted">
-                  <tr>
-                    <th scope="col" className="py-1.5 text-left font-medium">項目</th>
-                    {['最小', '平均', '最大', '標準偏差'].map((h) => (
-                      <th key={h} scope="col" className="py-1.5 text-right font-medium">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {view.stats.map((row) => (
-                    <tr key={row.key} className="border-t border-border">
-                      <th scope="row" className="py-2 text-left font-normal">
-                        {row.label}
-                        <span className="ml-1 text-xs text-fg-muted">{row.unit}</span>
-                      </th>
-                      {row.stats
-                        ? [row.stats.min, row.stats.mean, row.stats.max, row.stats.std].map((v, i) => (
-                            <td key={i} className="py-2 text-right">
-                              {roundTenth(v)}
-                            </td>
-                          ))
-                        : null}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <StatsTable
+            title="1セットあたりの統計"
+            caption="その日の推奨セットの品数、セット内の平均スコア、セットの合計"
+            rows={view.setStats}
+          />
+          <StatsTable title="メニュー1品あたりの統計" caption="推奨したメニュー1品ごとの値" rows={view.menuStats} />
         </>
       )}
     </div>
+  );
+}
+
+function StatsTable({ title, caption, rows }: { title: string; caption: string; rows: StatRow[] }) {
+  return (
+    <section className="rounded-xl border border-border bg-surface p-4">
+      <h2 className="text-sm font-semibold">{title}</h2>
+      <p className="mb-2 text-xs text-fg-muted">{caption}</p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm tabular-nums">
+          <thead className="text-xs text-fg-muted">
+            <tr>
+              <th scope="col" className="py-1.5 text-left font-medium">
+                項目
+              </th>
+              {['平均', '最小', '最大', '標準偏差'].map((h) => (
+                <th key={h} scope="col" className="py-1.5 text-right font-medium">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.key} className="border-t border-border">
+                <th scope="row" className="py-2 text-left font-normal">
+                  {row.label}
+                  <span className="ml-1 text-xs text-fg-muted">{row.unit}</span>
+                </th>
+                {row.stats &&
+                  [row.stats.mean, row.stats.min, row.stats.max, row.stats.std].map((v, i) => (
+                    <td key={i} className={`py-2 text-right ${i === 0 ? 'font-semibold' : ''}`}>
+                      {roundTenth(v)}
+                    </td>
+                  ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
