@@ -201,6 +201,19 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 
 絵文字から Lucide への置き換えは、フェーズ3〜5の中で進める（8章）。
 
+### Vercel のプロジェクト（2026-10-19 作成）
+
+| 項目 | 値 |
+|---|---|
+| チーム | takanori's projects（Hobby） |
+| プロジェクト | `kyowa-menu-optimizer`（`prj_bNwfSyRJRF6BkDv7nBb7PZrXGkOl`） |
+| Root Directory / Framework | `web` / Vite |
+| 本番の URL | `https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app` |
+
+- プロジェクトの作成と設定の変更はダッシュボードで行う（Vercel の MCP の接続には、作成・更新の権限がない）
+- **Deployment Protection（Vercel Authentication）が「本番の `*.vercel.app` を含めて有効」になっている**。このままだと、Vercel にログインしていない人は本番の URL も開けない。フェーズ6で公開するときに、保護の対象をプレビューだけにする（Settings → Deployment Protection）
+- 本番の URL が長いので、フェーズ6で短い `*.vercel.app` の名前（例: `kyowa-menu.vercel.app`）が空いていれば割り当てる
+
 ### フェーズ6で更新する Supabase の設定
 
 - Auth の Redirect URLs に Vercel のドメインを追加する
