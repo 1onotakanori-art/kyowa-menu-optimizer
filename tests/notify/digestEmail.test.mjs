@@ -6,6 +6,8 @@ import {
   escapeHtml,
   nutritionSummary,
   buildDigestEmail,
+  buildAppLinks,
+  DEFAULT_APP_BASE_URL,
 } from '../../supabase/functions/_shared/digestEmail.js';
 
 const params = {
@@ -64,4 +66,14 @@ test('buildDigestEmail: HTML 本文はルール名などをエスケープする
   assert.ok(html.includes('&lt;高たんぱく&gt;'));
   assert.ok(!html.includes('<高たんぱく>'));
   assert.ok(html.includes('href="https://example.com/app/unsubscribe.html?token=abc"'));
+});
+
+test('buildAppLinks: Vercel の拡張子なしの URL。未設定なら本番、末尾の / は取る', () => {
+  assert.deepEqual(buildAppLinks('https://example.com/', 'tok en'), {
+    appUrl: 'https://example.com/',
+    settingsUrl: 'https://example.com/notify',
+    unsubscribeUrl: 'https://example.com/unsubscribe?token=tok%20en',
+  });
+  assert.equal(buildAppLinks(undefined, 'x').settingsUrl, `${DEFAULT_APP_BASE_URL}/notify`);
+  assert.equal(buildAppLinks('', 'x').appUrl, `${DEFAULT_APP_BASE_URL}/`);
 });

@@ -30,6 +30,24 @@ export function nutritionSummary(nutrition) {
     .join(' / ');
 }
 
+/** メールに載せるサイト（Vercel の本番）。Edge Function のシークレット APP_BASE_URL で上書きできる */
+export const DEFAULT_APP_BASE_URL = 'https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app';
+
+/**
+ * メールに載せるリンク。Vercel では拡張子なしの URL で各ページを配信する（cleanUrls）
+ * @param {string | undefined | null} baseUrl
+ * @param {string} unsubscribeToken
+ * @returns {{ appUrl: string, settingsUrl: string, unsubscribeUrl: string }}
+ */
+export function buildAppLinks(baseUrl, unsubscribeToken) {
+  const base = String(baseUrl || DEFAULT_APP_BASE_URL).replace(/\/+$/, '');
+  return {
+    appUrl: `${base}/`,
+    settingsUrl: `${base}/notify`,
+    unsubscribeUrl: `${base}/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`,
+  };
+}
+
 /**
  * @param {object} params
  * @param {string} params.date - "YYYY-MM-DD"

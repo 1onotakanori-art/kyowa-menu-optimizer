@@ -2,7 +2,7 @@
 
 実際に食べたメニューを記録する画面です。記録は AI 推奨の学習データ（Supabase の `meal_history`）になります。
 
-URL: https://1onotakanori-art.github.io/kyowa-menu-optimizer/admin.html
+URL: https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app/admin（旧 URL の admin.html も移行期間中は使えます）
 
 ## ログイン
 

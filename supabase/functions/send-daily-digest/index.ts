@@ -18,11 +18,12 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import nodemailer from 'npm:nodemailer@6';
 import { evaluateRules } from '../_shared/matchRules.js';
-import { buildDigestEmail } from '../_shared/digestEmail.js';
+import { buildAppLinks, buildDigestEmail } from '../_shared/digestEmail.js';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const APP_BASE_URL = (Deno.env.get('APP_BASE_URL') ?? 'https://1onotakanori-art.github.io/kyowa-menu-optimizer').replace(/\/$/, '');
+// メールに載せるサイト。未設定なら Vercel の本番（_shared/digestEmail.js の DEFAULT_APP_BASE_URL）
+const APP_BASE_URL = Deno.env.get('APP_BASE_URL');
 const MAIL_FROM_NAME = Deno.env.get('MAIL_FROM_NAME') ?? '共和食堂メニュー通知';
 const GMAIL_USER = Deno.env.get('GMAIL_USER');
 const GMAIL_APP_PASSWORD = Deno.env.get('GMAIL_APP_PASSWORD');
@@ -178,14 +179,11 @@ async function run({ date, dryRun, onlyEmail }: { date: string; dryRun: boolean;
     }
 
     const conditionsById = new Map(rules.map(rule => [rule.id, rule.conditions]));
-    const unsubscribeUrl = `${APP_BASE_URL}/unsubscribe.html?token=${profile.unsubscribe_token}`;
     const oneClickUrl = `${SUPABASE_URL}/functions/v1/unsubscribe?token=${profile.unsubscribe_token}`;
     const mail = buildDigestEmail({
       date,
       results: results.map(r => ({ ...r, conditions: conditionsById.get(r.ruleId) })),
-      appUrl: `${APP_BASE_URL}/`,
-      settingsUrl: `${APP_BASE_URL}/notify.html`,
-      unsubscribeUrl,
+      ...buildAppLinks(APP_BASE_URL, profile.unsubscribe_token),
     });
 
     try {
