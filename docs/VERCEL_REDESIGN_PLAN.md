@@ -1,6 +1,6 @@
 # Vercel 移行 & 画面リデザイン — 実装計画
 
-> ステータス: **フェーズ5実装済み**（2026-10-20）。フェーズ0〜4と RLS の見直し（PR #12、本番適用済み）は完了。次はフェーズ6（Vercel への切り替え）
+> ステータス: **フェーズ6進行中**（2026-10-21）。フェーズ0〜5と RLS の見直し（PR #12、本番適用済み）は完了
 > 目的: ホスティングを GitHub Pages から Vercel に移す。あわせて画面を洗練されたデザインに作り直し、絵文字をやめて Lucide のアイコンに置き換える。散らかったリポジトリも整理する。
 
 ---
@@ -266,6 +266,16 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 - プロジェクトの作成と設定の変更はダッシュボードで行う（Vercel の MCP の接続には、作成・更新の権限がない）
 - **Deployment Protection（Vercel Authentication）が「本番の `*.vercel.app` を含めて有効」になっている**。このままだと、Vercel にログインしていない人は本番の URL も開けない。フェーズ6で公開するときに、保護の対象をプレビューだけにする（Settings → Deployment Protection）
 - 本番の URL が長いので、フェーズ6で短い `*.vercel.app` の名前（例: `kyowa-menu.vercel.app`）が空いていれば割り当てる
+
+### フェーズ6の手順（2026-10-21〜）
+
+| 順 | やること | だれが | 状態 |
+|---|---|---|---|
+| 1 | 通知メールのリンクを Vercel の拡張子なしの URL（`/notify`、`/unsubscribe?token=…`）にする。`APP_BASE_URL` の初期値も Vercel の本番にする（`_shared/digestEmail.js` の `buildAppLinks`） | Claude（PR） | 未マージ |
+| 2 | Vercel の Deployment Protection を「Standard Protection」（プレビューだけ保護）にして、本番の URL を誰でも開けるようにする | 利用者（ダッシュボード） | 未 |
+| 3 | Supabase Auth の Redirect URLs に Vercel の本番（とプレビュー）を追加し、Site URL を Vercel の本番にする | 利用者（ダッシュボード） | 未 |
+| 4 | Edge Function `unsubscribe`（CORS の一覧）と `send-daily-digest`（メールのリンク）を再デプロイし、シークレット `APP_BASE_URL` を Vercel の本番にする | Claude（Supabase） | 未 |
+| 5 | 本番の URL で確認する: 各ページの表示、`unsubscribe.html?token=…` の転送で token が残るか、通知・管理画面のログインと保存、配信停止（テスト用のトークンで）、通知メールの送信（`dry_run` / `only_email`） | Claude と利用者 | 未 |
 
 ### フェーズ6で更新する Supabase の設定
 
