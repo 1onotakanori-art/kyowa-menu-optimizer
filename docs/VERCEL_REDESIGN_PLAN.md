@@ -1,6 +1,6 @@
 # Vercel 移行 & 画面リデザイン — 実装計画
 
-> ステータス: **フェーズ0完了**（2026-10-18 に方針を決定し、リポジトリ整理とモデル保存先の修正を実施）。次はフェーズ1（土台づくり）
+> ステータス: **フェーズ1実装済み・Vercel 未接続**（2026-10-19）。フェーズ0（リポジトリ整理）と RLS の見直し（PR #12、本番適用済み）は完了。次は Vercel のプロジェクト作成とプレビューデプロイの確認、その後フェーズ2
 > 目的: ホスティングを GitHub Pages から Vercel に移す。あわせて画面を洗練されたデザインに作り直し、絵文字をやめて Lucide のアイコンに置き換える。散らかったリポジトリも整理する。
 
 ---
@@ -54,6 +54,23 @@
 | 設定値 | `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` の環境変数 | ソースへの直書きをやめる（anon キーは公開前提の値） |
 | 共通ロジック | `supabase/functions/_shared/matchRules.js` を `web/` から import する | Edge Function と判定ロジックを共有したまま。Vercel の「Root Directory 外のファイルをビルドに含める」設定（既定で有効）を使う |
 | テスト | `node:test`（既存の `npm test`） | 切り出したロジックに単体テストを付ける |
+
+### `web/` の構成（フェーズ1時点）
+
+```
+web/
+  index.html, dashboard.html, notify.html, admin.html, unsubscribe.html   各ページの入口（Vite のマルチページ）
+  public/theme-init.js     初回描画の前にテーマを決める（ちらつき防止。src/lib/theme.ts と同じロジック）
+  src/styles/global.css    デザイントークン（ライト / ダーク）と Tailwind の設定
+  src/lib/                 画面に依存しない処理（テーマの解決、ページ一覧など。tests/web/ でテストする）
+  src/hooks/               React のフック（useTheme）
+  src/components/          共通の部品（AppShell、TabBar、ThemeToggle、EmptyState など）
+  src/pages/               各ページの中身
+  vercel.json              cleanUrls（/notify → notify.html）、web/ と supabase/functions/_shared/ に変更がない commit はビルドしない
+```
+
+- 開発サーバーでも `/notify` のような拡張子なしの URL で開ける（`vite.config.ts` の `cleanUrls`）
+- フェーズ1では、各ページは共通の枠と「準備中」の表示だけ。中身はフェーズ3〜5で作る
 
 ---
 
@@ -174,7 +191,7 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | フェーズ | 内容 | 完了の目安 |
 |---|---|---|
 | **0. リポジトリ整理**（完了） | 6章の「フェーズ0で行うこと」。モデル保存先の不具合も直す | ルートが6章の形に近づき、`npm test` と週次処理のスクリプト（`npm run ml:dry-run`）が通る |
-| **1. 土台づくり** | `web/` に Vite + React + TS の雛形、Tailwind、デザイントークン（ライト/ダーク）、テーマ切り替え。共通のレイアウト（ヘッダー、モバイルの下部タブバー）。`vercel.json` を追加 | Vercel のプレビューデプロイで、ライト/ダークを切り替えられる空のページが表示される |
+| **1. 土台づくり**（実装済み。Vercel のプレビューは未確認） | `web/` に Vite + React + TS の雛形、Tailwind、デザイントークン（ライト/ダーク）、テーマ切り替え。共通のレイアウト（ヘッダー、モバイルの下部タブバー）。`vercel.json` を追加 | Vercel のプレビューデプロイで、ライト/ダークを切り替えられる空のページが表示される |
 | **2. ロジックの切り出し** | `app.js` の最適化（貪欲法、距離スコア）、栄養の集計、日付変換を純粋な TS モジュールに分ける。`src/optimizer/optimizeMenus.js` との違いを確認して1つにまとめる。`notify/ruleForm.js` は `web/` へ移し、テストの import 先を直す | 切り出したモジュールに単体テストがあり、既存テストも通る |
 | **3. メイン画面の作り直し** | 設定・メニュー・結果・AI の4タブ | 今の画面でできる操作がすべて新しい画面でできる |
 | **4. 通知・管理・配信停止ページの作り直し** | `notify`、`admin`、`unsubscribe` を同じデザインで作り直す | マジックリンクでのログイン、ルールの編集、配信停止が新しい画面で動く |
@@ -233,7 +250,7 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | 順 | PR | 前提・やること |
 |---|---|---|
 | 1 | **フェーズ0（リポジトリ整理・モデル保存先の修正）** | DB に関係なく、単独でマージできる。先に入れて、ほかの PR はこの上に載せ直す |
-| 2 | **[PR #12](https://github.com/1onotakanori-art/kyowa-menu-optimizer/pull/12)（RLS の見直し）** | フェーズ0のマージ後に main へ rebase する（`docs/*.sql` の移動と `docs/ADMIN_SETUP.md` の書き直しが重なる）。本番への反映は下の順で行う |
+| 2 | **[PR #12](https://github.com/1onotakanori-art/kyowa-menu-optimizer/pull/12)（RLS の見直し）**（2026-10-19 にマージ・本番適用済み） | フェーズ0のマージ後に main へ rebase する（`docs/*.sql` の移動と `docs/ADMIN_SETUP.md` の書き直しが重なる）。本番への反映は下の順で行う |
 | 3 | **フェーズ1〜** | PR #12 のマージ後に main から切る。フェーズ4で `admin` を作り直すときは、PR #12 で入るメールリンクのログインと管理者の判定を引き継ぐ |
 
 ### PR #12 を本番に反映する順番

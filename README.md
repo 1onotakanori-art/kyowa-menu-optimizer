@@ -47,6 +47,7 @@ supabase/functions/  Edge Functions（通知メール・配信停止）と共通
 supabase/migrations/ 通知機能のマイグレーション
 supabase/schema/     手動で作成したテーブルの定義 SQL（ai_selections など）
 tests/               単体テスト（node:test）
+web/                 新フロントエンド（Vite + React。作り直し中。Vercel で配信する予定）
 
 index.html, app.js, style.css, ai-styles.css   メイン画面
 notify.html, notify/                           メニュー通知の設定画面
@@ -72,6 +73,8 @@ npm run task:register:win11
 | コマンド | 内容 |
 |---|---|
 | `npm test` | 単体テスト |
+| `npm --prefix web run dev` | 新フロントエンドの開発サーバー（http://localhost:5173） |
+| `npm --prefix web run build` | 新フロントエンドの型チェックとビルド（`web/dist/`） |
 | `npm run scrape` / `scrape:10` / `scrape:20` | 5 / 10 / 20 日分をスクレイピングして `menus/` に保存し、Supabase にアップロード |
 | `npm run upload` | `menus/` の JSON を Supabase にアップロード（日付を指定することもできる） |
 | `npm run menus:push` | `menus/` の変更だけを main にコミットして push |
