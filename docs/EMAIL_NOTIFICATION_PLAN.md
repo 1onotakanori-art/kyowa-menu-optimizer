@@ -162,7 +162,7 @@ UI には3種類のテンプレートを出しますが、内部ではすべて�
 | 0. 準備 ✅ | 通知専用 Gmail アカウント（`kyowa.menu.shokudo@gmail.com`。最初のアカウントは作成当日に Google に無効化された）・アプリパスワード発行、Supabase Auth の SMTP を Gmail に切り替え | — |
 | 1. DB ✅ | 上記3テーブル、RLS、profiles 自動作成の trigger（本番適用・RLS 検証済み） | `supabase/migrations/20261007120000_create_notification_tables.sql` |
 | 2. 判定ロジック ✅ | `matchRules.js`（正規化を含む）と単体テスト（`npm test`）。実データ `menus/*.json` を使ったテストを含む | `supabase/functions/_shared/matchRules.js`, `tests/notify/` |
-| 3. 認証とUI ✅ | `notify.html`: マジックリンクでのログイン、通知設定、ルールの一覧・作成・編集・削除、直近メニューでの該当プレビュー | `notify.html`, `notify/notify.js`, `notify/ruleForm.js` |
+| 3. 認証とUI ✅ | `notify.html`: マジックリンクでのログイン、通知設定、ルールの一覧・作成・編集・削除、直近メニューでの該当プレビュー | `notify.html`, `notify/notify.js`, `web/src/lib/ruleForm.js`（2026-10 に `notify/` から移動） |
 | 4. 送信 ✅ | Edge Function `send-daily-digest`（POST JSON の `dry_run` / `date` / `only_email` に対応）、メール本文（`_shared/digestEmail.js`）、配信停止（Edge Function `unsubscribe` + `unsubscribe.html`） | `supabase/functions/*`, `unsubscribe.html` |
 | 5. スケジュール・運用 ✅ | pg_cron で毎日 22:00 UTC（7:00 JST）に実行。合言葉は Vault の `notify_cron_secret`、照合は `verify_notify_cron_secret()` | `supabase/migrations/20261017120000_*.sql`, `20261018120000_*.sql` |
 | 6. 段階リリース | まず自分だけに dry-run → 自分宛てに本送信 → 他ユーザーへ公開 | — |

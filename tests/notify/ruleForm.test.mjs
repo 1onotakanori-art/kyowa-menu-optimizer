@@ -6,7 +6,7 @@ import {
   emptyForm,
   formToConditions,
   conditionsToForm,
-} from '../../notify/ruleForm.js';
+} from '../../web/src/lib/ruleForm.js';
 import { validateConditions } from '../../supabase/functions/_shared/matchRules.js';
 
 test('splitKeywords: 空白・全角空白・カンマ・読点で区切り、重複を除く', () => {

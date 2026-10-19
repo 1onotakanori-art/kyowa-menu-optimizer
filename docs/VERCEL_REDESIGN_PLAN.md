@@ -1,6 +1,6 @@
 # Vercel 移行 & 画面リデザイン — 実装計画
 
-> ステータス: **フェーズ1実装済み・Vercel 未接続**（2026-10-19）。フェーズ0（リポジトリ整理）と RLS の見直し（PR #12、本番適用済み）は完了。次は Vercel のプロジェクト作成とプレビューデプロイの確認、その後フェーズ2
+> ステータス: **フェーズ2実装済み**（2026-10-19）。フェーズ0（リポジトリ整理）、RLS の見直し（PR #12、本番適用済み）、フェーズ1（`web/` の土台、Vercel のプレビューで確認済み）は完了。次はフェーズ3（メイン画面）
 > 目的: ホスティングを GitHub Pages から Vercel に移す。あわせて画面を洗練されたデザインに作り直し、絵文字をやめて Lucide のアイコンに置き換える。散らかったリポジトリも整理する。
 
 ---
@@ -62,7 +62,12 @@ web/
   index.html, dashboard.html, notify.html, admin.html, unsubscribe.html   各ページの入口（Vite のマルチページ）
   public/theme-init.js     初回描画の前にテーマを決める（ちらつき防止。src/lib/theme.ts と同じロジック）
   src/styles/global.css    デザイントークン（ライト / ダーク）と Tailwind の設定
-  src/lib/                 画面に依存しない処理（テーマの解決、ページ一覧など。tests/web/ でテストする）
+  src/lib/                 画面に依存しない処理（tests/web/ でテストする）
+                             date.ts       日付（日本時間の今日、"10/30(金)" の表示、初期表示の日付）
+                             nutrition.ts  メニューと栄養値の型、合計、目標との差、E/P/F/C/V の定義
+                             optimizer.ts  距離の計算と、貪欲法 + ローカルサーチの最適化
+                             ruleForm.js   通知ルールのフォーム ⇔ 条件の変換（今の notify.html からも使うので JS のまま）
+                             theme.ts      テーマの解決
   src/hooks/               React のフック（useTheme）
   src/components/          共通の部品（AppShell、TabBar、ThemeToggle、EmptyState など）
   src/pages/               各ページの中身
@@ -192,7 +197,7 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 |---|---|---|
 | **0. リポジトリ整理**（完了） | 6章の「フェーズ0で行うこと」。モデル保存先の不具合も直す | ルートが6章の形に近づき、`npm test` と週次処理のスクリプト（`npm run ml:dry-run`）が通る |
 | **1. 土台づくり**（実装済み。Vercel のプレビューは未確認） | `web/` に Vite + React + TS の雛形、Tailwind、デザイントークン（ライト/ダーク）、テーマ切り替え。共通のレイアウト（ヘッダー、モバイルの下部タブバー）。`vercel.json` を追加 | Vercel のプレビューデプロイで、ライト/ダークを切り替えられる空のページが表示される |
-| **2. ロジックの切り出し** | `app.js` の最適化（貪欲法、距離スコア）、栄養の集計、日付変換を純粋な TS モジュールに分ける。`src/optimizer/optimizeMenus.js` との違いを確認して1つにまとめる。`notify/ruleForm.js` は `web/` へ移し、テストの import 先を直す | 切り出したモジュールに単体テストがあり、既存テストも通る |
+| **2. ロジックの切り出し**（実装済み） | `app.js` の最適化（貪欲法、距離スコア）、栄養の集計、日付変換を純粋な TS モジュールに分ける。`src/optimizer/optimizeMenus.js` との違いを確認して1つにまとめる。`notify/ruleForm.js` は `web/` へ移し、テストの import 先を直す | 切り出したモジュールに単体テストがあり、既存テストも通る |
 | **3. メイン画面の作り直し** | 設定・メニュー・結果・AI の4タブ | 今の画面でできる操作がすべて新しい画面でできる |
 | **4. 通知・管理・配信停止ページの作り直し** | `notify`、`admin`、`unsubscribe` を同じデザインで作り直す | マジックリンクでのログイン、ルールの編集、配信停止が新しい画面で動く |
 | **5. ダッシュボードの作り直し** | 5章の作り直し案 | `/dashboard` で期間を切り替えて集計とグラフが見られる |
@@ -200,6 +205,14 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | **7. GitHub Pages の停止と旧画面の削除** | 送信済みメールの配信停止リンクは github.io を向いているので、Pages の公開元を転送用ページだけを置いた `gh-pages` ブランチに切り替え、しばらく旧 URL を Vercel へ転送する。そのうえで `main` から旧画面のファイルを消す（6章）。README と docs を更新する | 旧 URL から新 URL へ転送され、`main` に旧画面のファイルと github.io の記載が残っていない |
 
 絵文字から Lucide への置き換えは、フェーズ3〜5の中で進める（8章）。
+
+### フェーズ2で決めたこと（2026-10-19）
+
+- **最適化は「貪欲法 + ローカルサーチ」に一本化した**。今のサイト（`app.js`）は貪欲法だけだが、`src/optimizer/optimizeMenus.js` には同じ距離の計算でローカルサーチ（1品減らす・入れ替える・足す）まで入っていた。ローカルサーチは距離が小さくなる変更しか採用しないので、結果が悪くなることはない
+  - 実データ（168日分 × 目標4通り × 上限2通り × 固定あり/なし = 2,688通り）で比べると、`src/optimizer` とは全件同じ組み合わせ、`app.js` とは 84% が同じで、残り 16% はより目標に近い組み合わせになった（悪くなったものは0件）
+  - `src/optimizer` にあった「マルチスタート」は、毎回同じ計算を繰り返すだけで意味がなかったので入れていない
+- **日付は ISO 形式（YYYY-MM-DD）で持つ**。今のサイトは "10/30(金)" の形から年を推測して戻しており、過去の日付が来年扱いになる。また `toISOString()`（UTC）で「今日」を作るため、日本時間の 0〜9 時は前日になり、初期表示の日付がずれることがあった。新しい実装は日本時間で「今日」を決める
+- `notify/ruleForm.js` は `web/src/lib/ruleForm.js` に移した。今の `notify.html` からも読み込むため JS のまま（`web/` の TS から使うときは `allowJs` を有効にする）
 
 ### Vercel のプロジェクト（2026-10-19 作成）
 

@@ -11,7 +11,7 @@
  *   }
  */
 
-import { NUTRITION_FIELDS } from '../supabase/functions/_shared/matchRules.js';
+import { NUTRITION_FIELDS } from '../../../supabase/functions/_shared/matchRules.js';
 
 /**
  * キーワード文字列を配列に分割する（重複・空要素は除く）
