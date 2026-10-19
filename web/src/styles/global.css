@@ -1,0 +1,124 @@
+@import 'tailwindcss';
+
+/* ダークモードは OS の設定ではなく <html data-theme="dark"> で切り替える（theme-init.js / useTheme が設定する） */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/*
+ * デザイントークン
+ *   面・線・文字は彩度の低いグレー（hue 286 ≒ zinc）。アクセントは落ち着いたティール1色だけ。
+ *   状態の色（推奨・固定・除外、不足・超過）は彩度を抑え、*-subtle は背景用の薄い色。
+ *   値を変えたら、ライト・ダークの両方で文字と背景のコントラストが WCAG AA（4.5:1）以上あるか確かめる。
+ */
+:root {
+  color-scheme: light;
+
+  --bg: oklch(0.985 0.002 286);
+  --surface: oklch(1 0 0);
+  --surface-muted: oklch(0.967 0.003 286);
+  --border: oklch(0.92 0.004 286);
+  --border-strong: oklch(0.86 0.006 286);
+  --fg: oklch(0.21 0.006 286);
+  --fg-muted: oklch(0.47 0.012 286);
+
+  --accent: oklch(0.47 0.075 195);
+  --accent-hover: oklch(0.42 0.075 195);
+  --accent-fg: oklch(0.99 0 0);
+  --accent-subtle: oklch(0.95 0.02 195);
+
+  --success: oklch(0.48 0.09 155);
+  --success-subtle: oklch(0.95 0.03 155);
+  --info: oklch(0.48 0.09 255);
+  --info-subtle: oklch(0.95 0.025 255);
+  --danger: oklch(0.5 0.13 25);
+  --danger-subtle: oklch(0.95 0.025 25);
+  --warning: oklch(0.52 0.1 70);
+  --warning-subtle: oklch(0.96 0.035 80);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: oklch(0.16 0.004 286);
+  --surface: oklch(0.2 0.005 286);
+  --surface-muted: oklch(0.24 0.006 286);
+  --border: oklch(0.29 0.006 286);
+  --border-strong: oklch(0.37 0.008 286);
+  --fg: oklch(0.96 0.003 286);
+  --fg-muted: oklch(0.72 0.01 286);
+
+  --accent: oklch(0.78 0.08 190);
+  --accent-hover: oklch(0.83 0.08 190);
+  --accent-fg: oklch(0.2 0.03 195);
+  --accent-subtle: oklch(0.3 0.04 195);
+
+  --success: oklch(0.77 0.1 155);
+  --success-subtle: oklch(0.29 0.04 155);
+  --info: oklch(0.77 0.09 255);
+  --info-subtle: oklch(0.29 0.04 255);
+  --danger: oklch(0.74 0.12 25);
+  --danger-subtle: oklch(0.29 0.05 25);
+  --warning: oklch(0.8 0.1 80);
+  --warning-subtle: oklch(0.3 0.045 80);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-info: var(--info);
+  --color-info-subtle: var(--info-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+
+  --font-sans: system-ui, -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic UI',
+    'Meiryo', sans-serif;
+}
+
+@layer base {
+  html {
+    background-color: var(--bg);
+    color: var(--fg);
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    font-feature-settings: 'palt' 0;
+  }
+
+  /* iPhone で入力時に拡大されないよう、入力欄は 16px 以上にする（ピンチでの拡大は止めない） */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1rem);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}

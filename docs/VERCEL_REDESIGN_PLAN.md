@@ -1,6 +1,6 @@
 # Vercel 移行 & 画面リデザイン — 実装計画
 
-> ステータス: **フェーズ0完了**（2026-10-18 に方針を決定し、リポジトリ整理とモデル保存先の修正を実施）。次はフェーズ1（土台づくり）
+> ステータス: **フェーズ1実装済み・Vercel 未接続**（2026-10-19）。フェーズ0（リポジトリ整理）と RLS の見直し（PR #12、本番適用済み）は完了。次は Vercel のプロジェクト作成とプレビューデプロイの確認、その後フェーズ2
 > 目的: ホスティングを GitHub Pages から Vercel に移す。あわせて画面を洗練されたデザインに作り直し、絵文字をやめて Lucide のアイコンに置き換える。散らかったリポジトリも整理する。
 
 ---
@@ -54,6 +54,23 @@
 | 設定値 | `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` の環境変数 | ソースへの直書きをやめる（anon キーは公開前提の値） |
 | 共通ロジック | `supabase/functions/_shared/matchRules.js` を `web/` から import する | Edge Function と判定ロジックを共有したまま。Vercel の「Root Directory 外のファイルをビルドに含める」設定（既定で有効）を使う |
 | テスト | `node:test`（既存の `npm test`） | 切り出したロジックに単体テストを付ける |
+
+### `web/` の構成（フェーズ1時点）
+
+```
+web/
+  index.html, dashboard.html, notify.html, admin.html, unsubscribe.html   各ページの入口（Vite のマルチページ）
+  public/theme-init.js     初回描画の前にテーマを決める（ちらつき防止。src/lib/theme.ts と同じロジック）
+  src/styles/global.css    デザイントークン（ライト / ダーク）と Tailwind の設定
+  src/lib/                 画面に依存しない処理（テーマの解決、ページ一覧など。tests/web/ でテストする）
+  src/hooks/               React のフック（useTheme）
+  src/components/          共通の部品（AppShell、TabBar、ThemeToggle、EmptyState など）
+  src/pages/               各ページの中身
+  vercel.json              cleanUrls（/notify → notify.html）、前回のデプロイから web/ と supabase/functions/_shared/ が変わっていなければビルドしない
+```
+
+- 開発サーバーでも `/notify` のような拡張子なしの URL で開ける（`vite.config.ts` の `cleanUrls`）
+- フェーズ1では、各ページは共通の枠と「準備中」の表示だけ。中身はフェーズ3〜5で作る
 
 ---
 
@@ -174,15 +191,28 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | フェーズ | 内容 | 完了の目安 |
 |---|---|---|
 | **0. リポジトリ整理**（完了） | 6章の「フェーズ0で行うこと」。モデル保存先の不具合も直す | ルートが6章の形に近づき、`npm test` と週次処理のスクリプト（`npm run ml:dry-run`）が通る |
-| **1. 土台づくり** | `web/` に Vite + React + TS の雛形、Tailwind、デザイントークン（ライト/ダーク）、テーマ切り替え。共通のレイアウト（ヘッダー、モバイルの下部タブバー）。`vercel.json` を追加 | Vercel のプレビューデプロイで、ライト/ダークを切り替えられる空のページが表示される |
+| **1. 土台づくり**（実装済み。Vercel のプレビューは未確認） | `web/` に Vite + React + TS の雛形、Tailwind、デザイントークン（ライト/ダーク）、テーマ切り替え。共通のレイアウト（ヘッダー、モバイルの下部タブバー）。`vercel.json` を追加 | Vercel のプレビューデプロイで、ライト/ダークを切り替えられる空のページが表示される |
 | **2. ロジックの切り出し** | `app.js` の最適化（貪欲法、距離スコア）、栄養の集計、日付変換を純粋な TS モジュールに分ける。`src/optimizer/optimizeMenus.js` との違いを確認して1つにまとめる。`notify/ruleForm.js` は `web/` へ移し、テストの import 先を直す | 切り出したモジュールに単体テストがあり、既存テストも通る |
 | **3. メイン画面の作り直し** | 設定・メニュー・結果・AI の4タブ | 今の画面でできる操作がすべて新しい画面でできる |
 | **4. 通知・管理・配信停止ページの作り直し** | `notify`、`admin`、`unsubscribe` を同じデザインで作り直す | マジックリンクでのログイン、ルールの編集、配信停止が新しい画面で動く |
 | **5. ダッシュボードの作り直し** | 5章の作り直し案 | `/dashboard` で期間を切り替えて集計とグラフが見られる |
-| **6. Vercel への切り替え** | Vercel のプロジェクトを作って GitHub と連携。Supabase 側を更新する（下記）。`web/` と `supabase/functions/_shared/` に変更がない commit は `ignoreCommand` でデプロイを飛ばす（週次の `menus/` の自動 push でデプロイが走らないようにする） | 本番 URL（`*.vercel.app`）で全ページが動き、通知メールのリンク先が Vercel になっている |
+| **6. Vercel への切り替え** | Vercel のプロジェクトを作って GitHub と連携。Supabase 側を更新する（下記）。前回のデプロイから `web/` と `supabase/functions/_shared/` が変わっていなければ `ignoreCommand` でデプロイを飛ばす（週次の `menus/` の自動 push でデプロイが走らないようにする） | 本番 URL（`*.vercel.app`）で全ページが動き、通知メールのリンク先が Vercel になっている |
 | **7. GitHub Pages の停止と旧画面の削除** | 送信済みメールの配信停止リンクは github.io を向いているので、Pages の公開元を転送用ページだけを置いた `gh-pages` ブランチに切り替え、しばらく旧 URL を Vercel へ転送する。そのうえで `main` から旧画面のファイルを消す（6章）。README と docs を更新する | 旧 URL から新 URL へ転送され、`main` に旧画面のファイルと github.io の記載が残っていない |
 
 絵文字から Lucide への置き換えは、フェーズ3〜5の中で進める（8章）。
+
+### Vercel のプロジェクト（2026-10-19 作成）
+
+| 項目 | 値 |
+|---|---|
+| チーム | takanori's projects（Hobby） |
+| プロジェクト | `kyowa-menu-optimizer`（`prj_bNwfSyRJRF6BkDv7nBb7PZrXGkOl`） |
+| Root Directory / Framework | `web` / Vite |
+| 本番の URL | `https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app` |
+
+- プロジェクトの作成と設定の変更はダッシュボードで行う（Vercel の MCP の接続には、作成・更新の権限がない）
+- **Deployment Protection（Vercel Authentication）が「本番の `*.vercel.app` を含めて有効」になっている**。このままだと、Vercel にログインしていない人は本番の URL も開けない。フェーズ6で公開するときに、保護の対象をプレビューだけにする（Settings → Deployment Protection）
+- 本番の URL が長いので、フェーズ6で短い `*.vercel.app` の名前（例: `kyowa-menu.vercel.app`）が空いていれば割り当てる
 
 ### フェーズ6で更新する Supabase の設定
 
@@ -233,7 +263,7 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | 順 | PR | 前提・やること |
 |---|---|---|
 | 1 | **フェーズ0（リポジトリ整理・モデル保存先の修正）** | DB に関係なく、単独でマージできる。先に入れて、ほかの PR はこの上に載せ直す |
-| 2 | **[PR #12](https://github.com/1onotakanori-art/kyowa-menu-optimizer/pull/12)（RLS の見直し）** | フェーズ0のマージ後に main へ rebase する（`docs/*.sql` の移動と `docs/ADMIN_SETUP.md` の書き直しが重なる）。本番への反映は下の順で行う |
+| 2 | **[PR #12](https://github.com/1onotakanori-art/kyowa-menu-optimizer/pull/12)（RLS の見直し）**（2026-10-19 にマージ・本番適用済み） | フェーズ0のマージ後に main へ rebase する（`docs/*.sql` の移動と `docs/ADMIN_SETUP.md` の書き直しが重なる）。本番への反映は下の順で行う |
 | 3 | **フェーズ1〜** | PR #12 のマージ後に main から切る。フェーズ4で `admin` を作り直すときは、PR #12 で入るメールリンクのログインと管理者の判定を引き継ぐ |
 
 ### PR #12 を本番に反映する順番
