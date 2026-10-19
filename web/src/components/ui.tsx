@@ -5,12 +5,13 @@
 import { useState, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { AlertCircle, LoaderCircle, type LucideIcon } from 'lucide-react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   primary: 'bg-accent text-accent-fg hover:bg-accent-hover disabled:opacity-50',
   secondary: 'border border-border-strong bg-surface text-fg hover:bg-surface-muted disabled:opacity-50',
   ghost: 'text-fg-muted hover:bg-surface-muted hover:text-fg disabled:opacity-50',
+  danger: 'text-danger hover:bg-danger-subtle disabled:opacity-50',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
