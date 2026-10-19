@@ -4,14 +4,15 @@
 
 公開 URL: https://kyowa-menu-optimizer.vercel.app/
 
-> GitHub Pages から Vercel に移行しました（旧 URL https://1onotakanori-art.github.io/kyowa-menu-optimizer/ は移行期間中も残します）。新しい画面のコードは `web/` にあります。計画と進捗は [docs/VERCEL_REDESIGN_PLAN.md](docs/VERCEL_REDESIGN_PLAN.md) を参照してください。
+> 2026-10 に GitHub Pages から Vercel へ移行し、画面を作り直しました（[docs/VERCEL_REDESIGN_PLAN.md](docs/VERCEL_REDESIGN_PLAN.md)）。旧 URL（https://1onotakanori-art.github.io/kyowa-menu-optimizer/）は、`gh-pages` ブランチの転送用ページで新しいサイトへ転送しています。
 
 ## できること
 
 - **メニュー最適化**: 日付と E/P/F/C/V（エネルギー・たんぱく質・脂質・炭水化物・野菜重量）の目標を決めると、目標に近い組み合わせを提案する。メニューごとに固定・除外を指定できる
 - **AI 推奨**: 過去の食事記録から好みを学習し、「1食として成立するセット」を提案する（AI タブ）
-- **メニュー通知**: 登録した条件（メニュー名・キーワード・栄養やアレルゲン）に当日のメニューが合うと、朝 7:00 にメールで知らせる（`notify.html`）
-- **食事記録**: 実際に食べたメニューを記録する管理画面（`admin.html`）。AI 推奨の学習データになる
+- **ダッシュボード**: AI 推奨セットの傾向（スコア、PFC 比、よく推奨されるメニュー、セット・1品ごとの統計）を期間ごとに見る（`/dashboard`）
+- **メニュー通知**: 登録した条件（メニュー名・キーワード・栄養やアレルゲン）に当日のメニューが合うと、朝 7:00 にメールで知らせる（`/notify`）
+- **食事記録**: 実際に食べたメニューを記録する管理画面（`/admin`、管理者のみ）。AI 推奨の学習データになる
 
 ## 全体の構成
 
@@ -28,8 +29,9 @@
   menus / ai_selections / meal_history / 通知用テーブル
   Edge Functions: send-daily-digest（毎朝 7:00 の通知メール）、unsubscribe（配信停止）
 
-[フロントエンド（静的サイト）]
-  Supabase から直接データを読む
+[フロントエンド（web/、Vercel で配信）]
+  Vite + React の静的サイト。Supabase から直接データを読む（ログインは Supabase Auth のメールリンク）
+  main への push で本番に、PR ごとにプレビューにデプロイされる
 ```
 
 ## ディレクトリ構成
@@ -47,13 +49,14 @@ supabase/functions/  Edge Functions（通知メール・配信停止）と共通
 supabase/migrations/ 通知機能のマイグレーション
 supabase/schema/     手動で作成したテーブルの定義 SQL（ai_selections など）
 tests/               単体テスト（node:test）
-web/                 新フロントエンド（Vite + React。作り直し中。Vercel で配信する予定）
-
-index.html, app.js, style.css, ai-styles.css   メイン画面
-notify.html, notify/                           メニュー通知の設定画面
-admin.html, admin.js                           食事記録の管理画面
-unsubscribe.html                               通知メールの配信停止
+web/                 フロントエンド（Vite + React + TypeScript + Tailwind CSS。Vercel の Root Directory）
+  index.html, dashboard.html, notify.html, admin.html, unsubscribe.html   各ページの入口
+  src/lib/           画面に依存しない処理（最適化・集計・Supabase の読み書きなど。tests/web/ でテスト）
+  src/components/    画面の部品
+  src/pages/         各ページ
 ```
+
+`gh-pages` ブランチには、旧 GitHub Pages を新しいサイトへ転送するページだけが置いてあります。
 
 ## セットアップ
 

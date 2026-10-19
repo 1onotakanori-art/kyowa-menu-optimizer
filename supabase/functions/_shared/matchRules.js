@@ -3,7 +3,7 @@
  *
  * 次の3か所から同じファイルを import して使う:
  *   - Edge Function（Deno）: supabase/functions/send-daily-digest
- *   - ブラウザ: notify.html のプレビュー
+ *   - ブラウザ: web/ の通知ページ（ルールのプレビュー）
  *   - Node の単体テスト: tests/notify/matchRules.test.mjs
  *
  * 条件DSL:

@@ -1,6 +1,6 @@
 # Vercel 移行 & 画面リデザイン — 実装計画
 
-> ステータス: **フェーズ6進行中**（2026-10-21）。フェーズ0〜5と RLS の見直し（PR #12、本番適用済み）は完了
+> ステータス: **完了**（2026-10-21）。フェーズ0〜7と RLS の見直し（PR #12、本番適用済み）がすべて終わった。本番は https://kyowa-menu-optimizer.vercel.app
 > 目的: ホスティングを GitHub Pages から Vercel に移す。あわせて画面を洗練されたデザインに作り直し、絵文字をやめて Lucide のアイコンに置き換える。散らかったリポジトリも整理する。
 
 ---
@@ -206,8 +206,8 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | **3. メイン画面の作り直し**（実装済み） | 設定・メニュー・結果・AI の4タブ | 今の画面でできる操作がすべて新しい画面でできる |
 | **4. 通知・管理・配信停止ページの作り直し**（実装済み。ログイン後の画面は Vercel 切り替え後に確認） | `notify`、`admin`、`unsubscribe` を同じデザインで作り直す | マジックリンクでのログイン、ルールの編集、配信停止が新しい画面で動く |
 | **5. ダッシュボードの作り直し**（実装済み） | 5章の作り直し案 | `/dashboard` で期間を切り替えて集計とグラフが見られる |
-| **6. Vercel への切り替え** | Vercel のプロジェクトを作って GitHub と連携。Supabase 側を更新する（下記）。前回のデプロイから `web/` と `supabase/functions/_shared/` が変わっていなければ `ignoreCommand` でデプロイを飛ばす（週次の `menus/` の自動 push でデプロイが走らないようにする） | 本番 URL（`*.vercel.app`）で全ページが動き、通知メールのリンク先が Vercel になっている |
-| **7. GitHub Pages の停止と旧画面の削除** | 送信済みメールの配信停止リンクは github.io を向いているので、Pages の公開元を転送用ページだけを置いた `gh-pages` ブランチに切り替え、しばらく旧 URL を Vercel へ転送する。そのうえで `main` から旧画面のファイルを消す（6章）。README と docs を更新する | 旧 URL から新 URL へ転送され、`main` に旧画面のファイルと github.io の記載が残っていない |
+| **6. Vercel への切り替え**（完了） | Vercel のプロジェクトを作って GitHub と連携。Supabase 側を更新する（下記）。前回のデプロイから `web/` と `supabase/functions/_shared/` が変わっていなければ `ignoreCommand` でデプロイを飛ばす（週次の `menus/` の自動 push でデプロイが走らないようにする） | 本番 URL（`*.vercel.app`）で全ページが動き、通知メールのリンク先が Vercel になっている |
+| **7. GitHub Pages の停止と旧画面の削除**（完了） | 送信済みメールの配信停止リンクは github.io を向いているので、Pages の公開元を転送用ページだけを置いた `gh-pages` ブランチに切り替え、しばらく旧 URL を Vercel へ転送する。そのうえで `main` から旧画面のファイルを消す（6章）。README と docs を更新する | 旧 URL から新 URL へ転送され、`main` に旧画面のファイルと github.io の記載が残っていない |
 
 絵文字から Lucide への置き換えは、フェーズ3〜5の中で進める（8章）。
 
@@ -275,7 +275,19 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | 2 | 本番の URL を誰でも開けるようにする（短いドメイン `kyowa-menu-optimizer.vercel.app` を追加。こちらは保護の対象外） | 利用者（ダッシュボード） | 済（2026-10-21）。ログインなしで 200 を確認 |
 | 3 | Supabase Auth の Redirect URLs に Vercel の本番（とプレビュー）を追加し、Site URL を Vercel の本番にする | 利用者（ダッシュボード） | 済（2026-10-21）。Site URL は `https://kyowa-menu-optimizer.vercel.app` |
 | 4 | Edge Function `unsubscribe`（CORS の一覧）と `send-daily-digest`（メールのリンク）を再デプロイし、シークレット `APP_BASE_URL` を Vercel の本番にする | Claude（デプロイ）、利用者（シークレット） | デプロイ済み（2026-10-21、PR #21 の内容。どちらもバージョン4）。シークレットはダッシュボードで設定（MCP からは設定できない） |
-| 5 | 本番の URL で確認する: 各ページの表示、`unsubscribe.html?token=…` の転送で token が残るか、通知・管理画面のログインと保存、配信停止（テスト用のトークンで）、通知メールの送信（`dry_run` / `only_email`） | Claude と利用者 | 済: 各ページの表示（ログインなしで 200）、転送で token が残る、配信停止の関数（Vercel からの CORS 許可・不正なトークンの拒否）、`dry_run`（200）。未: ログインと保存、実際のメールのリンク |
+| 5 | 本番の URL で確認する: 各ページの表示、`unsubscribe.html?token=…` の転送で token が残るか、通知・管理画面のログインと保存、配信停止（テスト用のトークンで）、通知メールの送信（`dry_run` / `only_email`） | Claude と利用者 | 済: 各ページの表示（ログインなしで 200）、転送で token が残る、配信停止の関数（Vercel からの CORS 許可・不正なトークンの拒否）、`dry_run`（200）、ログインと食事記録の保存（利用者、2026-10-20 07:49 JST に保存を確認）。新しいリンクの通知メールは、再デプロイ後の最初の定時実行で届く |
+
+### フェーズ7で行ったこと（2026-10-21）
+
+- `gh-pages` ブランチ（履歴なし）に、転送用のページだけを置いた: `index.html` / `notify.html` / `admin.html` / `unsubscribe.html` / `404.html` と `redirect.js`。旧 URL のパスを拡張子なしにし、クエリ（配信停止の token など）とハッシュを引き継いで https://kyowa-menu-optimizer.vercel.app へ転送する。JavaScript が動かないときは meta refresh でトップへ
+- GitHub Pages の公開元を `main` の `/` から `gh-pages` の `/` に切り替えた（`gh api -X PUT repos/…/pages`）
+- `main` から旧画面のファイルを消した（6章の「フェーズ7で行うこと」と、使われなくなった `web/src/components/PlaceholderPage.tsx`）
+- README・管理画面の手順・AI クイックスタート・Supabase の手順を新しい画面に合わせて更新した。`EMAIL_NOTIFICATION_PLAN.md` と `RLS_REVIEW.md` は当時の記録として残し、画面が移ったことだけを冒頭に書いた
+
+### このあと、必要になったらやること
+
+- Supabase Auth の Redirect URLs から github.io の行を消す（転送用ページはログインしないので不要）。配信停止の CORS の許可リスト（`_shared/cors.js`）の github.io も同じ。急ぎではない
+- 転送用ページ（`gh-pages`）は、古い通知メールのリンクが使われなくなったころ（数か月後）に GitHub Pages ごと止めてよい
 
 ### フェーズ6で更新する Supabase の設定
 
