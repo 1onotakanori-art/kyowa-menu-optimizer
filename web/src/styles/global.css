@@ -33,6 +33,11 @@
   --danger-subtle: oklch(0.95 0.025 25);
   --warning: oklch(0.52 0.1 70);
   --warning-subtle: oklch(0.96 0.035 80);
+
+  /* グラフ（dataviz の検証済みパレット。背景 #ffffff で検証） */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
 }
 
 [data-theme='dark'] {
@@ -59,6 +64,11 @@
   --danger-subtle: oklch(0.29 0.05 25);
   --warning: oklch(0.8 0.1 80);
   --warning-subtle: oklch(0.3 0.045 80);
+
+  /* グラフ（背景 #161618 で検証） */
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
 }
 
 @theme inline {
@@ -81,6 +91,9 @@
   --color-danger-subtle: var(--danger-subtle);
   --color-warning: var(--warning);
   --color-warning-subtle: var(--warning-subtle);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
 
   --font-sans: system-ui, -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic UI',
     'Meiryo', sans-serif;
