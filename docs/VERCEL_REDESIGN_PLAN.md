@@ -1,6 +1,6 @@
 # Vercel 移行 & 画面リデザイン — 実装計画
 
-> ステータス: **フェーズ3実装済み**（2026-10-19）。フェーズ0（リポジトリ整理）、RLS の見直し（PR #12、本番適用済み）、フェーズ1（`web/` の土台）、フェーズ2（ロジックの切り出し）は完了。次はフェーズ4（通知・管理・配信停止のページ）
+> ステータス: **フェーズ4実装済み**（2026-10-20）。フェーズ0〜3と RLS の見直し（PR #12、本番適用済み）は完了。次はフェーズ5（ダッシュボード）
 > 目的: ホスティングを GitHub Pages から Vercel に移す。あわせて画面を洗練されたデザインに作り直し、絵文字をやめて Lucide のアイコンに置き換える。散らかったリポジトリも整理する。
 
 ---
@@ -204,7 +204,7 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | **1. 土台づくり**（実装済み。Vercel のプレビューは未確認） | `web/` に Vite + React + TS の雛形、Tailwind、デザイントークン（ライト/ダーク）、テーマ切り替え。共通のレイアウト（ヘッダー、モバイルの下部タブバー）。`vercel.json` を追加 | Vercel のプレビューデプロイで、ライト/ダークを切り替えられる空のページが表示される |
 | **2. ロジックの切り出し**（実装済み） | `app.js` の最適化（貪欲法、距離スコア）、栄養の集計、日付変換を純粋な TS モジュールに分ける。`src/optimizer/optimizeMenus.js` との違いを確認して1つにまとめる。`notify/ruleForm.js` は `web/` へ移し、テストの import 先を直す | 切り出したモジュールに単体テストがあり、既存テストも通る |
 | **3. メイン画面の作り直し**（実装済み） | 設定・メニュー・結果・AI の4タブ | 今の画面でできる操作がすべて新しい画面でできる |
-| **4. 通知・管理・配信停止ページの作り直し** | `notify`、`admin`、`unsubscribe` を同じデザインで作り直す | マジックリンクでのログイン、ルールの編集、配信停止が新しい画面で動く |
+| **4. 通知・管理・配信停止ページの作り直し**（実装済み。ログイン後の画面は Vercel 切り替え後に確認） | `notify`、`admin`、`unsubscribe` を同じデザインで作り直す | マジックリンクでのログイン、ルールの編集、配信停止が新しい画面で動く |
 | **5. ダッシュボードの作り直し** | 5章の作り直し案 | `/dashboard` で期間を切り替えて集計とグラフが見られる |
 | **6. Vercel への切り替え** | Vercel のプロジェクトを作って GitHub と連携。Supabase 側を更新する（下記）。前回のデプロイから `web/` と `supabase/functions/_shared/` が変わっていなければ `ignoreCommand` でデプロイを飛ばす（週次の `menus/` の自動 push でデプロイが走らないようにする） | 本番 URL（`*.vercel.app`）で全ページが動き、通知メールのリンク先が Vercel になっている |
 | **7. GitHub Pages の停止と旧画面の削除** | 送信済みメールの配信停止リンクは github.io を向いているので、Pages の公開元を転送用ページだけを置いた `gh-pages` ブランチに切り替え、しばらく旧 URL を Vercel へ転送する。そのうえで `main` から旧画面のファイルを消す（6章）。README と docs を更新する | 旧 URL から新 URL へ転送され、`main` に旧画面のファイルと github.io の記載が残っていない |
@@ -231,6 +231,15 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 - **日付を変えたら**、固定・除外・結果はリセットする（メニューが日ごとに違うため）
 - AI 推奨の番号は、セットの中での順番（1, 2, 3）を表示する。データの `rank` は全メニュー中の順位なので、並び順にだけ使う
 
+### フェーズ4で決めたこと（2026-10-20）
+
+- **ログイン**は通知・管理とも Supabase Auth のメールリンク。通知は初めてのメールアドレスでも登録する、管理画面は登録しない（今と同じ）。ログイン状態の受け取りとリンクの送信は `useSession.ts` と `Login.tsx` で共通にした
+- **通知ページ**: 通知設定（受け取る・曜日）、ルールの一覧（オン・オフ、編集、削除、今後の該当日数）、ルールの編集（メニュー名・含まないキーワード・栄養値・アレルゲン・プレビュー）、最近の通知。判定は通知メールと同じ `_shared/matchRules.js` を使う
+- **管理ページ**: 日付を選ぶとその日のメニューと保存済みの記録を自動で読む（「メニュー読込」ボタンはなくした）。食べたメニューを押して選び、星で評価して保存する。保存する行の形は今の管理画面と同じ（ML の学習データになるため）
+  - 今の管理画面は保存のたびに localStorage にも控えを書いていたが、新しい画面は Supabase だけに保存する。「最近の記録」も localStorage ではなく Supabase から読む（端末をまたいでも同じものが出る）
+- **配信停止ページ**: 押すまでは停止しない（今と同じ）。メールのリンクは `unsubscribe.html?token=…` の形で、Vercel では cleanUrls で `/unsubscribe` に転送される。**転送でクエリ（token）が残るかは未確認**なので、フェーズ6で本番の URL で確かめる。あわせて、通知メールのリンクを転送の要らない `/unsubscribe?token=…` に変える
+- ログイン後の画面は、ログインできないため開発中は本物のセッションでは確かめていない。メニューのデータ（誰でも読める）と仮のルールで部品を描画して、表示・プレビュー・保存される条件の形を確認した
+
 ### Vercel のプロジェクト（2026-10-19 作成）
 
 | 項目 | 値 |
@@ -246,9 +255,9 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 
 ### フェーズ6で更新する Supabase の設定
 
-- Auth の Redirect URLs に Vercel のドメインを追加する
+- Auth の Redirect URLs に Vercel のドメインを追加する（例: `https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app/**`。プレビューでもログインを試すなら `https://kyowa-menu-optimizer-*-takanoris-projects-ff756f89.vercel.app/**` も）
 - Edge Function のシークレット `APP_BASE_URL` を Vercel のドメインに変更する
-- `unsubscribe` の CORS 許可オリジンを環境変数で設定する形に変更する（移行期間中は github.io と Vercel の両方を許可）
+- `unsubscribe` を再デプロイする。CORS の許可元はフェーズ4で `_shared/cors.js` の一覧（github.io・Vercel の本番・このプロジェクトのプレビュー）に変えてあり、環境変数 `ALLOWED_ORIGINS` で上書きできる。再デプロイするまで、Vercel のページからの配信停止はブラウザに止められる
 
 ---
 

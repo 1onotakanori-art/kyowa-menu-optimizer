@@ -26,6 +26,8 @@ function cleanUrls(): Plugin {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), cleanUrls()],
+  // 通知ルールの判定は Edge Function と共通（../supabase/functions/_shared/）なので、web/ の外も読めるようにする
+  server: { fs: { allow: ['..'] } },
   build: {
     rollupOptions: {
       input: Object.fromEntries(pages.map((name) => [name, resolve(import.meta.dirname, `${name}.html`)])),
