@@ -274,8 +274,8 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | 1 | 通知メールのリンクを Vercel の拡張子なしの URL（`/notify`、`/unsubscribe?token=…`）にする。`APP_BASE_URL` の初期値と CORS の許可リストを `https://kyowa-menu-optimizer.vercel.app` にする | Claude（PR #20、#21） | #20 はマージ済み |
 | 2 | 本番の URL を誰でも開けるようにする（短いドメイン `kyowa-menu-optimizer.vercel.app` を追加。こちらは保護の対象外） | 利用者（ダッシュボード） | 済（2026-10-21）。ログインなしで 200 を確認 |
 | 3 | Supabase Auth の Redirect URLs に Vercel の本番（とプレビュー）を追加し、Site URL を Vercel の本番にする | 利用者（ダッシュボード） | 済（2026-10-21）。Site URL は `https://kyowa-menu-optimizer.vercel.app` |
-| 4 | Edge Function `unsubscribe`（CORS の一覧）と `send-daily-digest`（メールのリンク）を再デプロイし、シークレット `APP_BASE_URL` を Vercel の本番にする | Claude（Supabase） | 未 |
-| 5 | 本番の URL で確認する: 各ページの表示、`unsubscribe.html?token=…` の転送で token が残るか、通知・管理画面のログインと保存、配信停止（テスト用のトークンで）、通知メールの送信（`dry_run` / `only_email`） | Claude と利用者 | 未 |
+| 4 | Edge Function `unsubscribe`（CORS の一覧）と `send-daily-digest`（メールのリンク）を再デプロイし、シークレット `APP_BASE_URL` を Vercel の本番にする | Claude（デプロイ）、利用者（シークレット） | デプロイ済み（2026-10-21、PR #21 の内容。どちらもバージョン4）。シークレットはダッシュボードで設定（MCP からは設定できない） |
+| 5 | 本番の URL で確認する: 各ページの表示、`unsubscribe.html?token=…` の転送で token が残るか、通知・管理画面のログインと保存、配信停止（テスト用のトークンで）、通知メールの送信（`dry_run` / `only_email`） | Claude と利用者 | 済: 各ページの表示（ログインなしで 200）、転送で token が残る、配信停止の関数（Vercel からの CORS 許可・不正なトークンの拒否）、`dry_run`（200）。未: ログインと保存、実際のメールのリンク |
 
 ### フェーズ6で更新する Supabase の設定
 
