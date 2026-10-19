@@ -66,7 +66,7 @@ web/
   src/hooks/               React のフック（useTheme）
   src/components/          共通の部品（AppShell、TabBar、ThemeToggle、EmptyState など）
   src/pages/               各ページの中身
-  vercel.json              cleanUrls（/notify → notify.html）、web/ と supabase/functions/_shared/ に変更がない commit はビルドしない
+  vercel.json              cleanUrls（/notify → notify.html）、前回のデプロイから web/ と supabase/functions/_shared/ が変わっていなければビルドしない
 ```
 
 - 開発サーバーでも `/notify` のような拡張子なしの URL で開ける（`vite.config.ts` の `cleanUrls`）
@@ -196,7 +196,7 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | **3. メイン画面の作り直し** | 設定・メニュー・結果・AI の4タブ | 今の画面でできる操作がすべて新しい画面でできる |
 | **4. 通知・管理・配信停止ページの作り直し** | `notify`、`admin`、`unsubscribe` を同じデザインで作り直す | マジックリンクでのログイン、ルールの編集、配信停止が新しい画面で動く |
 | **5. ダッシュボードの作り直し** | 5章の作り直し案 | `/dashboard` で期間を切り替えて集計とグラフが見られる |
-| **6. Vercel への切り替え** | Vercel のプロジェクトを作って GitHub と連携。Supabase 側を更新する（下記）。`web/` と `supabase/functions/_shared/` に変更がない commit は `ignoreCommand` でデプロイを飛ばす（週次の `menus/` の自動 push でデプロイが走らないようにする） | 本番 URL（`*.vercel.app`）で全ページが動き、通知メールのリンク先が Vercel になっている |
+| **6. Vercel への切り替え** | Vercel のプロジェクトを作って GitHub と連携。Supabase 側を更新する（下記）。前回のデプロイから `web/` と `supabase/functions/_shared/` が変わっていなければ `ignoreCommand` でデプロイを飛ばす（週次の `menus/` の自動 push でデプロイが走らないようにする） | 本番 URL（`*.vercel.app`）で全ページが動き、通知メールのリンク先が Vercel になっている |
 | **7. GitHub Pages の停止と旧画面の削除** | 送信済みメールの配信停止リンクは github.io を向いているので、Pages の公開元を転送用ページだけを置いた `gh-pages` ブランチに切り替え、しばらく旧 URL を Vercel へ転送する。そのうえで `main` から旧画面のファイルを消す（6章）。README と docs を更新する | 旧 URL から新 URL へ転送され、`main` に旧画面のファイルと github.io の記載が残っていない |
 
 絵文字から Lucide への置き換えは、フェーズ3〜5の中で進める（8章）。
