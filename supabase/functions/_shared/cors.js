@@ -8,8 +8,9 @@
  * CORS が守るのは「ブラウザで応答を読めるか」だけ。配信停止そのものはトークンを知っていることで認める。
  */
 
-/** GitHub Pages（移行期間中）と Vercel の本番 */
+/** Vercel の本番（https://kyowa-menu-optimizer.vercel.app）と、移行期間中の GitHub Pages */
 export const DEFAULT_ALLOWED_ORIGINS = Object.freeze([
+  'https://kyowa-menu-optimizer.vercel.app',
   'https://1onotakanori-art.github.io',
   'https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app',
 ]);

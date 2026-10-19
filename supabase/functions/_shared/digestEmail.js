@@ -31,7 +31,7 @@ export function nutritionSummary(nutrition) {
 }
 
 /** メールに載せるサイト（Vercel の本番）。Edge Function のシークレット APP_BASE_URL で上書きできる */
-export const DEFAULT_APP_BASE_URL = 'https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app';
+export const DEFAULT_APP_BASE_URL = 'https://kyowa-menu-optimizer.vercel.app';
 
 /**
  * メールに載せるリンク。Vercel では拡張子なしの URL で各ページを配信する（cleanUrls）

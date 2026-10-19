@@ -2,7 +2,7 @@
 
 共和食堂のメニューから、栄養目標に合うメニューの組み合わせを提案する Web アプリです。
 
-公開 URL: https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app/
+公開 URL: https://kyowa-menu-optimizer.vercel.app/
 
 > GitHub Pages から Vercel に移行しました（旧 URL https://1onotakanori-art.github.io/kyowa-menu-optimizer/ は移行期間中も残します）。新しい画面のコードは `web/` にあります。計画と進捗は [docs/VERCEL_REDESIGN_PLAN.md](docs/VERCEL_REDESIGN_PLAN.md) を参照してください。
 

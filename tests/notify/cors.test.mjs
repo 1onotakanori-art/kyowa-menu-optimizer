@@ -11,6 +11,7 @@ test('parseAllowedOrigins: カンマ区切りを分け、末尾の / を取る�
 
 test('isAllowedOrigin: GitHub Pages・Vercel の本番とこのプロジェクトのプレビューだけ', () => {
   const allowed = parseAllowedOrigins(undefined);
+  assert.ok(isAllowedOrigin('https://kyowa-menu-optimizer.vercel.app', allowed));
   assert.ok(isAllowedOrigin('https://1onotakanori-art.github.io', allowed));
   assert.ok(isAllowedOrigin('https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app', allowed));
   assert.ok(isAllowedOrigin('https://kyowa-menu-optimizer-h9otpatya-takanoris-projects-ff756f89.vercel.app', allowed));

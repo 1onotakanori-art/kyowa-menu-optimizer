@@ -237,7 +237,7 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 - **通知ページ**: 通知設定（受け取る・曜日）、ルールの一覧（オン・オフ、編集、削除、今後の該当日数）、ルールの編集（メニュー名・含まないキーワード・栄養値・アレルゲン・プレビュー）、最近の通知。判定は通知メールと同じ `_shared/matchRules.js` を使う
 - **管理ページ**: 日付を選ぶとその日のメニューと保存済みの記録を自動で読む（「メニュー読込」ボタンはなくした）。食べたメニューを押して選び、星で評価して保存する。保存する行の形は今の管理画面と同じ（ML の学習データになるため）
   - 今の管理画面は保存のたびに localStorage にも控えを書いていたが、新しい画面は Supabase だけに保存する。「最近の記録」も localStorage ではなく Supabase から読む（端末をまたいでも同じものが出る）
-- **配信停止ページ**: 押すまでは停止しない（今と同じ）。メールのリンクは `unsubscribe.html?token=…` の形で、Vercel では cleanUrls で `/unsubscribe` に転送される。**転送でクエリ（token）が残るかは未確認**なので、フェーズ6で本番の URL で確かめる。あわせて、通知メールのリンクを転送の要らない `/unsubscribe?token=…` に変える
+- **配信停止ページ**: 押すまでは停止しない（今と同じ）。旧形式のリンク `unsubscribe.html?token=…` は、Vercel の cleanUrls で `/unsubscribe?token=…` に 308 で転送され、**token は残る**（2026-10-21 に本番で確認）。新しい通知メールは、はじめから `/unsubscribe?token=…` を載せる
 - ログイン後の画面は、ログインできないため開発中は本物のセッションでは確かめていない。メニューのデータ（誰でも読める）と仮のルールで部品を描画して、表示・プレビュー・保存される条件の形を確認した
 
 ### フェーズ5で決めたこと（2026-10-20）
@@ -261,19 +261,19 @@ CLAUDE.md  README.md  package.json  package-lock.json  requirements.txt  .nvmrc 
 | チーム | takanori's projects（Hobby） |
 | プロジェクト | `kyowa-menu-optimizer`（`prj_bNwfSyRJRF6BkDv7nBb7PZrXGkOl`） |
 | Root Directory / Framework | `web` / Vite |
-| 本番の URL | `https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app` |
+| 本番の URL | **`https://kyowa-menu-optimizer.vercel.app`**（2026-10-21 に追加。正式な URL はこちら）。自動で付いた `https://kyowa-menu-optimizer-takanoris-projects-ff756f89.vercel.app` は Vercel の保護がかかったまま |
 
 - プロジェクトの作成と設定の変更はダッシュボードで行う（Vercel の MCP の接続には、作成・更新の権限がない）
 - **Deployment Protection（Vercel Authentication）が「本番の `*.vercel.app` を含めて有効」になっている**。このままだと、Vercel にログインしていない人は本番の URL も開けない。フェーズ6で公開するときに、保護の対象をプレビューだけにする（Settings → Deployment Protection）
-- 本番の URL が長いので、フェーズ6で短い `*.vercel.app` の名前（例: `kyowa-menu.vercel.app`）が空いていれば割り当てる
+- 短い `kyowa-menu-optimizer.vercel.app` が空いていたので、利用者が Domains に追加した（2026-10-21）
 
 ### フェーズ6の手順（2026-10-21〜）
 
 | 順 | やること | だれが | 状態 |
 |---|---|---|---|
-| 1 | 通知メールのリンクを Vercel の拡張子なしの URL（`/notify`、`/unsubscribe?token=…`）にする。`APP_BASE_URL` の初期値も Vercel の本番にする（`_shared/digestEmail.js` の `buildAppLinks`） | Claude（PR） | 未マージ |
-| 2 | Vercel の Deployment Protection を「Standard Protection」（プレビューだけ保護）にして、本番の URL を誰でも開けるようにする | 利用者（ダッシュボード） | 未 |
-| 3 | Supabase Auth の Redirect URLs に Vercel の本番（とプレビュー）を追加し、Site URL を Vercel の本番にする | 利用者（ダッシュボード） | 未 |
+| 1 | 通知メールのリンクを Vercel の拡張子なしの URL（`/notify`、`/unsubscribe?token=…`）にする。`APP_BASE_URL` の初期値と CORS の許可リストを `https://kyowa-menu-optimizer.vercel.app` にする | Claude（PR #20、#21） | #20 はマージ済み |
+| 2 | 本番の URL を誰でも開けるようにする（短いドメイン `kyowa-menu-optimizer.vercel.app` を追加。こちらは保護の対象外） | 利用者（ダッシュボード） | 済（2026-10-21）。ログインなしで 200 を確認 |
+| 3 | Supabase Auth の Redirect URLs に Vercel の本番（とプレビュー）を追加し、Site URL を Vercel の本番にする | 利用者（ダッシュボード） | 済（2026-10-21）。Site URL は `https://kyowa-menu-optimizer.vercel.app` |
 | 4 | Edge Function `unsubscribe`（CORS の一覧）と `send-daily-digest`（メールのリンク）を再デプロイし、シークレット `APP_BASE_URL` を Vercel の本番にする | Claude（Supabase） | 未 |
 | 5 | 本番の URL で確認する: 各ページの表示、`unsubscribe.html?token=…` の転送で token が残るか、通知・管理画面のログインと保存、配信停止（テスト用のトークンで）、通知メールの送信（`dry_run` / `only_email`） | Claude と利用者 | 未 |
 
