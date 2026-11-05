@@ -1,5 +1,6 @@
 const { chromium } = require('playwright');
 const { toDateLabel } = require('../utils/date');
+const { detectFloor } = require('./floor');
 
 /**
  * 指定した日付のメニューをスクレイプ
@@ -304,7 +305,7 @@ async function expandAllMenus(page) {
  * 3. エラーハンドリング: 個別メニュー失敗は全体エラーにしない
  * 
  * @param {Page} page - Playwright の Page オブジェクト
- * @returns {Promise<Array>} メニュー配列 [{name, nutrition}, ...]
+ * @returns {Promise<Array>} メニュー配列 [{name, floor, nutrition}, ...]
  */
 async function scrapeMenus(page) {
   // ステップ 1: メニュー要素の存在確認
@@ -343,6 +344,10 @@ async function scrapeMenus(page) {
         continue;
       }
 
+      // ステップ 4-2b: カードの概要欄を取得（「2Fにて販売いたします」など）
+      // allInnerTexts は要素がなくても待たずに [] を返す
+      const cardOverview = (await menu.locator('.menu-overview').allInnerTexts()).join('\n');
+
       // ステップ 4-3: 詳細ボタンをクリック
       // 理由: 栄養情報は詳細パネルにのみ表示される
       await menu.locator('.menu-detail-btn').click({ force: true });
@@ -379,14 +384,22 @@ async function scrapeMenus(page) {
         return obj;
       });
 
+      // ステップ 4-5b: 詳細パネルの概要欄（カードと同じ文言。念のため両方を見る）
+      const detailOverview = await page.evaluate(() =>
+        [...document.querySelectorAll('.menu-detail-overview')].map(el => el.innerText).join('\n')
+      );
+      const floor = detectFloor(cardOverview, detailOverview);
+
       // ステップ 4-6: 取得した情報をリストに追加
+      // floor: '2F'（2F でのみ販売）/ null（表記なし。1F とは限らない）
       results.push({
         name,
+        floor,
         nutrition
       });
       
       successCount++;
-      console.log(`   ✅ [${successCount}/${menuCount}] ${name}`);
+      console.log(`   ✅ [${successCount}/${menuCount}] ${name}${floor ? `（${floor}）` : ''}`);
       console.log(`      栄養情報: ${Object.keys(nutrition).length} 項目`);
 
       // ステップ 4-7: 詳細パネルを閉じる

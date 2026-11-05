@@ -7,9 +7,21 @@
 
 export type NutritionValue = number | string;
 
+/**
+ * 販売フロア。'2F' = 2F でのみ販売（サイトの「2Fにて販売いたします」表記）。
+ * null / 未設定 = 表記なし（1F とは限らない）
+ */
+export type MenuFloor = '2F' | null;
+
 export interface Menu {
   name: string;
   nutrition: Record<string, NutritionValue>;
+  floor?: MenuFloor;
+}
+
+/** 2F でのみ販売するメニューか */
+export function isSecondFloorOnly(menu: Pick<Menu, 'floor'> | null | undefined): boolean {
+  return menu?.floor === '2F';
 }
 
 /** 栄養値の合計や目標。数値の項目だけを持つ */

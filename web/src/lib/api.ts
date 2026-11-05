@@ -24,7 +24,7 @@ export async function fetchAvailableDates(now: Date = new Date()): Promise<ISODa
 }
 
 export async function fetchMenus(date: ISODate): Promise<Menu[]> {
-  const { data, error } = await supabase.from('menus').select('menu_name, nutrition').eq('date', date);
+  const { data, error } = await supabase.from('menus').select('menu_name, nutrition, floor').eq('date', date);
   if (error) throw new Error(`メニューを読み込めませんでした: ${error.message}`);
   return mapMenuRows(data ?? []);
 }

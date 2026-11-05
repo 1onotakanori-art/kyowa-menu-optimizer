@@ -30,6 +30,14 @@ export function nutritionSummary(nutrition) {
     .join(' / ');
 }
 
+/** 2F でのみ販売するメニューか（menus.floor = '2F'。表記なしは 1F とは限らないので何も付けない） */
+export function isSecondFloorOnly(menu) {
+  return menu?.floor === '2F';
+}
+
+/** テキスト本文でメニュー名の後ろに付けるフロア表記 */
+export const SECOND_FLOOR_TEXT_LABEL = '［2Fで販売］';
+
 /** メールに載せるサイト（Vercel の本番）。Edge Function のシークレット APP_BASE_URL で上書きできる */
 export const DEFAULT_APP_BASE_URL = 'https://kyowa-menu-optimizer.vercel.app';
 
@@ -51,7 +59,7 @@ export function buildAppLinks(baseUrl, unsubscribeToken) {
 /**
  * @param {object} params
  * @param {string} params.date - "YYYY-MM-DD"
- * @param {Array<{ ruleName: string, conditions: object, menus: Array<{ name: string, nutrition: object }> }>} params.results
+ * @param {Array<{ ruleName: string, conditions: object, menus: Array<{ name: string, nutrition: object, floor?: string | null }> }>} params.results
  * @param {string} params.appUrl - メニュー最適化アプリの URL
  * @param {string} params.settingsUrl - 通知設定ページの URL
  * @param {string} params.unsubscribeUrl - 配信停止ページの URL
@@ -68,7 +76,8 @@ export function buildDigestEmail({ date, results, appUrl, settingsUrl, unsubscri
       `  条件: ${describeConditions(r.conditions).join(' ／ ')}`,
       ...r.menus.map(m => {
         const summary = nutritionSummary(m.nutrition);
-        return `  ・${m.name}${summary ? `（${summary}）` : ''}`;
+        const floor = isSecondFloorOnly(m) ? SECOND_FLOOR_TEXT_LABEL : '';
+        return `  ・${m.name}${floor}${summary ? `（${summary}）` : ''}`;
       }),
     ].join('\n')
   );
@@ -94,7 +103,10 @@ export function buildDigestEmail({ date, results, appUrl, settingsUrl, unsubscri
           ${r.menus
             .map(m => {
               const summary = nutritionSummary(m.nutrition);
-              return `<li style="margin:4px 0;"><b>${escapeHtml(m.name)}</b>${
+              const floor = isSecondFloorOnly(m)
+                ? ` <span style="display:inline-block;font-size:11px;font-weight:bold;color:#B25000;background:#FFF1E0;border-radius:4px;padding:1px 6px;vertical-align:1px;">2Fで販売</span>`
+                : '';
+              return `<li style="margin:4px 0;"><b>${escapeHtml(m.name)}</b>${floor}${
                 summary ? `<br><span style="font-size:12px;color:#666;">${escapeHtml(summary)}</span>` : ''
               }</li>`;
             })

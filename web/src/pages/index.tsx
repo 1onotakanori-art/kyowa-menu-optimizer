@@ -9,6 +9,7 @@ import { TabBar, type TabItem } from '../components/TabBar.tsx';
 import { useAsync } from '../hooks/useAsync.ts';
 import { fetchAISelection, fetchAvailableDates, fetchMenus } from '../lib/api.ts';
 import { formatDateLabel, pickDefaultDate, todayInTokyo, type ISODate } from '../lib/date.ts';
+import { isSecondFloorOnly } from '../lib/nutrition.ts';
 import { fixedOnlyResult, optimizeMenus, type OptimizeResult } from '../lib/optimizer.ts';
 import { renderPage } from '../lib/render.tsx';
 import { SETTINGS_STORAGE_KEY, activeTargets, parseSettings, serializeSettings, type Settings } from '../lib/settings.ts';
@@ -90,6 +91,7 @@ function MainPage() {
   const targets = useMemo(() => activeTargets(settings), [settings]);
   const menuList = menus.state.status === 'success' ? menus.state.data : [];
   const menuNames = useMemo(() => new Set(menuList.map((m) => m.name)), [menuList]);
+  const secondFloorNames = useMemo(() => new Set(menuList.filter(isSecondFloorOnly).map((m) => m.name)), [menuList]);
 
   const openResult = (next: OptimizeResult) => {
     setResult(next);
@@ -198,6 +200,7 @@ function MainPage() {
             onReload={aiSelection.reload}
             targets={targets}
             availableNames={menuNames}
+            secondFloorNames={secondFloorNames}
             onFixSet={fixAISet}
           />
         )}
