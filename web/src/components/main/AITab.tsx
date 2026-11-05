@@ -3,6 +3,7 @@ import type { AsyncState } from '../../hooks/useAsync.ts';
 import type { AISelection } from '../../lib/mappers.ts';
 import { roundTenth, sumNutrition, type Targets } from '../../lib/nutrition.ts';
 import { EmptyState } from '../EmptyState.tsx';
+import { FloorBadge } from '../FloorBadge.tsx';
 import { MenuNutritionLine, NutritionSummary } from '../Nutrition.tsx';
 import { Badge, Button, Card, ErrorMessage, Loading } from '../ui.tsx';
 
@@ -12,10 +13,12 @@ interface AITabProps {
   targets: Targets;
   /** その日のメニューにある名前（固定できるかの判定に使う） */
   availableNames: ReadonlySet<string>;
+  /** その日のメニューで 2F でのみ販売するものの名前（AI 推奨の行にはフロアが入っていないため） */
+  secondFloorNames: ReadonlySet<string>;
   onFixSet: (names: string[]) => void;
 }
 
-export function AITab({ selection, onReload, targets, availableNames, onFixSet }: AITabProps) {
+export function AITab({ selection, onReload, targets, availableNames, secondFloorNames, onFixSet }: AITabProps) {
   if (selection.status === 'loading') return <Loading>AI 推奨を読み込んでいます</Loading>;
   if (selection.status === 'error') return <ErrorMessage onRetry={onReload}>{selection.error.message}</ErrorMessage>;
   if (!selection.data || selection.data.menus.length === 0) {
@@ -65,6 +68,7 @@ export function AITab({ selection, onReload, targets, availableNames, onFixSet }
               <p className="mb-1 flex flex-wrap items-center gap-1.5">
                 {menu.roleLabel && <Badge>{menu.roleLabel}</Badge>}
                 <span className="font-medium">{menu.name}</span>
+                <FloorBadge menu={{ floor: secondFloorNames.has(menu.name) ? '2F' : null }} />
                 <span className="text-xs text-fg-muted tabular-nums">スコア {roundTenth(menu.score * 100)}%</span>
               </p>
               <MenuNutritionLine nutrition={menu.nutrition} />

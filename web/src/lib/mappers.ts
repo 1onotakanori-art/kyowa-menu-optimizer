@@ -3,7 +3,7 @@
  */
 
 import type { ISODate } from './date.ts';
-import type { Menu, NutritionValue } from './nutrition.ts';
+import type { Menu, MenuFloor, NutritionValue } from './nutrition.ts';
 
 export interface AIMenu {
   name: string;
@@ -32,6 +32,12 @@ export interface AISelection {
 export interface MenuRow {
   menu_name: string;
   nutrition: Record<string, NutritionValue> | null;
+  floor?: string | null;
+}
+
+/** DB の floor を画面用に。'2F' 以外（null・未知の値）は表記なしとして扱う */
+export function toMenuFloor(value: unknown): MenuFloor {
+  return value === '2F' ? '2F' : null;
 }
 
 export interface AISelectionRow {
@@ -43,7 +49,7 @@ export interface AISelectionRow {
 }
 
 export function mapMenuRows(rows: readonly MenuRow[]): Menu[] {
-  return rows.map((row) => ({ name: row.menu_name, nutrition: row.nutrition ?? {} }));
+  return rows.map((row) => ({ name: row.menu_name, nutrition: row.nutrition ?? {}, floor: toMenuFloor(row.floor) }));
 }
 
 function asString(value: unknown): string | null {

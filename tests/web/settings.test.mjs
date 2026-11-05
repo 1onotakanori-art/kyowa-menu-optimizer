@@ -32,9 +32,18 @@ test('activeTargets: 有効にした目標だけ', () => {
 
 test('mapMenuRows: menu_name を name にし、栄養値がなければ空', () => {
   assert.deepEqual(mapMenuRows([{ menu_name: 'カレー', nutrition: { エネルギー: 700 } }, { menu_name: '水', nutrition: null }]), [
-    { name: 'カレー', nutrition: { エネルギー: 700 } },
-    { name: '水', nutrition: {} },
+    { name: 'カレー', nutrition: { エネルギー: 700 }, floor: null },
+    { name: '水', nutrition: {}, floor: null },
   ]);
+});
+
+test('mapMenuRows: floor は 2F のときだけ残し、それ以外は表記なし（null）', () => {
+  const menus = mapMenuRows([
+    { menu_name: 'グリーンサラダ(2F)', nutrition: {}, floor: '2F' },
+    { menu_name: 'カレー', nutrition: {}, floor: null },
+    { menu_name: '水', nutrition: {}, floor: '3F' },
+  ]);
+  assert.deepEqual(menus.map((m) => m.floor), ['2F', null, null]);
 });
 
 test('mapAISelectionRow: 順位で並べ、欠けた項目は補い、説明文は文字列のときだけ使う', () => {

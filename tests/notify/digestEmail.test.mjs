@@ -77,3 +77,35 @@ test('buildAppLinks: Vercel の拡張子なしの URL。未設定なら本番、
   assert.equal(buildAppLinks(undefined, 'x').settingsUrl, `${DEFAULT_APP_BASE_URL}/notify`);
   assert.equal(buildAppLinks('', 'x').appUrl, `${DEFAULT_APP_BASE_URL}/`);
 });
+
+const floorParams = {
+  ...params,
+  results: [
+    {
+      ruleName: 'サラダ',
+      conditions: { all: [{ field: 'name', op: 'contains_any', value: ['サラダ'] }] },
+      menus: [
+        { name: 'グリーンサラダ(2F)', floor: '2F', nutrition: { エネルギー: 15 } },
+        { name: '水耕グリーンリーフサラダ', floor: null, nutrition: { エネルギー: 20 } },
+      ],
+    },
+  ],
+};
+
+test('buildDigestEmail: 2F でのみ販売するメニューはテキスト本文で名前の後ろに［2Fで販売］', () => {
+  const { text } = buildDigestEmail(floorParams);
+  assert.ok(text.includes('・グリーンサラダ(2F)［2Fで販売］（エネルギー 15kcal）'));
+  assert.ok(text.includes('・水耕グリーンリーフサラダ（エネルギー 20kcal）'));
+});
+
+test('buildDigestEmail: HTML 本文は 2F のメニューにだけラベルを付ける', () => {
+  const { html } = buildDigestEmail(floorParams);
+  assert.equal(html.split('2Fで販売</span>').length - 1, 1);
+  assert.match(html, /<b>グリーンサラダ\(2F\)<\/b> <span[^>]*>2Fで販売<\/span>/);
+});
+
+test('buildDigestEmail: floor がないメニュー（古いデータ）は今までどおり', () => {
+  const { text, html } = buildDigestEmail(params);
+  assert.ok(!text.includes('2Fで販売'));
+  assert.ok(!html.includes('2Fで販売'));
+});

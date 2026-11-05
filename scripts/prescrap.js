@@ -58,7 +58,7 @@ function saveMenusToOutput(dateLabel, data) {
  * 1日分のメニューを Supabase へアップサート
  *
  * @param {string} date - "2026-01-13" 形式
- * @param {Array} menus - [{name, nutrition}] 配列
+ * @param {Array} menus - [{name, floor, nutrition}] 配列
  * @returns {Promise<number>} アップロード件数
  */
 async function uploadToSupabase(date, menus) {
@@ -67,6 +67,8 @@ async function uploadToSupabase(date, menus) {
     date,
     menu_name: menu.name,
     nutrition: menu.nutrition,
+    // '2F'（2F でのみ販売）/ null（表記なし）。floor を持たない古い JSON は null で上書きされる
+    floor: menu.floor ?? null,
   }));
   const { error } = await supabase
     .from('menus')

@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS menus (
   date DATE NOT NULL,
   menu_name TEXT NOT NULL,
   nutrition JSONB NOT NULL,
+  floor TEXT CHECK (floor IS NULL OR floor = '2F'), -- '2F' = 2F でのみ販売、NULL = 表記なし
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(date, menu_name)

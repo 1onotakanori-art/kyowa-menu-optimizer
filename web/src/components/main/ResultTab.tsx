@@ -2,6 +2,7 @@ import { ArrowLeft, ChartColumn, ListChecks, Pin, Plus, RefreshCw, Target, Undo2
 import type { Menu } from '../../lib/nutrition.ts';
 import type { OptimizeResult } from '../../lib/optimizer.ts';
 import { EmptyState } from '../EmptyState.tsx';
+import { FloorBadge } from '../FloorBadge.tsx';
 import { MenuNutritionLine, NutritionSummary, TargetTable } from '../Nutrition.tsx';
 import { Badge, Button, Card } from '../ui.tsx';
 
@@ -57,7 +58,10 @@ export function ResultTab({ result, dropped, onToggleDrop, onReoptimize, onBack,
           <ul className="space-y-2">
             {result.fixedMenus.map((menu) => (
               <li key={menu.name} className="rounded-lg border border-border px-3 py-2.5">
-                <p className="mb-1 font-medium">{menu.name}</p>
+                <p className="mb-1 flex flex-wrap items-center gap-1.5">
+                  <span className="font-medium">{menu.name}</span>
+                  <FloorBadge menu={menu} />
+                </p>
                 <MenuNutritionLine nutrition={menu.nutrition} />
               </li>
             ))}
@@ -105,8 +109,9 @@ function AdditionalRow({ menu, isDropped, onToggle }: { menu: Menu; isDropped: b
           isDropped ? 'border-border bg-surface-muted' : 'border-border hover:bg-surface-muted'
         }`}
       >
-        <span className="mb-1 flex items-center gap-1.5">
+        <span className="mb-1 flex flex-wrap items-center gap-1.5">
           <span className={`font-medium ${isDropped ? 'text-fg-muted line-through' : ''}`}>{menu.name}</span>
+          <FloorBadge menu={menu} />
           {isDropped && (
             <Badge icon={Undo2}>外す</Badge>
           )}

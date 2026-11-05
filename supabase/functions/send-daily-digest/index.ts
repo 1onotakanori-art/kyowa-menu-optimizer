@@ -30,7 +30,8 @@ const GMAIL_APP_PASSWORD = Deno.env.get('GMAIL_APP_PASSWORD');
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 
-type Menu = { name: string; nutrition: Record<string, unknown> };
+// floor: '2F' = 2F でのみ販売、null = 表記なし（通知メールでメニュー名の横に出す）
+type Menu = { name: string; nutrition: Record<string, unknown>; floor: string | null };
 type Rule = { id: number; user_id: string; name: string; enabled: boolean; conditions: { all: unknown[] } };
 
 function json(body: unknown, status = 200) {
@@ -101,13 +102,13 @@ async function recordDelivery(userId: string, date: string, fields: Record<strin
 async function run({ date, dryRun, onlyEmail }: { date: string; dryRun: boolean; onlyEmail: string | null }) {
   const { data: menuRows, error: menuError } = await supabase
     .from('menus')
-    .select('menu_name, nutrition')
+    .select('menu_name, nutrition, floor')
     .eq('date', date);
   if (menuError) throw menuError;
   if (!menuRows || menuRows.length === 0) {
     return { date, status: 'no_menus', message: 'この日のメニューがないため送信しません（休業日など）' };
   }
-  const menus: Menu[] = menuRows.map(row => ({ name: row.menu_name, nutrition: row.nutrition }));
+  const menus: Menu[] = menuRows.map(row => ({ name: row.menu_name, nutrition: row.nutrition, floor: row.floor ?? null }));
 
   const weekday = isoWeekday(date);
   const { data: profiles, error: profileError } = await supabase

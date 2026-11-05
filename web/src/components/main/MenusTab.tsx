@@ -2,8 +2,9 @@ import { useId, useMemo, useState } from 'react';
 import { Ban, ChartColumn, Pin, Search, SearchX, Sparkles, Wand2, X } from 'lucide-react';
 import type { AsyncState } from '../../hooks/useAsync.ts';
 import type { AISelection } from '../../lib/mappers.ts';
-import { sumNutrition, type Menu, type Targets } from '../../lib/nutrition.ts';
+import { isSecondFloorOnly, sumNutrition, type Menu, type Targets } from '../../lib/nutrition.ts';
 import { EmptyState } from '../EmptyState.tsx';
+import { FloorBadge } from '../FloorBadge.tsx';
 import { MenuNutritionLine, NutritionSummary } from '../Nutrition.tsx';
 import { Badge, Button, ErrorMessage, Loading, Switch } from '../ui.tsx';
 
@@ -29,6 +30,7 @@ export function MenusTab(props: MenusTabProps) {
   const allMenus = menus.status === 'success' ? menus.data : [];
   const fixedMenus = useMemo(() => allMenus.filter((m) => fixed.has(m.name)), [allMenus, fixed]);
   const aiNames = useMemo(() => new Set(aiSelection?.menus.map((m) => m.name)), [aiSelection]);
+  const secondFloorCount = useMemo(() => allMenus.filter(isSecondFloorOnly).length, [allMenus]);
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return q ? allMenus.filter((m) => m.name.toLowerCase().includes(q)) : allMenus;
@@ -80,7 +82,7 @@ export function MenusTab(props: MenusTabProps) {
       </div>
 
       <p className="text-xs text-fg-muted">
-        {allMenus.length}品 ・ 固定 {fixed.size} ・ 除外 {excluded.size}
+        {allMenus.length}品{secondFloorCount > 0 && `（うち 2F のみ ${secondFloorCount}品）`} ・ 固定 {fixed.size} ・ 除外 {excluded.size}
         <span className="block">メニューを押すと最適化の候補から外します（もう一度押すと戻します）。必ず入れたいものはスイッチで固定します。</span>
       </p>
 
@@ -133,6 +135,7 @@ function MenuRow({ menu, isFixed, isExcluded, isAI, onPress, onFixedChange }: Me
       >
         <span className="mb-1 flex flex-wrap items-center gap-1.5">
           <span className={`font-medium ${isExcluded ? 'text-fg-muted line-through' : ''}`}>{menu.name}</span>
+          <FloorBadge menu={menu} />
           {isFixed && (
             <Badge tone="accent" icon={Pin}>
               固定
